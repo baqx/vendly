@@ -20,6 +20,11 @@ Vendly is a comprehensive platform designed to empower vendors of all types—fr
 
 ### 4. Smart Transactional Capabilities
 - **Campaign-Led Negotiation:** To ensure speed and vendor control, vendors can pre-define **Coupon Codes** and **Voucher Campaigns** on the dashboard. The AI is authorized to offer these codes autonomously during a conversation if the customer asks for a discount and meets the vendor's criteria (e.g., "First-time buyer discount").
+Vendly AI: "Welcome! 🌸 We have a few options that fit that vibe perfectly. I'd recommend our 'Aurelia Chiffon Maxi' in Pastel Floral or the 'Summer Breeze' wrap dress. Would you like to see photos of those?"
+
+Customer: "Yes, send the Aurelia one. Is it available in UK 14?"
+
+Vendly AI: "Checking stock... Yes, we have the Aurelia in UK 14! It’s a great fit for garden events. It goes for ₦25,000. Should I set aside one for you?"
 - **Secure Payment Integration:** Generation of Interswitch payment links for card payments and bank transfers.
 - **FastTrack Logistics:** Option to flag urgent orders for "Instant Dispatch" with additional express fees.
 
