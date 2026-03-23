@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+prisma
+pydantic[email]
+python-jose[cryptography]
+passlib
+python-multipart
+httpx
+python-dotenv
+websockets

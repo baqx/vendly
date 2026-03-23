@@ -48,9 +48,18 @@ This document outlines the visual identity and design system for Vendly, focusin
 - **Lucide Iconography:** Use a consistent stroke width of `1.5px` for all Lucide icons.
 - **Glassmorphism:** Subtle use of backdrop-blur on navigation sidebars in Dark Mode.
 
-## 4. Brand Symbols
-- **Logo:** Minimalist "V" with a digital pulse or a stylized "slash" representing the "Employee as a Service" interface.
-- **Icons:** Use Lucide or Radix Icons (Thin stroke width: `1.5px`).
+## 4. Brand Symbols & Assets
+
+Vendly utilizes a set of coherent logo assets stored in `/public/images/`:
+
+- **Primary Logo (`logo.png`):** Standard brand icon for Light Mode (e.g., Favicon, small headers).
+- **Light Logo (`logo-white.png`):** Used on dark backgrounds or in Dark Mode.
+- **Combined Logo (`logo-text.png`):** Logo + "Vendly" text, used for main navigation in Light Mode and landing pages.
+- **Combined Light Logo (`logo-text-white.png`):** Logo + "Vendly" text for Dark Mode navigation.
+
+### Implementation
+- **Dynamic Logo Component:** Use a `Logo` component that automatically switches between `logo.png` and `logo-white.png` based on the system theme.
+- **Icons:** Use **Lucide Icons** (1.5px stroke) for all functional UI elements. **Strictly no emojis.**
 
 ---
 
