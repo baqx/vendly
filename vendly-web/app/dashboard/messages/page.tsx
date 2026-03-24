@@ -158,13 +158,13 @@ export default function MessagesPage() {
 
   return (
     // Messages page uses a full-height 3-column layout; we escape the parent padding
-    <div className="flex h-[calc(100vh-72px)] -m-6 lg:-m-8 overflow-hidden rounded-2xl border border-border/30">
+    <div className="flex h-[calc(100vh-72px)] -m-6 lg:-m-8 overflow-hidden rounded-[4px] border border-border/30">
 
       {/* ── Column 1: Inbox List ── */}
       <div className="w-[280px] lg:w-[300px] shrink-0 border-r border-border/40 bg-card flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-border/30">
           <h2 className="text-base font-black text-foreground">Inbox</h2>
-          <span className="bg-green-700 text-white text-[10px] font-black px-2.5 py-1 rounded-full tracking-wide">
+          <span className="bg-green-700 text-white text-[10px] font-black px-2.5 py-1 rounded-[4px] tracking-wide">
             12 New
           </span>
         </div>
@@ -188,8 +188,8 @@ export default function MessagesPage() {
                   <span className="text-[10px] text-muted-foreground font-medium shrink-0 ml-2">{conv.time}</span>
                 </div>
                 <p className="text-xs text-muted-foreground font-medium mb-2 line-clamp-1">{conv.preview}</p>
-                <span className={`inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-widest ${s.pill}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${s.dot}`} />
+                <span className={`inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-1 rounded-[4px] uppercase tracking-widest ${s.pill}`}>
+                  <span className={`w-1.5 h-1.5 rounded-[4px] shrink-0 ${s.dot}`} />
                   {conv.status === "Resolved" ? (
                     <><CircleCheck size={10} /> {s.label}</>
                   ) : s.label}
@@ -205,13 +205,13 @@ export default function MessagesPage() {
         {/* Chat Header */}
         <div className="flex items-center justify-between p-4 lg:p-5 border-b border-border/30 bg-card shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-300 font-black text-sm flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-[8px] bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-300 font-black text-sm flex items-center justify-center shrink-0">
               {selected.avatar}
             </div>
             <div>
               <p className="text-sm font-extrabold text-foreground leading-tight">{selected.name}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_STYLES[selected.status].dot}`} />
+                <span className={`w-1.5 h-1.5 rounded-[8px] shrink-0 ${STATUS_STYLES[selected.status].dot}`} />
                 <span className="text-[10px] font-bold text-muted-foreground">
                   {takenOver ? "Human Active" : selected.status}
                 </span>
@@ -220,7 +220,7 @@ export default function MessagesPage() {
           </div>
           <button
             onClick={handleTakeOver}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-extrabold transition-all shadow-sm active:scale-95 ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-[8px] text-sm font-extrabold transition-all shadow-none active:scale-95 ${
               takenOver
                 ? "bg-muted text-foreground border border-border"
                 : "bg-green-700 hover:bg-green-800 text-white shadow-green-700/20"
@@ -237,7 +237,7 @@ export default function MessagesPage() {
             if (msg.sender === "customer") {
               return (
                 <div key={msg.id} className="flex flex-col items-start gap-1 max-w-[70%]">
-                  <div className="bg-card border border-border/50 rounded-3xl rounded-tl-lg px-5 py-4 text-sm font-medium text-foreground shadow-sm leading-relaxed">
+                  <div className="bg-card border border-border/50 rounded-[8px] px-5 py-4 text-sm font-medium text-foreground shadow-minimal leading-relaxed">
                     {msg.text}
                   </div>
                   <span className="text-[10px] text-muted-foreground font-medium px-1">{msg.time}</span>
@@ -313,7 +313,7 @@ export default function MessagesPage() {
             <button
               onClick={handleSend}
               disabled={!input.trim()}
-              className="w-9 h-9 bg-green-700 hover:bg-green-800 text-white rounded-xl flex items-center justify-center transition-all shadow-md shadow-green-700/20 active:scale-95 disabled:opacity-50 shrink-0"
+              className="w-9 h-9 bg-green-700 hover:bg-green-800 text-white rounded-[8px] flex items-center justify-center transition-all shadow-md shadow-green-700/20 active:scale-95 disabled:opacity-50 shrink-0"
             >
               <Send size={16} />
             </button>
@@ -337,8 +337,8 @@ export default function MessagesPage() {
             <div className="bg-muted/20 border border-border/50 rounded-2xl p-4">
               <p className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-widest mb-2">AI Autonomy</p>
               <p className="text-3xl font-black text-foreground mb-2">92%</p>
-              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-green-600 rounded-full" style={{ width: "92%" }} />
+              <div className="w-full h-1.5 bg-muted rounded-[8px] overflow-hidden mb-2">
+                <div className="h-full bg-green-600 rounded-[8px]" style={{ width: "92%" }} />
               </div>
               <p className="text-[10px] font-medium text-muted-foreground leading-snug">
                 92% of queries resolved without human intervention.
@@ -354,7 +354,7 @@ export default function MessagesPage() {
           </h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-[8px] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
                 <MapPin size={14} />
               </div>
               <div>
@@ -363,7 +363,7 @@ export default function MessagesPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-[8px] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
                 <Wallet size={14} />
               </div>
               <div>
@@ -378,14 +378,14 @@ export default function MessagesPage() {
         <div className="p-5 space-y-3">
           <button
             onClick={() => toast.info("Opening order history...")}
-            className="w-full py-3 rounded-xl bg-muted/40 hover:bg-muted border border-border/50 text-sm font-bold text-foreground transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-[8px] bg-muted/40 hover:bg-muted border border-border/50 text-sm font-bold text-foreground transition-colors flex items-center justify-center gap-2"
           >
             <ShoppingBag size={15} />
             View Order History
           </button>
           <button
             onClick={() => toast.info("Add Customer Tag")}
-            className="w-full py-3 rounded-xl bg-muted/40 hover:bg-muted border border-border/50 text-sm font-bold text-foreground transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-[8px] bg-muted/40 hover:bg-muted border border-border/50 text-sm font-bold text-foreground transition-colors flex items-center justify-center gap-2"
           >
             <Tag size={15} />
             Add Customer Tag

@@ -41,7 +41,7 @@ export default function LandingPage() {
             </Link>
             <Link 
               href="/onboarding" 
-              className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-secondary transition-all shadow-xl shadow-primary/20 active:scale-95"
+              className="bg-primary text-white px-5 py-2.5 rounded-[8px] text-sm font-bold hover:bg-secondary transition-all active:scale-95"
             >
               Get Started
             </Link>
@@ -65,7 +65,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-5 justify-center">
               <Link 
                 href="/onboarding" 
-                className="bg-primary text-white px-10 py-5 rounded-xl text-lg font-bold hover:bg-secondary transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-3 group active:scale-95"
+                className="bg-primary text-white px-10 py-5 rounded-[8px] text-lg font-bold hover:bg-secondary transition-all flex items-center justify-center gap-3 group active:scale-95"
               >
                 Start Transacting 
                 <ArrowRight size={22} className="group-hover:translate-x-1.5 transition-transform" />
@@ -75,7 +75,7 @@ export default function LandingPage() {
             <div className="flex flex-col items-center gap-6 pt-12">
               <div className="flex -space-x-3">
                 {[1,2,3,4].map(i => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-muted flex items-center justify-center overflow-hidden">
+                  <div key={i} className="w-10 h-10 rounded-[8px] border-2 border-background bg-muted flex items-center justify-center overflow-hidden">
                     <img src={`https://i.pravatar.cc/40?u=${i}`} alt="user" />
                   </div>
                 ))}
@@ -105,9 +105,9 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border/40 rounded-xl overflow-hidden border border-border/40 transition-all">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border/40 rounded-[8px] overflow-hidden border border-border/40 transition-all">
               <div className="bg-card p-10 space-y-8 hover:bg-muted/50 transition-colors">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+                <div className="w-12 h-12 rounded-[8px] bg-primary/10 flex items-center justify-center text-primary">
                   <Bot size={26} />
                 </div>
                 <div className="space-y-3">
@@ -119,7 +119,7 @@ export default function LandingPage() {
               </div>
               
               <div className="bg-card p-10 space-y-8 hover:bg-muted/50 transition-colors">
-                <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 shadow-inner">
+                <div className="w-12 h-12 rounded-[8px] bg-blue-500/10 flex items-center justify-center text-blue-500">
                   <Zap size={26} />
                 </div>
                 <div className="space-y-3">
@@ -131,7 +131,7 @@ export default function LandingPage() {
               </div>
 
               <div className="bg-card p-10 space-y-8 hover:bg-muted/50 transition-colors">
-                <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500 shadow-inner">
+                <div className="w-12 h-12 rounded-[8px] bg-purple-500/10 flex items-center justify-center text-purple-500">
                   <BarChart3 size={26} />
                 </div>
                 <div className="space-y-3">
@@ -153,11 +153,11 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link 
                 href="/onboarding" 
-                className="bg-primary text-white px-10 py-5 rounded-xl text-lg font-bold hover:bg-secondary transition-all shadow-lg shadow-primary/20 active:scale-95 w-full sm:w-auto text-center"
+                className="bg-primary textbg-white dark:bg-card p-8 rounded-[8px] border border-border/50 shadow-minimal flex flex-col items-start text-left transition-all hover:bg-muted/5 groupll sm:w-auto text-center"
               >
                 Launch your Bot
               </Link>
-              <button className="px-10 py-5 rounded-xl text-lg font-bold border border-border hover:bg-muted transition-all w-full sm:w-auto">
+              <button className="px-10 py-5 rounded-[8px] text-lg font-bold border border-border hover:bg-muted transition-all w-full sm:w-auto">
                 Talk to Sales
               </button>
             </div>

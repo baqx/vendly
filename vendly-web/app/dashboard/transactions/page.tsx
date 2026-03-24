@@ -14,7 +14,7 @@ export default function TransactionsPage() {
     <div className="space-y-8">
       {/* Wallet Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 bg-primary rounded-3xl p-8 text-white flex flex-col justify-between shadow-2xl relative overflow-hidden group">
+        <div className="md:col-span-2 bg-primary rounded-[8px] p-8 text-white flex flex-col justify-between relative overflow-hidden group border border-primary-foreground/10">
           <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:scale-110 transition-transform">
             <Wallet size={120} />
           </div>
@@ -23,25 +23,25 @@ export default function TransactionsPage() {
             <p className="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Total Balance</p>
             <h2 className="text-5xl font-black tracking-tighter">₦4.2M</h2>
             <div className="flex items-center gap-4 mt-8">
-              <button className="bg-white text-primary px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-secondary hover:text-white transition-all">
+              <button className="bg-white text-primary px-6 py-3 rounded-[8px] font-bold text-sm hover:bg-secondary hover:text-white transition-all">
                 Request Payout
               </button>
-              <button className="bg-white/20 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-white/30 transition-all border border-white/10">
+              <button className="bg-white/20 text-white px-6 py-3 rounded-[8px] font-bold text-sm hover:bg-white/30 transition-all border border-white/10">
                 Wallet Settings
               </button>
             </div>
           </div>
         </div>
 
-        <div className="bg-card rounded-3xl border border-border p-6 shadow-sm flex flex-col justify-between">
+        <div className="bg-card rounded-[8px] border border-border p-6 flex flex-col justify-between">
           <div>
-            <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center text-primary mb-4 border border-border">
+            <div className="w-12 h-12 bg-muted rounded-[8px] flex items-center justify-center text-primary mb-4 border border-border">
               <CreditCard size={28} />
             </div>
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Available for Payout</p>
             <h3 className="text-3xl font-black mt-1">₦850,000</h3>
           </div>
-          <p className="text-[10px] text-muted-foreground font-medium bg-muted p-2 rounded-lg mt-4 border border-border italic text-center">
+          <p className="text-[10px] text-muted-foreground font-medium bg-muted p-2 rounded-[8px] mt-4 border border-border italic text-center">
             Next settlement scheduled for Monday at 12:00 AM
           </p>
         </div>
@@ -52,21 +52,21 @@ export default function TransactionsPage() {
         <div className="flex items-center justify-between">
           <h3 className="text-2xl font-extrabold tracking-tight">Recent Activity</h3>
           <div className="flex gap-2">
-            <button className="p-2 border border-border rounded-lg bg-card hover:bg-muted transition-all text-foreground">
+            <button className="p-2 border border-border rounded-[8px] bg-card hover:bg-muted transition-all text-foreground">
               <Download size={18} />
             </button>
-            <button className="p-2 border border-border rounded-lg bg-card hover:bg-muted transition-all text-foreground">
+            <button className="p-2 border border-border rounded-[8px] bg-card hover:bg-muted transition-all text-foreground">
               <Filter size={18} />
             </button>
           </div>
         </div>
 
-        <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="bg-card rounded-[8px] border border-border shadow-none overflow-hidden">
           <div className="divide-y divide-border">
             {transactions.map((tx) => (
               <div key={tx.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-muted/30 transition-colors group cursor-pointer">
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center border border-border shadow-sm ${
+                  <div className={`w-12 h-12 rounded-[8px] flex items-center justify-center border border-border ${
                     tx.amount.startsWith("+") ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
                   }`}>
                     {tx.amount.startsWith("+") ? <ArrowDownLeft size={24} /> : <ArrowUpRight size={24} />}
@@ -88,7 +88,7 @@ export default function TransactionsPage() {
                   }`}>
                     {tx.amount}
                   </p>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border mt-1 ${
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-[8px] uppercase border mt-1 ${
                     tx.status === "Settled" ? "bg-green-50 text-green-600 border-green-100" : "bg-orange-50 text-orange-600 border-orange-100"
                   }`}>
                     {tx.status}

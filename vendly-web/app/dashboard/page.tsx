@@ -42,7 +42,7 @@ export default function DashboardHome() {
       {/* Floating + → Add New Product */}
       <Link
         href="/dashboard/inventory/add"
-        className="fixed bottom-8 right-8 w-14 h-14 bg-green-700 hover:bg-green-800 text-white rounded-full flex items-center justify-center shadow-xl shadow-green-700/20 transition-transform hover:scale-105 z-50"
+        className="fixed bottom-8 right-8 w-14 h-14 bg-green-700 hover:bg-green-800 text-white rounded-[8px] flex items-center justify-center transition-transform hover:scale-105 z-50 border border-green-600"
         title="Add New Product"
       >
         <Plus size={28} />
@@ -51,10 +51,10 @@ export default function DashboardHome() {
       {/* Pending Tasks Modal */}
       {taskModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-card rounded-3xl p-8 max-w-md w-full shadow-2xl border border-border/50">
+          <div className="bg-white dark:bg-card rounded-[8px] p-8 max-w-md w-full border border-border/50">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-extrabold text-foreground">Pending Tasks</h2>
-              <button onClick={() => setTaskModal(false)} className="p-2 hover:bg-muted rounded-xl transition-colors text-muted-foreground">
+              <button onClick={() => setTaskModal(false)} className="p-2 hover:bg-muted rounded-[8px] transition-colors text-muted-foreground">
                 <X size={20} />
               </button>
             </div>
@@ -66,13 +66,13 @@ export default function DashboardHome() {
                 { label: "Review flagged product listing", urgent: false },
                 { label: "Upload Q4 inventory report", urgent: false },
               ].map((t, i) => (
-                <div key={i} className={`flex items-center gap-3 p-3 rounded-xl border ${t.urgent ? "border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900/40" : "border-border/50 bg-muted/20"}`}>
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${t.urgent ? "bg-red-500" : "bg-muted-foreground/40"}`} />
+                <div key={i} className={`flex items-center gap-3 p-3 rounded-[8px] border ${t.urgent ? "border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900/40" : "border-border/50 bg-muted/20"}`}>
+                  <span className={`w-2 h-2 rounded-[8px] shrink-0 ${t.urgent ? "bg-red-500" : "bg-muted-foreground/40"}`} />
                   <span className={`text-sm font-bold ${t.urgent ? "text-red-700 dark:text-red-400" : "text-foreground"}`}>{t.label}</span>
                 </div>
               ))}
             </div>
-            <button onClick={() => setTaskModal(false)} className="mt-6 w-full py-3 rounded-xl bg-green-700 text-white font-bold hover:bg-green-800 transition-colors">
+            <button onClick={() => setTaskModal(false)} className="mt-6 w-full py-3 rounded-[8px] bg-green-700 text-white font-bold hover:bg-green-800 transition-colors">
               Got it
             </button>
           </div>
@@ -83,7 +83,7 @@ export default function DashboardHome() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
         {/* Total Revenue */}
-        <Link href="/dashboard/analytics" className="bg-white dark:bg-card p-6 rounded-2xl border border-border/50 shadow-sm flex flex-col justify-between h-full hover:shadow-md hover:-translate-y-0.5 transition-all group">
+        <Link href="/dashboard/analytics" className="bg-white dark:bg-card p-6 rounded-[8px] border border-border/50 shadow-minimal flex flex-col justify-between h-full hover:bg-muted/5 transition-all group">
           <p className="text-sm font-bold text-muted-foreground">Total Revenue</p>
           <div className="mt-2">
             <h3 className="text-4xl font-extrabold text-green-700 dark:text-green-500 tracking-tight">$12,450.00</h3>
@@ -95,28 +95,28 @@ export default function DashboardHome() {
         </Link>
 
         {/* Total Orders */}
-        <Link href="/dashboard/orders" className="bg-white dark:bg-card p-6 rounded-2xl border border-border/50 shadow-sm flex flex-col h-full bg-gradient-to-br from-white to-green-50/50 dark:from-card dark:to-green-950/10 hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <Link href="/dashboard/orders" className="bg-white dark:bg-card p-6 rounded-[8px] border border-border/50 shadow-minimal flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">TOTAL ORDERS</p>
           <h3 className="text-3xl font-extrabold mt-2 text-foreground">324</h3>
           <div className="mt-auto pt-6">
-            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-green-700 dark:bg-green-500 w-2/3 rounded-full" />
+            <div className="h-1.5 w-full bg-muted rounded-[8px] overflow-hidden">
+              <div className="h-full bg-green-700 dark:bg-green-500 w-2/3 rounded-[8px]" />
             </div>
           </div>
         </Link>
 
         {/* Active Customers */}
-        <Link href="/dashboard/customers" className="bg-white dark:bg-card p-6 rounded-2xl border border-border/50 shadow-sm flex flex-col h-full hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <Link href="/dashboard/customers" className="bg-white dark:bg-card p-6 rounded-[8px] border border-border/50 shadow-minimal flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ACTIVE CUSTOMERS</p>
           <h3 className="text-3xl font-extrabold mt-2 text-foreground">215</h3>
           <div className="mt-auto pt-6 flex items-center">
             <div className="flex -space-x-3">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-card bg-muted flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                <div key={i} className="w-8 h-8 rounded-[8px] border-2 border-white dark:border-card bg-muted flex items-center justify-center overflow-hidden shrink-0">
                   <Image src={`/images/avatar${i}.png`} width={32} height={32} alt={`User ${i}`} className="w-full h-full object-cover" />
                 </div>
               ))}
-              <div className="w-8 h-8 rounded-full border-2 border-white dark:border-card bg-muted flex items-center justify-center z-10 text-[10px] font-bold text-muted-foreground shrink-0 shadow-sm">
+              <div className="w-8 h-8 rounded-[8px] border-2 border-white dark:border-card bg-muted flex items-center justify-center z-10 text-[10px] font-bold text-muted-foreground shrink-0">
                 +211
               </div>
             </div>
@@ -126,12 +126,12 @@ export default function DashboardHome() {
         {/* Pending Tasks — opens modal */}
         <button
           onClick={() => setTaskModal(true)}
-          className="bg-white dark:bg-card p-6 rounded-2xl border border-border/50 shadow-sm flex flex-col h-full text-left hover:shadow-md hover:-translate-y-0.5 transition-all hover:border-red-200 dark:hover:border-red-900/50"
+          className="bg-white dark:bg-card p-6 rounded-[8px] border border-border/50 shadow-minimal flex flex-col h-full text-left hover:bg-muted/5 transition-all hover:border-red-200 dark:hover:border-red-900/50"
         >
           <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">PENDING TASKS</p>
           <h3 className="text-3xl font-extrabold mt-2 text-foreground">12</h3>
           <div className="mt-auto pt-6 flex items-center gap-1.5 text-[13px] font-bold text-red-500">
-            <span className="w-4 h-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-[10px] shrink-0">!</span>
+            <span className="w-4 h-4 rounded-[8px] bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-[10px] shrink-0">!</span>
             <span>Needs attention</span>
           </div>
         </button>
@@ -140,7 +140,7 @@ export default function DashboardHome() {
       {/* Middle Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Revenue Growth Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-card rounded-2xl border border-border/50 shadow-sm p-6 flex flex-col">
+        <div className="lg:col-span-2 bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 flex flex-col">
           <div className="flex items-start justify-between mb-8">
             <div>
               <h3 className="text-xl font-bold text-foreground">Revenue Growth</h3>
@@ -151,14 +151,14 @@ export default function DashboardHome() {
             <div className="relative">
               <button
                 onClick={() => setPeriodOpen(!periodOpen)}
-                className="flex items-center gap-2 text-xs font-bold bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-lg transition-colors border border-border/50"
+                className="flex items-center gap-2 text-xs font-bold bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-[8px] transition-colors border border-border/50"
               >
                 {period} <ChevronDown size={14} className={`transition-transform duration-200 ${periodOpen ? "rotate-180" : ""}`} />
               </button>
               {periodOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setPeriodOpen(false)} />
-                  <div className="absolute top-[calc(100%+6px)] right-0 bg-white dark:bg-card border border-border/60 rounded-xl shadow-xl overflow-hidden z-50 min-w-[160px]">
+                  <div className="absolute top-[calc(100%+6px)] right-0 bg-white dark:bg-card border border-border/60 rounded-[8px] overflow-hidden z-50 min-w-[160px]">
                     {PERIODS.map((p) => (
                       <button
                         key={p}
@@ -189,7 +189,7 @@ export default function DashboardHome() {
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="bg-foreground text-background text-xs font-bold px-3 py-2 rounded-md shadow-xl">
+                        <div className="bg-foreground text-background text-xs font-bold px-3 py-2 rounded-[8px]">
                           {payload[0].payload.name}: ${(payload[0].value as number).toLocaleString()}
                         </div>
                       );
@@ -197,7 +197,7 @@ export default function DashboardHome() {
                     return null;
                   }}
                 />
-                <Bar dataKey="revenue" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                <Bar dataKey="revenue" radius={[2, 2, 0, 0]} maxBarSize={60}>
                   {revenueData.map((_, index) => (
                     <Cell
                       key={`cell-${index}`}
@@ -212,7 +212,7 @@ export default function DashboardHome() {
         </div>
 
         {/* Orders by Category */}
-        <div className="bg-white dark:bg-card rounded-2xl border border-border/50 shadow-sm p-6 flex flex-col">
+        <div className="bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 flex flex-col">
           <div className="mb-6">
             <h3 className="text-xl font-bold text-foreground">Orders by Category</h3>
             <p className="text-sm text-muted-foreground font-medium mt-1">Sales volume by department</p>
@@ -229,14 +229,14 @@ export default function DashboardHome() {
                   <span className="text-sm font-bold text-foreground">{cat.name}</span>
                   <span className="text-xs font-bold text-muted-foreground">{cat.val}</span>
                 </div>
-                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full ${cat.w} ${cat.color}`} />
+                <div className="h-2 w-full bg-muted rounded-[8px] overflow-hidden">
+                  <div className={`h-full rounded-[8px] ${cat.w} ${cat.color}`} />
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 bg-green-50 dark:bg-green-950/30 rounded-xl p-4 border border-green-100 dark:border-green-900/50 flex gap-3">
+          <div className="mt-6 bg-green-50 dark:bg-green-950/30 rounded-[8px] p-4 border border-green-100 dark:border-green-900/50 flex gap-3">
             <div className="mt-0.5 text-green-600 dark:text-green-500 shrink-0">
               <Star size={18} className="fill-current" />
             </div>
@@ -253,7 +253,7 @@ export default function DashboardHome() {
       {/* Bottom Section */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Recent Orders */}
-        <div className="xl:col-span-2 bg-white dark:bg-card rounded-2xl border border-border/50 shadow-sm p-6 overflow-hidden flex flex-col">
+        <div className="xl:col-span-2 bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-foreground">Recent Orders</h3>
             <Link href="/dashboard/orders" className="text-sm font-bold text-green-600 dark:text-green-500 hover:text-green-700 transition-colors hover:underline">
@@ -284,7 +284,7 @@ export default function DashboardHome() {
                     <td className="py-4 px-2 text-sm font-bold text-foreground whitespace-nowrap">{row.customer}</td>
                     <td className="py-4 px-2 text-sm font-medium text-foreground max-w-[150px] truncate">{row.product}</td>
                     <td className="py-4 px-2">
-                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${row.statusColor}`}>
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-[8px] uppercase tracking-wider ${row.statusColor}`}>
                         {row.status}
                       </span>
                     </td>
@@ -298,7 +298,7 @@ export default function DashboardHome() {
         </div>
 
         {/* Top Sellers */}
-        <div className="bg-white dark:bg-card rounded-2xl border border-border/50 shadow-sm p-6 flex flex-col">
+        <div className="bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 flex flex-col">
           <h3 className="text-xl font-bold text-foreground mb-6">Top Sellers</h3>
           <div className="space-y-5 flex-1">
             {[
@@ -307,8 +307,8 @@ export default function DashboardHome() {
               { name: "Ceramic Earth Vase", meta: "DECOR • 76 SALES", amount: "$1,520", bg: "bg-stone-200", img: "/images/vase.png" },
               { name: "Premium Mangoes", meta: "FRUIT • 64 SALES", amount: "$1,280", bg: "bg-yellow-100", img: "/images/mangoes.png" },
             ].map((item, i) => (
-              <Link key={i} href="/dashboard/inventory" className="flex items-center gap-4 hover:bg-muted/30 rounded-xl p-1.5 -mx-1.5 transition-colors group">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ${item.bg}`}>
+              <Link key={i} href="/dashboard/inventory" className="flex items-center gap-4 hover:bg-muted/30 rounded-[8px] p-1.5 -mx-1.5 transition-colors group">
+                <div className={`w-12 h-12 rounded-[8px] flex items-center justify-center shrink-0 overflow-hidden ${item.bg}`}>
                   <Image src={item.img} width={48} height={48} alt={item.name} className="w-full h-full object-cover mix-blend-multiply opacity-90" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -325,7 +325,7 @@ export default function DashboardHome() {
           {/* Inventory Report → routes to inventory page */}
           <Link
             href="/dashboard/inventory"
-            className="w-full mt-6 py-3 rounded-xl border border-border bg-muted/30 hover:bg-muted font-bold text-sm transition-colors text-foreground text-center block hover:border-green-700/30 dark:hover:border-green-700/30"
+            className="w-full mt-6 py-3 rounded-[8px] border border-border bg-muted/30 hover:bg-muted font-bold text-sm transition-colors text-foreground text-center block hover:border-green-700/30 dark:hover:border-green-700/30"
           >
             Inventory Report
           </Link>

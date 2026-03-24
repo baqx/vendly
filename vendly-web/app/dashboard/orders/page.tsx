@@ -65,11 +65,11 @@ export default function OrdersPage() {
           <p className="text-muted-foreground font-medium mt-2">Track and fulfill your customer requests across the ecosystem.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={handleExport} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-bold transition-all text-sm border border-border/50 shadow-sm active:scale-95">
+          <button onClick={handleExport} className="flex items-center gap-2 px-5 py-3 rounded-[4px] bg-muted/50 hover:bg-muted text-foreground font-bold transition-all text-sm border border-border/50 active:scale-95">
             <Download size={16} />
             <span>Export CSV</span>
           </button>
-          <Link href="/dashboard/orders/add" className="bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-700/20 hover:scale-105 active:scale-95 text-sm">
+          <Link href="/dashboard/orders/add" className="bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-[4px] font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 text-sm">
             <Plus size={18} />
             <span>New Manual Order</span>
           </Link>
@@ -79,7 +79,7 @@ export default function OrdersPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Orders */}
-        <div className="bg-white dark:bg-card p-6 rounded-[1.5rem] border border-border/50 shadow-sm flex flex-col h-full hover:shadow-md transition-all">
+        <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">TOTAL ORDERS</p>
           <h3 className="text-4xl font-extrabold mt-2 text-foreground">1,284</h3>
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-green-600 dark:text-green-400 mt-auto pt-4">
@@ -89,7 +89,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Pending Fulfillment */}
-        <div className="bg-white dark:bg-card p-6 rounded-[1.5rem] border border-border/50 shadow-sm flex flex-col h-full hover:shadow-md transition-all">
+        <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">PENDING FULFILLMENT</p>
           <h3 className="text-4xl font-extrabold mt-2 text-foreground">42</h3>
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
@@ -98,7 +98,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Average Order Value */}
-        <div className="bg-white dark:bg-card p-6 rounded-[1.5rem] border border-border/50 shadow-sm flex flex-col h-full hover:shadow-md transition-all">
+        <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">AVERAGE ORDER VALUE</p>
           <h3 className="text-4xl font-extrabold mt-2 text-foreground">$158.20</h3>
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-green-600 dark:text-green-400 mt-auto pt-4">
@@ -108,31 +108,31 @@ export default function OrdersPage() {
         </div>
 
         {/* Successful Delivery */}
-        <div className="bg-white dark:bg-card p-6 rounded-[1.5rem] border border-border/50 shadow-sm flex flex-col h-full hover:shadow-md transition-all">
+        <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">SUCCESSFUL DELIVERY</p>
           <h3 className="text-4xl font-extrabold mt-2 text-foreground">98.2%</h3>
           <div className="mt-auto pt-5">
-            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-green-700 dark:bg-green-500 w-[98.2%] rounded-full" />
+            <div className="h-1.5 w-full bg-muted rounded-[4px] overflow-hidden">
+              <div className="h-full bg-green-700 dark:bg-green-500 w-[98.2%] rounded-[4px]" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Orders Table Area */}
-      <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 shadow-minimal overflow-hidden flex flex-col">
         {/* Toolbar */}
         <div className="p-4 sm:p-6 lg:px-8 flex flex-col xl:flex-row xl:items-center justify-between gap-4 border-b border-border/50 bg-muted/10">
           
           {/* Tabs */}
-          <div className="flex items-center gap-1 bg-muted/40 p-1.5 rounded-2xl w-fit overflow-x-auto no-scrollbar border border-border/40">
+          <div className="flex items-center gap-1 bg-muted/40 p-1.5 rounded-[4px] w-fit overflow-x-auto no-scrollbar border border-border/40">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
-                className={`px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap ${
+                className={`px-5 py-2.5 rounded-[8px] text-xs font-extrabold transition-all whitespace-nowrap ${
                   activeTab === tab 
-                    ? "bg-white dark:bg-card text-green-700 dark:text-green-400 shadow-sm" 
+                    ? "bg-white dark:bg-card text-green-700 dark:text-green-400 shadow-none" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
@@ -146,13 +146,13 @@ export default function OrdersPage() {
             <div className="relative">
               <button 
                 onClick={() => setIsDateOpen(!isDateOpen)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-card border border-border/60 hover:bg-muted rounded-xl text-xs font-bold text-foreground transition-colors shadow-sm"
+                className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-card border border-border/60 hover:bg-muted rounded-[8px] text-xs font-bold text-foreground transition-colors shadow-none"
               >
                 <Calendar size={14} className="text-muted-foreground" />
                 <span>{selectedDateFilter}</span>
               </button>
               {isDateOpen && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-card border border-border/50 rounded-xl shadow-xl z-10 overflow-hidden">
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-card border border-border/50 rounded-[8px] shadow-xl z-10 overflow-hidden">
                   {["Today", "Yesterday", "Last 7 Days", "Oct 01 - Oct 31, 2023", "Custom Range..."].map((d) => (
                     <button key={d} onClick={() => { setSelectedDateFilter(d); setIsDateOpen(false); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition-colors">
                       {d}
@@ -165,12 +165,12 @@ export default function OrdersPage() {
             <div className="relative">
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`flex items-center justify-center w-10 h-10 hover:bg-muted border border-border/40 hover:border-border/60 rounded-xl text-foreground transition-colors ${isFilterOpen ? "bg-muted" : "bg-muted/40"}`}
+                className={`flex items-center justify-center w-10 h-10 hover:bg-muted border border-border/40 hover:border-border/60 rounded-[8px] text-foreground transition-colors ${isFilterOpen ? "bg-muted" : "bg-muted/40"}`}
               >
                 <Filter size={16} className="text-muted-foreground" />
               </button>
               {isFilterOpen && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-card border border-border/50 rounded-xl shadow-xl z-10 p-4">
+                <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-card border border-border/50 rounded-[8px] shadow-xl z-10 p-4">
                   <p className="text-xs font-extrabold text-foreground mb-3">Filter by</p>
                   <div className="space-y-3">
                     <label className="flex items-center gap-2 cursor-pointer">
@@ -217,7 +217,7 @@ export default function OrdersPage() {
                   
                   <td className="py-5 px-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center font-extrabold text-[12px] shrink-0">
+                      <div className="w-9 h-9 rounded-[8px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center font-extrabold text-[12px] shrink-0">
                         {order.avatar}
                       </div>
                       <div className="flex flex-col">
@@ -235,7 +235,7 @@ export default function OrdersPage() {
                   </td>
 
                   <td className="py-5 px-6">
-                    <span className={`text-[9px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider ${order.statusColor}`}>
+                    <span className={`text-[9px] font-extrabold px-3 py-1.5 rounded-[8px] uppercase tracking-wider ${order.statusColor}`}>
                       {order.status}
                     </span>
                   </td>
@@ -330,7 +330,7 @@ export default function OrdersPage() {
           {/* Logistics Status */}
           <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 flex flex-col h-full hover:shadow-md transition-all">
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-[8px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
               </div>
               <div>
@@ -343,7 +343,7 @@ export default function OrdersPage() {
               <div className="absolute top-1 bottom-6 left-5 border-l-2 border-dashed border-border/60" />
               
               <div className="relative flex gap-4 mb-6">
-                <div className="w-4 h-4 rounded-full bg-green-600 dark:bg-green-500 shrink-0 z-10 flex items-center justify-center mt-0.5 ring-4 ring-white dark:ring-card">
+                <div className="w-4 h-4 rounded-[8px] bg-green-600 dark:bg-green-500 shrink-0 z-10 flex items-center justify-center mt-0.5 ring-4 ring-white dark:ring-card">
                   <CheckCircle2 size={10} className="text-white relative top-[0.5px]" />
                 </div>
                 <div>
@@ -353,7 +353,7 @@ export default function OrdersPage() {
               </div>
 
               <div className="relative flex gap-4 mb-6">
-                <div className="w-4 h-4 rounded-full bg-green-600 dark:bg-green-500 shrink-0 z-10 flex items-center justify-center mt-0.5 ring-4 ring-white dark:ring-card">
+                <div className="w-4 h-4 rounded-[8px] bg-green-600 dark:bg-green-500 shrink-0 z-10 flex items-center justify-center mt-0.5 ring-4 ring-white dark:ring-card">
                   <CheckCircle2 size={10} className="text-white relative top-[0.5px]" />
                 </div>
                 <div>
@@ -363,7 +363,7 @@ export default function OrdersPage() {
               </div>
 
               <div className="relative flex gap-4 opacity-50">
-                <div className="w-4 h-4 rounded-full bg-muted-foreground/30 shrink-0 z-10 mt-0.5 ring-4 ring-white dark:ring-card" />
+                <div className="w-4 h-4 rounded-[8px] bg-muted-foreground/30 shrink-0 z-10 mt-0.5 ring-4 ring-white dark:ring-card" />
                 <div>
                   <h4 className="text-sm font-bold text-muted-foreground">Arrived at Distribution Hub</h4>
                   <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mt-1">OCT 23, 11:15 PM</p>

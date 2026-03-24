@@ -78,7 +78,7 @@ export default function OrderDetailsPage() {
 
           <div className="flex items-center gap-4">
             <h1 className="text-4xl font-black text-foreground">{order.id}</h1>
-            <span className={`font-extrabold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full mt-1 ${order.statusColor}`}>
+            <span className={`font-extrabold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-[8px] mt-1 ${order.statusColor}`}>
               {order.status}
             </span>
           </div>
@@ -86,15 +86,15 @@ export default function OrderDetailsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-bold transition-all text-sm border border-border/50 shadow-sm active:scale-95">
+          <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-3 rounded-[8px] bg-muted/50 hover:bg-muted text-foreground font-bold transition-all text-sm border border-border/50 active:scale-95">
             <Printer size={16} />
             <span className="hidden sm:inline">Print Invoice</span>
           </button>
-          <button onClick={handleRefund} disabled={isRefunding} className={`flex items-center gap-2 px-5 py-3 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-bold transition-all text-sm border border-border/50 shadow-sm active:scale-95 ${isRefunding ? "opacity-50 cursor-not-allowed" : ""}`}>
+          <button onClick={handleRefund} disabled={isRefunding} className={`flex items-center gap-2 px-5 py-3 rounded-[8px] bg-muted/50 hover:bg-muted text-foreground font-bold transition-all text-sm border border-border/50 active:scale-95 ${isRefunding ? "opacity-50 cursor-not-allowed" : ""}`}>
             <RotateCcw size={16} className={isRefunding ? "animate-spin" : ""} />
             <span className="hidden sm:inline">{isRefunding ? "Processing..." : "Refund Order"}</span>
           </button>
-          <button onClick={handleUpdateStatus} className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-700/20 hover:scale-105 active:scale-95 text-sm">
+          <button onClick={handleUpdateStatus} className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-[8px] font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 text-sm">
             <span>Update Status</span>
           </button>
         </div>
@@ -107,18 +107,18 @@ export default function OrderDetailsPage() {
         <div className="xl:col-span-2 space-y-6">
           
           {/* Order Timeline */}
-          <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-sm p-6 lg:px-10">
+          <div className="bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 lg:px-10">
             <h2 className="text-lg font-extrabold text-foreground mb-8">Order Timeline</h2>
             
             <div className="relative flex items-center justify-between mx-auto max-w-4xl px-4 sm:px-10">
               {/* Progress Line */}
-              <div className="absolute left-6 top-5 right-6 h-1.5 bg-muted rounded-full">
-                <div className={`h-full bg-green-600 dark:bg-green-500 rounded-full transition-all duration-1000`} style={{ width: progressWidth }} />
+              <div className="absolute left-6 top-5 right-6 h-1.5 bg-muted rounded-[8px]">
+                <div className={`h-full bg-green-600 dark:bg-green-500 rounded-[8px] transition-all duration-1000`} style={{ width: progressWidth }} />
               </div>
 
               {/* Step 1: Placed */}
               <div className="relative flex flex-col items-center gap-3 z-10 w-28">
-                <div className={`w-11 h-11 rounded-full text-white flex items-center justify-center shadow-md ring-4 ring-white dark:ring-card transition-colors ${"bg-green-600 dark:bg-green-500"}`}>
+                <div className={`w-11 h-11 rounded-[8px] text-white flex items-center justify-center ring-4 ring-white dark:ring-card transition-colors ${"bg-green-600 dark:bg-green-500"}`}>
                   <Check className="w-5 h-5 stroke-[3]" />
                 </div>
                 <div className="text-center absolute top-14 w-full">
@@ -129,7 +129,7 @@ export default function OrderDetailsPage() {
 
               {/* Step 2: Paid */}
               <div className={`relative flex flex-col items-center gap-3 z-10 w-28 ${isPaid ? "" : "opacity-50 grayscale"}`}>
-                <div className={`w-11 h-11 rounded-full flex items-center justify-center ring-4 ring-white dark:ring-card ${isPaid ? "bg-green-600 dark:bg-green-500 text-white shadow-md" : "bg-muted text-muted-foreground border border-border/50"}`}>
+                <div className={`w-11 h-11 rounded-[8px] flex items-center justify-center ring-4 ring-white dark:ring-card ${isPaid ? "bg-green-600 dark:bg-green-500 text-white" : "bg-muted text-muted-foreground border border-border/50"}`}>
                   <Check className="w-5 h-5 stroke-[3]" />
                 </div>
                 <div className="text-center absolute top-14 w-full">
@@ -140,7 +140,7 @@ export default function OrderDetailsPage() {
 
               {/* Step 3: Shipped */}
               <div className={`relative flex flex-col items-center gap-3 z-10 w-28 ${isShipped ? "" : "opacity-50 grayscale"}`}>
-                <div className={`w-11 h-11 rounded-full flex items-center justify-center ring-4 ring-white dark:ring-card ${isShipped ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 shadow-md" : "bg-muted text-muted-foreground border border-border/50"}`}>
+                <div className={`w-11 h-11 rounded-[8px] flex items-center justify-center ring-4 ring-white dark:ring-card ${isShipped ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500" : "bg-muted text-muted-foreground border border-border/50"}`}>
                   <Truck className={`w-5 h-5 ${isShipped ? "stroke-[2.5]" : "stroke-[2]"}`} />
                 </div>
                 <div className="text-center absolute top-14 w-full">
@@ -151,7 +151,7 @@ export default function OrderDetailsPage() {
 
               {/* Step 4: Delivered */}
               <div className={`relative flex flex-col items-center gap-3 z-10 w-28 ${isDelivered ? "" : "opacity-50 grayscale"}`}>
-                <div className={`w-11 h-11 rounded-full flex items-center justify-center ring-4 ring-white dark:ring-card ${isDelivered ? "bg-green-600 dark:bg-green-500 text-white shadow-md" : "bg-muted text-muted-foreground border border-border/50"}`}>
+                <div className={`w-11 h-11 rounded-[8px] flex items-center justify-center ring-4 ring-white dark:ring-card ${isDelivered ? "bg-green-600 dark:bg-green-500 text-white" : "bg-muted text-muted-foreground border border-border/50"}`}>
                   <Package className={`w-5 h-5 ${isDelivered ? "stroke-[2.5]" : "stroke-[2]"}`} />
                 </div>
                 <div className="text-center absolute top-14 w-full">
@@ -166,13 +166,13 @@ export default function OrderDetailsPage() {
           </div>
 
           {/* Ordered Items */}
-          <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8">
+          <div className="bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 lg:p-8">
             <h2 className="text-xl font-extrabold text-foreground mb-6">Ordered Items (3)</h2>
             <div className="space-y-6">
                 {/* Item 1 */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 group pb-6 border-b border-border/40">
-                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 bg-slate-50 dark:bg-slate-900/50`}>
-                    <Image src="/images/shoes.png" width={80} height={80} alt="Velocity X1 Run Sneakers" className="object-cover drop-shadow-lg group-hover:scale-110 transition-transform duration-500 mix-blend-normal" />
+                  <div className={`w-20 h-20 rounded-[8px] flex items-center justify-center overflow-hidden shrink-0 bg-slate-50 dark:bg-slate-900/50 border border-border/40`}>
+                    <Image src="/images/shoes.png" width={80} height={80} alt="Velocity X1 Run Sneakers" className="object-cover group-hover:scale-110 transition-transform duration-500 mix-blend-normal" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-extrabold text-foreground truncate">Velocity X1 Run Sneakers</h4>
@@ -188,8 +188,8 @@ export default function OrderDetailsPage() {
 
                 {/* Item 2 */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 group pb-6 border-b border-border/40">
-                  <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 bg-slate-800`}>
-                    <Image src="/images/shoes.png" width={80} height={80} alt="Heritage Leather Watch" className="object-cover drop-shadow-lg group-hover:scale-110 transition-transform duration-500 opacity-0" />
+                  <div className={`relative w-20 h-20 rounded-[8px] flex items-center justify-center overflow-hidden shrink-0 bg-slate-800 border border-border/40`}>
+                    <Image src="/images/shoes.png" width={80} height={80} alt="Heritage Leather Watch" className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-0" />
                     {/* Fallback emoji */}
                     <div className="absolute inset-0 flex items-center justify-center text-white/50 text-2xl">⌚</div>
                   </div>
@@ -207,8 +207,8 @@ export default function OrderDetailsPage() {
 
                 {/* Item 3 */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 group">
-                  <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 bg-slate-900`}>
-                    <Image src="/images/shoes.png" width={80} height={80} alt="Verdant Pro Headphones" className="object-cover drop-shadow-lg group-hover:scale-110 transition-transform duration-500 opacity-0" />
+                  <div className={`relative w-20 h-20 rounded-[8px] flex items-center justify-center overflow-hidden shrink-0 bg-slate-900 border border-border/40`}>
+                    <Image src="/images/shoes.png" width={80} height={80} alt="Verdant Pro Headphones" className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-0" />
                     {/* Fallback emoji */}
                     <div className="absolute inset-0 flex items-center justify-center text-white/50 text-2xl">🎧</div>
                   </div>
@@ -227,10 +227,10 @@ export default function OrderDetailsPage() {
           </div>
 
           {/* Logistics & Tracking */}
-          <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 flex flex-col hover:shadow-md transition-all">
+          <div className="bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 lg:p-8 flex flex-col transition-all">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-extrabold text-foreground">Logistics & Tracking</h3>
-              <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-500 font-extrabold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-full">
+              <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-500 font-extrabold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-[8px]">
                 DHL Express
               </span>
             </div>
@@ -250,8 +250,8 @@ export default function OrderDetailsPage() {
               </div>
             </div>
 
-            <div className="bg-muted/30 p-4 rounded-2xl border border-border/40 flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-white dark:bg-card border border-border/50 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+            <div className="bg-muted/30 p-4 rounded-[8px] border border-border/40 flex items-start gap-4">
+              <div className="w-10 h-10 rounded-[8px] bg-white dark:bg-card border border-border/50 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0 mt-0.5">
                 <CheckCircle2 size={18} className="stroke-[2.5]" />
               </div>
               <div>
@@ -268,11 +268,11 @@ export default function OrderDetailsPage() {
         <div className="space-y-6">
           
           {/* Customer Details */}
-          <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 flex flex-col hover:shadow-md transition-all">
+          <div className="bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 lg:p-8 flex flex-col transition-all">
             <h3 className="text-lg font-extrabold text-foreground mb-6">Customer Details</h3>
             
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center font-black text-orange-700 text-lg overflow-hidden shrink-0 ring-1 ring-border/50 object-cover relative">
+              <div className="w-12 h-12 rounded-[8px] bg-orange-100 flex items-center justify-center font-black text-orange-700 text-lg overflow-hidden shrink-0 ring-1 ring-border/50 object-cover relative">
                 <Image src="/rahman.jpeg" fill className="object-cover" alt="Adebola Johnson" />
               </div>
               <div>
@@ -302,7 +302,7 @@ export default function OrderDetailsPage() {
           </div>
 
           {/* Address Information */}
-          <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 flex flex-col hover:shadow-md transition-all">
+          <div className="bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 lg:p-8 flex flex-col transition-all">
             <h3 className="text-lg font-extrabold text-foreground mb-6">Address Information</h3>
             
             <div className="mb-6 pb-6 border-b border-border/50">
@@ -332,7 +332,7 @@ export default function OrderDetailsPage() {
           </div>
           
           {/* Payment Summary */}
-          <div className="bg-[#f0fdf4] dark:bg-green-900/10 rounded-[2rem] border border-green-100 dark:border-green-900/30 shadow-sm p-6 lg:p-8 flex flex-col hover:shadow-md transition-all">
+          <div className="bg-[#f0fdf4] dark:bg-green-900/10 rounded-[8px] border border-green-100 dark:border-green-900/30 p-6 lg:p-8 flex flex-col transition-all">
             <h3 className="text-lg font-extrabold text-foreground mb-6">Payment Summary</h3>
             
             <div className="space-y-4 mb-6 pb-6 border-b border-green-200/50 dark:border-green-900/30">
@@ -361,7 +361,7 @@ export default function OrderDetailsPage() {
               </div>
             </div>
             
-            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-100/50 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded-xl border border-green-200/50 dark:border-green-900/30">
+            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-100/50 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded-[8px] border border-green-200/50 dark:border-green-900/30">
               <ShieldCheck size={16} />
               <span className="text-[10px] font-black uppercase tracking-widest">SECURED BY STRIPE</span>
             </div>

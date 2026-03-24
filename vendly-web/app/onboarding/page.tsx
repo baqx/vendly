@@ -42,7 +42,7 @@ export default function OnboardingPage() {
       {/* Navbar Placeholder */}
       <nav className="px-6 py-4 border-b border-border flex items-center justify-between bg-card/50 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-black text-xl">V</div>
+          <div className="w-8 h-8 bg-primary rounded-[8px] flex items-center justify-center text-white font-black text-xl">V</div>
           <span className="font-black text-xl tracking-tight text-primary">Vendly</span>
         </div>
         <div className="flex items-center gap-4 text-xs font-bold text-muted-foreground uppercase tracking-widest">
@@ -52,7 +52,7 @@ export default function OnboardingPage() {
 
       <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-12 flex flex-col">
         {/* Progress Bar */}
-        <div className="w-full h-1 bg-muted rounded-full mb-12 overflow-hidden">
+        <div className="w-full h-1 bg-muted rounded-[8px] mb-12 overflow-hidden">
           <div 
             className="h-full bg-primary transition-all duration-500 ease-out"
             style={{ width: `${(step / 4) * 100}%` }}
@@ -63,7 +63,7 @@ export default function OnboardingPage() {
           {step === 1 && (
             <div className="space-y-8">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black tracking-widest uppercase mb-2 border border-primary/20">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-[8px] bg-primary/10 text-primary text-[10px] font-black tracking-widest uppercase mb-2 border border-primary/20">
                    <Store size={14} />
                    <span>Phase 1: Identity</span>
                 </div>
@@ -78,7 +78,7 @@ export default function OnboardingPage() {
                     type="text" 
                     value={formData.storeName}
                     onChange={(e) => setFormData({...formData, storeName: e.target.value})}
-                    className="w-full px-4 py-4 rounded-xl border border-border bg-card font-medium outline-none focus:ring-2 focus:ring-primary/20 transition-all text-lg shadow-sm"
+                    className="w-full px-4 py-4 rounded-[8px] border border-border bg-card font-medium outline-none focus:ring-2 focus:ring-primary/20 transition-all text-lg"
                     placeholder="Enter store name"
                   />
                 </div>
@@ -88,7 +88,7 @@ export default function OnboardingPage() {
                     <select 
                       value={formData.category}
                       onChange={(e) => setFormData({...formData, category: e.target.value})}
-                      className="w-full px-4 py-4 rounded-xl border border-border bg-card font-medium outline-none focus:ring-2 focus:ring-primary/20 appearance-none shadow-sm"
+                      className="w-full px-4 py-4 rounded-[8px] border border-border bg-card font-medium outline-none focus:ring-2 focus:ring-primary/20 appearance-none"
                     >
                       <option>Fashion</option>
                       <option>Electronics</option>
@@ -103,7 +103,7 @@ export default function OnboardingPage() {
                       type="text" 
                       value={formData.location}
                       onChange={(e) => setFormData({...formData, location: e.target.value})}
-                      className="w-full px-4 py-4 rounded-xl border border-border bg-card font-medium outline-none focus:ring-2 focus:ring-primary/20 shadow-sm"
+                      className="w-full px-4 py-4 rounded-[8px] border border-border bg-card font-medium outline-none focus:ring-2 focus:ring-primary/20"
                       placeholder="e.g. Lagos, Nigeria"
                     />
                   </div>
@@ -115,7 +115,7 @@ export default function OnboardingPage() {
           {step === 2 && (
             <div className="space-y-8">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black tracking-widest uppercase mb-2 border border-primary/20">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-[8px] bg-primary/10 text-primary text-[10px] font-black tracking-widest uppercase mb-2 border border-primary/20">
                    <Bot size={14} />
                    <span>Phase 2: Personality</span>
                 </div>
@@ -129,7 +129,7 @@ export default function OnboardingPage() {
                     <button 
                       key={p}
                       onClick={() => setFormData({...formData, botPersonality: p})}
-                      className={`p-4 rounded-xl border-2 transition-all text-left space-y-1 ${
+                      className={`p-4 rounded-[8px] border-2 transition-all text-left space-y-1 ${
                         formData.botPersonality === p 
                         ? "border-primary bg-primary/5 ring-4 ring-primary/5" 
                         : "border-border bg-card hover:border-primary/50"
@@ -147,7 +147,7 @@ export default function OnboardingPage() {
                     rows={4}
                     value={formData.systemPrompt}
                     onChange={(e) => setFormData({...formData, systemPrompt: e.target.value})}
-                    className="w-full px-4 py-4 rounded-xl border border-border bg-card font-medium outline-none focus:ring-2 focus:ring-primary/20 resize-none shadow-sm"
+                    className="w-full px-4 py-4 rounded-[8px] border border-border bg-card font-medium outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                     placeholder="e.g. Always speak Yoruba, or offer 10% off for first-time buyers..."
                   />
                 </div>
@@ -158,7 +158,7 @@ export default function OnboardingPage() {
           {step === 3 && (
             <div className="space-y-8">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black tracking-widest uppercase mb-2 border border-primary/20">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-[8px] bg-primary/10 text-primary text-[10px] font-black tracking-widest uppercase mb-2 border border-primary/20">
                    <Zap size={14} />
                    <span>Phase 3: Integration</span>
                 </div>
@@ -167,7 +167,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-6">
-                <div className="p-6 rounded-2xl border border-border bg-card space-y-4 shadow-sm group hover:border-blue-400 transition-all">
+                <div className="p-6 rounded-[8px] border border-border bg-card space-y-4 group hover:border-blue-400 transition-all shadow-minimal">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Send className="text-blue-500" size={20} />
@@ -181,19 +181,19 @@ export default function OnboardingPage() {
                       type="password"
                       value={formData.telegramToken}
                       onChange={(e) => setFormData({...formData, telegramToken: e.target.value})}
-                      className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-medium outline-none focus:ring-2 focus:ring-blue-400/20"
+                      className="w-full px-3 py-2.5 rounded-[8px] border border-border bg-background text-sm font-medium outline-none focus:ring-2 focus:ring-blue-400/20"
                       placeholder="Enter token from @BotFather"
                     />
                   </div>
                 </div>
 
-                <div className="p-6 rounded-2xl border border-border bg-card space-y-4 opacity-70 group cursor-not-allowed grayscale">
+                <div className="p-6 rounded-[8px] border border-border bg-card space-y-4 opacity-70 group cursor-not-allowed grayscale">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Smartphone className="text-green-500" size={20} />
                       <h3 className="font-bold text-lg">WhatsApp API</h3>
                     </div>
-                    <span className="text-[10px] font-black bg-muted px-2 py-0.5 rounded-full">COMING SOON</span>
+                    <span className="text-[10px] font-black bg-muted px-2 py-0.5 rounded-[8px]">COMING SOON</span>
                   </div>
                   <p className="text-xs text-muted-foreground font-medium italic">WhatsApp integration is currently in beta. You can link it later in settings.</p>
                 </div>
@@ -204,7 +204,7 @@ export default function OnboardingPage() {
           {step === 4 && (
             <div className="space-y-8 py-10 text-center">
               <div className="flex justify-center">
-                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary animate-bounce">
+                <div className="w-20 h-20 bg-primary/10 rounded-[8px] flex items-center justify-center text-primary animate-bounce">
                   <Rocket size={40} />
                 </div>
               </div>
@@ -213,7 +213,7 @@ export default function OnboardingPage() {
                 <p className="text-muted-foreground font-medium text-lg">Your AI employee is ready to start selling for {formData.storeName}.</p>
               </div>
 
-              <div className="bg-card p-6 rounded-2xl border border-border text-left space-y-4 shadow-sm">
+              <div className="bg-card p-6 rounded-[8px] border border-border text-left space-y-4">
                 <h4 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">Onboarding Summary</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -247,7 +247,7 @@ export default function OnboardingPage() {
           {step < 4 ? (
             <button 
               onClick={nextStep}
-              className="bg-primary hover:bg-secondary text-white px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95 translate-y-0 hover:-translate-y-1"
+              className="bg-primary hover:bg-secondary text-white px-8 py-3.5 rounded-[8px] font-bold flex items-center gap-2 transition-all active:scale-95 translate-y-0 hover:-translate-y-1"
             >
               Next Step
               <ChevronRight size={18} />
@@ -255,7 +255,7 @@ export default function OnboardingPage() {
           ) : (
             <button 
               onClick={handleFinish}
-              className="bg-primary hover:bg-secondary text-white px-10 py-4 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95"
+              className="bg-primary hover:bg-secondary text-white px-10 py-4 rounded-[8px] font-bold flex items-center gap-2 transition-all active:scale-95"
             >
               Launch Dashboard
               <Sparkles size={20} />
