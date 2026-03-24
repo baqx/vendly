@@ -9,6 +9,7 @@ class ProductBase(BaseModel):
     basePrice: Decimal
     mapPrice: Decimal
     stockLevel: int = 0
+    tags: Optional[str] = None
     technicalSpecs: Optional[dict] = None
 
 class ProductCreate(ProductBase):

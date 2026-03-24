@@ -1,9 +1,11 @@
 from typing import Any, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+import json
 from ....core.db import prisma
-from ....schemas.product import Product, ProductCreate, ProductUpdate, ProductImageCreate, ProductVariantCreate
+from ....schemas.product import Product, ProductCreate
 from ....schemas.responses import Response
 from ....api import deps
+from ....services.cloudinary_service import cloudinary_service
 
 router = APIRouter()
 
@@ -25,20 +27,40 @@ async def read_products(
 async def create_product(
     *,
     current_vendor: Any = Depends(deps.get_current_active_vendor),
-    product_in: ProductCreate,
-    images: Optional[List[ProductImageCreate]] = None,
-    variants: Optional[List[ProductVariantCreate]] = None,
+    title: str = Form(...),
+    description: str = Form(None),
+    basePrice: float = Form(...),
+    mapPrice: float = Form(...),
+    stockLevel: int = Form(0),
+    images: List[UploadFile] = File(None),
+    variants: str = Form(None), # JSON string for variants
 ):
-    # Create product with nested images and variants
-    data = product_in.dict()
-    data["vendorId"] = current_vendor.id
-    
-    # Prisma nested create
+    # Upload images to Cloudinary
+    image_urls = []
     if images:
-        data["images"] = {"create": [img.dict() for img in images]}
+        for image in images:
+            url = cloudinary_service.upload_image(image.file)
+            if url:
+                image_urls.append({"url": url})
+
+    # Prepare data for Prisma
+    data = {
+        "vendorId": current_vendor.id,
+        "title": title,
+        "description": description,
+        "basePrice": basePrice,
+        "mapPrice": mapPrice,
+        "stockLevel": stockLevel,
+        "images": {"create": image_urls}
+    }
+    
     if variants:
-        data["variants"] = {"create": [v.dict() for v in variants]}
-        
+        try:
+            v_data = json.loads(variants)
+            data["variants"] = {"create": v_data}
+        except Exception:
+            pass
+            
     product = await prisma.product.create(
         data=data,
         include={"images": True, "variants": True}

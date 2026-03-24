@@ -29,14 +29,40 @@ async def signup(vendor_in: VendorCreate):
     )
     return Response(data=new_vendor, message="Registration successful")
 
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from ....services.cloudinary_service import cloudinary_service
+
 @router.patch("/me", response_model=Vendor)
 async def update_vendor_me(
-    vendor_in: VendorUpdate,
     current_vendor: Any = Depends(deps.get_current_active_vendor),
+    storeName: str = Form(None),
+    category: str = Form(None),
+    location: str = Form(None),
+    phoneNumber: str = Form(None),
+    description: str = Form(None),
+    botEnabled: bool = Form(None),
+    botPersonality: str = Form(None),
+    telegramToken: str = Form(None),
+    logo: UploadFile = File(None),
 ):
+    update_data = {}
+    if storeName is not None: update_data["storeName"] = storeName
+    if category is not None: update_data["category"] = category
+    if location is not None: update_data["location"] = location
+    if phoneNumber is not None: update_data["phoneNumber"] = phoneNumber
+    if description is not None: update_data["description"] = description
+    if botEnabled is not None: update_data["botEnabled"] = botEnabled
+    if botPersonality is not None: update_data["botPersonality"] = botPersonality
+    if telegramToken is not None: update_data["telegramToken"] = telegramToken
+    
+    if logo:
+        url = cloudinary_service.upload_image(logo.file, folder="vendly/logos")
+        if url:
+            update_data["logoUrl"] = url
+
     updated_vendor = await prisma.vendor.update(
         where={"id": current_vendor.id},
-        data=vendor_in.dict(exclude_unset=True)
+        data=update_data
     )
     return Response(data=updated_vendor, message="Profile updated successfully")
 
