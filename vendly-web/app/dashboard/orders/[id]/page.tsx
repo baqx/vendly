@@ -188,9 +188,9 @@ export default function OrderDetailsPage() {
 
                 {/* Item 2 */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 group pb-6 border-b border-border/40">
-                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 bg-slate-800`}>
+                  <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 bg-slate-800`}>
                     <Image src="/images/shoes.png" width={80} height={80} alt="Heritage Leather Watch" className="object-cover drop-shadow-lg group-hover:scale-110 transition-transform duration-500 opacity-0" />
-                    {/* Fallback styling since we might not have the watch image */}
+                    {/* Fallback emoji */}
                     <div className="absolute inset-0 flex items-center justify-center text-white/50 text-2xl">⌚</div>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -207,9 +207,9 @@ export default function OrderDetailsPage() {
 
                 {/* Item 3 */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 group">
-                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 bg-slate-900`}>
+                  <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 bg-slate-900`}>
                     <Image src="/images/shoes.png" width={80} height={80} alt="Verdant Pro Headphones" className="object-cover drop-shadow-lg group-hover:scale-110 transition-transform duration-500 opacity-0" />
-                    {/* Fallback styling since we might not have the headphones image */}
+                    {/* Fallback emoji */}
                     <div className="absolute inset-0 flex items-center justify-center text-white/50 text-2xl">🎧</div>
                   </div>
                   <div className="flex-1 min-w-0">
