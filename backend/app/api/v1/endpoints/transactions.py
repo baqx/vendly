@@ -17,6 +17,6 @@ async def read_transactions(
         where={"vendorId": current_vendor.id},
         skip=skip,
         take=limit,
-        order={"createdAt": "desc"}
+        order={"timestamp": "desc"}
     )
     return Response(data=transactions)

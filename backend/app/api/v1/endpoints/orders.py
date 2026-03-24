@@ -15,6 +15,7 @@ async def read_orders(
 ):
     orders = await prisma.order.find_many(
         where={"vendorId": current_vendor.id},
+        include={"items": True},
         skip=skip,
         take=limit,
         order={"createdAt": "desc"}
@@ -61,3 +62,15 @@ async def create_order(
     
     # We can return this in a custom response or just give the order + link
     return {**order.__dict__, "paymentLink": payment_link}
+
+@router.patch("/{id}", response_model=Order)
+async def update_order_status(
+    id: str,
+    status: str,
+    current_vendor: Any = Depends(deps.get_current_active_vendor),
+):
+    order = await prisma.order.update(
+        where={"id": id},
+        data={"status": status}
+    )
+    return order

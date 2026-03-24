@@ -74,7 +74,8 @@ async def read_product(
     current_vendor: Any = Depends(deps.get_current_active_vendor),
 ):
     product = await prisma.product.find_first(
-        where={"id": id, "vendorId": current_vendor.id}
+        where={"id": id, "vendorId": current_vendor.id},
+        include={"images": True, "variants": True}
     )
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")

@@ -16,7 +16,7 @@ async def read_coupons(
     )
     return Response(data=coupons)
 
-@router.post("/", response_model=Coupon)
+@router.post("/", response_model=Response[Coupon])
 async def create_coupon(
     *,
     current_vendor: Any = Depends(deps.get_current_active_vendor),

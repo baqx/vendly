@@ -21,6 +21,8 @@ class ProductUpdate(BaseModel):
     basePrice: Optional[Decimal] = None
     mapPrice: Optional[Decimal] = None
     stockLevel: Optional[int] = None
+    tags: Optional[str] = None
+    technicalSpecs: Optional[dict] = None
 
 class ProductVariantBase(BaseModel):
     name: str # e.g., Color

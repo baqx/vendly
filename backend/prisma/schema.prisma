@@ -29,9 +29,13 @@ model Vendor {
   botPersonality    String?  @db.Text
   telegramToken     String?
   whatsappMetaToken String?
+  hagglingLimit     Decimal  @default(0.0) @db.Decimal(5, 2) // Max % discount
   
   // Financials
   walletBalance     Decimal  @default(0.0) @db.Decimal(12, 2)
+  bankName          String?
+  accountNumber     String?
+  accountName       String?
   
   // Relationships
   products          Product[]
@@ -61,6 +65,7 @@ model Product {
   images         ProductImage[]
   variants       ProductVariant[]
   reviews        ProductReview[]
+  orderItems     OrderItem[]
   
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str = os.getenv("DATABASE_URL")
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY")
-    GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
 
     # Cloudinary
     CLOUDINARY_CLOUD_NAME: Optional[str] = os.getenv("CLOUDINARY_CLOUD_NAME")
@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     INTERSWITCH_MERCHANT_CODE: Optional[str] = os.getenv("INTERSWITCH_MERCHANT_CODE")
     INTERSWITCH_PAY_ITEM_ID: Optional[str] = os.getenv("INTERSWITCH_PAY_ITEM_ID")
     INTERSWITCH_TERMINAL_ID: Optional[str] = os.getenv("INTERSWITCH_TERMINAL_ID")
+    
+    API_BASE_URL: str = os.getenv("API_BASE_URL", "https://your-domain.ngrok-free.app")
 
     class Config:
         case_sensitive = True
