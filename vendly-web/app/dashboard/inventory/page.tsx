@@ -1,100 +1,397 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Filter, MoreVertical, Package, ExternalLink } from "lucide-react";
+import { Plus, ChevronDown, LayoutGrid, List, Eye } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+const products = [
+  { 
+    id: 1, 
+    title: "Nordic Minimalist Watch", 
+    price: "$124.00", 
+    stock: 42, 
+    status: "In Stock",
+    statusColor: "bg-green-600 dark:bg-green-500",
+    textColor: "text-green-700 dark:text-green-500", 
+    category: "ELECTRONICS", 
+    img: "/images/watch.png",
+    bg: "bg-slate-50 dark:bg-slate-900",
+    padding: "p-6"
+  },
+  { 
+    id: 2, 
+    title: "Crimson Aero Runners", 
+    price: "$89.50", 
+    stock: 3, 
+    status: "Low Stock",
+    statusColor: "bg-orange-500", 
+    textColor: "text-orange-600 dark:text-orange-500",
+    category: "FASHION", 
+    img: "/images/shoes.png",
+    bg: "bg-slate-50 dark:bg-slate-900",
+    padding: "p-4"
+  },
+  { 
+    id: 3, 
+    title: "Sonic Pods G2", 
+    price: "$55.00", 
+    stock: 0, 
+    status: "Out of Stock",
+    statusColor: "bg-red-500", 
+    textColor: "text-red-600 dark:text-red-500",
+    category: "ELECTRONICS", 
+    img: "/images/earbuds.png",
+    bg: "bg-[#A29E8D] dark:bg-[#726E5D]",
+    padding: "p-3"
+  },
+  { 
+    id: 4, 
+    title: "Vintage Shot Z-10", 
+    price: "$410.00", 
+    stock: 12, 
+    status: "In Stock",
+    statusColor: "bg-green-600 dark:bg-green-500", 
+    textColor: "text-green-700 dark:text-green-500",
+    category: "ELECTRONICS", 
+    img: "/images/camera.png",
+    bg: "bg-[#A0C3B5] dark:bg-[#608375]",
+    padding: "p-3"
+  },
+];
 
 export default function InventoryPage() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [view, setView] = useState<"grid" | "list">("grid");
+  const [category, setCategory] = useState("All Categories");
+  const [price, setPrice] = useState("Any Price");
+  const [stock, setStock] = useState("All Status");
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const TOTAL_PAGES = 3;
 
-  const products = [
-    { id: 1, title: "Vintage Oversized Tee", price: "₦15,000", stock: 45, variants: 3, status: "Active" },
-    { id: 2, title: "Cargo Pocket Joggers", price: "₦22,500", stock: 12, variants: 2, status: "Low Stock" },
-    { id: 3, title: "Distressed Denim Jacket", price: "₦35,000", stock: 0, variants: 1, status: "Out of Stock" },
-  ];
+  // Filter Logic
+  const filteredProducts = products.filter((p) => {
+    if (category !== "All Categories" && p.category !== category) return false;
+    if (stock === "In Stock" && p.status !== "In Stock") return false;
+    if (stock === "Low Stock" && p.status !== "Low Stock") return false;
+    if (stock === "Out of Stock" && p.status !== "Out of Stock") return false;
+    const priceNum = parseFloat(p.price.replace("$", ""));
+    if (price === "Under $100" && priceNum >= 100) return false;
+    if (price === "Over $100" && priceNum < 100) return false;
+    return true;
+  });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-16">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Inventory</h1>
-          <p className="text-muted-foreground font-medium mt-1">Manage your products and stock levels.</p>
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Inventory Ledger</h1>
+          <p className="text-muted-foreground font-medium mt-2">Manage your product catalog and stock levels.</p>
         </div>
-        <button className="bg-primary text-white px-4 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-secondary transition-all shadow-md">
+        <Link href="/dashboard/inventory/add" className="bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-700/20 hover:scale-105 active:scale-95">
           <Plus size={20} />
-          <span>Add Product</span>
-        </button>
+          <span>Add New Product</span>
+        </Link>
       </div>
 
-      {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search products..." 
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-card focus:ring-2 focus:ring-primary/20 outline-none"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* Invisible overlay to close dropdowns on outside click */}
+      {openDropdown && (
+        <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
+      )}
+
+      {/* Filters & View Controls */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-8 relative z-50">
+        <div className="flex flex-wrap items-center gap-3">
+
+          {/* CATEGORY FILTER */}
+          <div className="relative">
+            <button
+              onClick={() => setOpenDropdown(openDropdown === "category" ? null : "category")}
+              className={`flex items-center gap-3 px-4 py-2 bg-white hover:bg-muted/50 dark:bg-card dark:hover:bg-muted/50 border rounded-xl transition-all min-w-[200px] shadow-sm ${openDropdown === "category" ? "border-green-600/50 ring-2 ring-green-600/20" : "border-border/60"}`}
+            >
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">CATEGORY</span>
+              <span className="text-sm font-bold text-foreground flex items-center gap-1.5 ml-auto">
+                {category} <ChevronDown size={14} className={`text-muted-foreground transition-transform duration-300 ${openDropdown === "category" ? "rotate-180" : ""}`} />
+              </span>
+            </button>
+            <div className={`absolute top-[calc(100%+8px)] left-0 w-full min-w-[200px] bg-white dark:bg-card border border-border/60 rounded-xl shadow-xl overflow-hidden z-50 transition-all origin-top duration-200 ${openDropdown === "category" ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"}`}>
+              <div className="py-1.5 flex flex-col">
+                {["All Categories", "ELECTRONICS", "FASHION"].map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => { setCategory(item); setOpenDropdown(null); }}
+                    className={`px-4 py-3 text-left text-sm font-bold transition-colors ${category === item ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-500" : "text-foreground hover:bg-muted/50"}`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* PRICE FILTER */}
+          <div className="relative">
+            <button
+              onClick={() => setOpenDropdown(openDropdown === "price" ? null : "price")}
+              className={`flex items-center gap-3 px-4 py-2 bg-white hover:bg-muted/50 dark:bg-card dark:hover:bg-muted/50 border rounded-xl transition-all min-w-[180px] shadow-sm ${openDropdown === "price" ? "border-green-600/50 ring-2 ring-green-600/20" : "border-border/60"}`}
+            >
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">PRICE</span>
+              <span className="text-sm font-bold text-foreground flex items-center gap-1.5 ml-auto">
+                {price} <ChevronDown size={14} className={`text-muted-foreground transition-transform duration-300 ${openDropdown === "price" ? "rotate-180" : ""}`} />
+              </span>
+            </button>
+            <div className={`absolute top-[calc(100%+8px)] left-0 w-full min-w-[180px] bg-white dark:bg-card border border-border/60 rounded-xl shadow-xl overflow-hidden z-50 transition-all origin-top duration-200 ${openDropdown === "price" ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"}`}>
+              <div className="py-1.5 flex flex-col">
+                {["Any Price", "Under $100", "Over $100"].map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => { setPrice(item); setOpenDropdown(null); }}
+                    className={`px-4 py-3 text-left text-sm font-bold transition-colors ${price === item ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-500" : "text-foreground hover:bg-muted/50"}`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* STOCK FILTER */}
+          <div className="relative">
+            <button
+              onClick={() => setOpenDropdown(openDropdown === "stock" ? null : "stock")}
+              className={`flex items-center gap-3 px-4 py-2 bg-white hover:bg-muted/50 dark:bg-card dark:hover:bg-muted/50 border rounded-xl transition-all min-w-[180px] shadow-sm ${openDropdown === "stock" ? "border-green-600/50 ring-2 ring-green-600/20" : "border-border/60"}`}
+            >
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">STOCK</span>
+              <span className="text-sm font-bold text-foreground flex items-center gap-1.5 ml-auto">
+                {stock === "All Status" ? "All" : stock} <ChevronDown size={14} className={`text-muted-foreground transition-transform duration-300 ${openDropdown === "stock" ? "rotate-180" : ""}`} />
+              </span>
+            </button>
+            <div className={`absolute top-[calc(100%+8px)] left-0 w-full min-w-[180px] bg-white dark:bg-card border border-border/60 rounded-xl shadow-xl overflow-hidden z-50 transition-all origin-top duration-200 ${openDropdown === "stock" ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"}`}>
+              <div className="py-1.5 flex flex-col">
+                {["All Status", "In Stock", "Low Stock", "Out of Stock"].map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => { setStock(item); setOpenDropdown(null); }}
+                    className={`px-4 py-3 text-left text-sm font-bold transition-colors ${stock === item ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-500" : "text-foreground hover:bg-muted/50"}`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
-        <button className="px-4 py-2 border border-border rounded-lg bg-card font-bold flex items-center gap-2 hover:bg-muted transition-all">
-          <Filter size={18} />
-          <span>Filters</span>
-        </button>
+
+        {/* View Toggle */}
+        <div className="flex items-center bg-muted/30 p-1 rounded-xl border border-border/50">
+          <button
+            onClick={() => setView("grid")}
+            className={`p-2 rounded-lg transition-all ${view === "grid" ? "bg-white dark:bg-muted text-green-700 dark:text-green-500 shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <LayoutGrid size={18} />
+          </button>
+          <button
+            onClick={() => setView("list")}
+            className={`p-2 rounded-lg transition-all ${view === "list" ? "bg-white dark:bg-muted text-green-700 dark:text-green-500 shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <List size={18} />
+          </button>
+        </div>
       </div>
 
-      {/* Product Table */}
-      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-muted/50 border-b border-border">
-              <tr>
-                <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Product</th>
-                <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Price</th>
-                <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Stock</th>
-                <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Variants</th>
-                <th className="px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {products.map((product) => (
-                <tr key={product.id} className="hover:bg-muted/30 transition-colors cursor-pointer group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground">
-                        <Package size={20} />
-                      </div>
-                      <span className="font-bold text-sm text-foreground">{product.title}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${
-                      product.status === "Active" ? "bg-green-50 text-green-700 border-green-200" :
-                      product.status === "Low Stock" ? "bg-orange-50 text-orange-700 border-orange-200" :
-                      "bg-red-50 text-red-700 border-red-200"
-                    }`}>
-                      {product.status}
+      {/* Dynamic View */}
+      <div className="mt-8 relative">
+        {filteredProducts.length === 0 && (
+          <div className="py-20 text-center flex flex-col items-center justify-center border-2 border-dashed border-border rounded-[2rem]">
+            <p className="text-muted-foreground font-bold">No products match the selected filters.</p>
+            <button
+              onClick={() => { setCategory("All Categories"); setPrice("Any Price"); setStock("All Status"); }}
+              className="mt-4 text-green-700 dark:text-green-500 font-extrabold text-sm hover:underline"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
+
+        {view === "grid" && filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {filteredProducts.map((product) => (
+              <div key={product.id} className="bg-white dark:bg-card rounded-[1.5rem] border border-border/50 shadow-sm overflow-hidden flex flex-col transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.03] hover:shadow-2xl hover:z-20 relative origin-bottom group">
+                <div className={`relative w-full h-48 flex items-center justify-center ${product.bg} ${product.padding} overflow-hidden`}>
+                  <div className="absolute top-3 left-3 bg-green-200 dark:bg-green-900/60 text-green-900 dark:text-green-300 px-2.5 py-1 rounded-full text-[9px] font-extrabold tracking-wider uppercase z-10 shadow-sm">
+                    {product.category}
+                  </div>
+                  <div className="w-full h-full relative overflow-hidden flex items-center justify-center mix-blend-multiply dark:mix-blend-normal">
+                    <Image src={product.img} fill alt={product.title} className="object-contain" />
+                  </div>
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                    <Link href={`/dashboard/inventory/${product.id}`} className="bg-green-50 text-green-950 font-extrabold text-[13px] py-2.5 px-6 rounded-xl shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105 active:scale-95 border border-green-200">
+                      Inventory Details
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="p-5 flex flex-col flex-1 relative z-30 bg-white dark:bg-card">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-base font-bold text-foreground leading-tight">{product.title}</h3>
+                    <span className="text-base font-extrabold text-green-700 dark:text-green-500">{product.price}</span>
+                  </div>
+                  <div className="mt-2.5 flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${product.statusColor}`} />
+                    <span className={`text-[11px] font-bold ${product.textColor}`}>
+                      {product.status} {product.stock > 0 && <span className="opacity-70">({product.stock} units)</span>}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 font-extrabold text-sm">{product.price}</td>
-                  <td className="px-6 py-4 font-bold text-sm text-muted-foreground">{product.stock}</td>
-                  <td className="px-6 py-4 font-bold text-sm text-muted-foreground">{product.variants}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-1.5 rounded-md hover:bg-muted hover:text-primary transition-colors">
-                        <ExternalLink size={18} />
-                      </button>
-                      <button className="p-1.5 rounded-md hover:bg-muted transition-colors">
-                        <MoreVertical size={18} />
-                      </button>
+                  </div>
+                  <div className="mt-auto pt-5 flex w-full items-center gap-2">
+                    {/* Edit → routes to add/edit form */}
+                    <Link href={`/dashboard/inventory/add`} className="flex-1 py-2.5 text-center bg-muted/40 hover:bg-muted dark:bg-muted/20 dark:hover:bg-muted/40 text-foreground font-bold text-[13px] rounded-xl transition-colors hover:scale-[1.02] active:scale-[0.98]">
+                      Edit
+                    </Link>
+                    <Link href={`/dashboard/inventory/${product.id}`} className="p-2.5 bg-muted/40 hover:bg-muted dark:bg-muted/20 dark:hover:bg-muted/40 text-foreground rounded-xl transition-colors flex items-center justify-center hover:scale-110 active:scale-95">
+                      <Eye size={18} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Featured Top Seller */}
+            <div className="sm:col-span-2 lg:col-span-2 lg:row-span-2 bg-green-800 dark:bg-[#0f4a26] rounded-[1.5rem] shadow-xl overflow-hidden flex flex-col relative transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] hover:shadow-2xl hover:z-20 origin-bottom group/feature">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-green-500/30 blur-[80px] rounded-full pointer-events-none" />
+              <div className="relative w-full h-64 lg:h-80 flex items-center justify-center p-4 z-10 overflow-hidden">
+                <div className="absolute top-6 left-6 bg-green-300 text-green-950 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase z-20 shadow-lg">
+                  TOP SELLER
+                </div>
+                <div className="w-full h-full relative group-hover/feature:scale-110 transition-transform duration-700">
+                  <Image src="/images/headphones.png" fill alt="Elite Headphones" className="object-contain mix-blend-normal drop-shadow-2xl" />
+                </div>
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/feature:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-sm">
+                  <Link href={`/dashboard/inventory/elite-pro`} className="bg-white text-green-950 font-extrabold text-[14px] py-3.5 px-8 rounded-xl shadow-2xl transform translate-y-4 group-hover/feature:translate-y-0 transition-all duration-500 hover:scale-105 active:scale-95">
+                    View Inventory Details
+                  </Link>
+                </div>
+              </div>
+              <div className="p-8 pt-0 flex flex-col flex-1 justify-end z-10 relative bg-gradient-to-t from-green-900 via-green-800/80 to-transparent">
+                <h2 className="text-3xl font-extrabold text-white tracking-tight leading-none mb-3">Elite Sound-Cancel Pro</h2>
+                <p className="text-green-100/80 font-medium text-sm leading-relaxed mb-6">
+                  Our highest performing audio product this month with 240+ sales.
+                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-auto">
+                  <span className="text-4xl font-extrabold text-white">$299.00</span>
+                  <Link href={`/dashboard/inventory/elite-pro`} className="bg-white text-green-900 px-6 py-3 rounded-xl font-bold text-sm hover:bg-green-50 transition-colors shadow-lg hover:scale-105 active:scale-95">
+                    Inventory Details
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        ) : view === "list" && filteredProducts.length > 0 ? (
+          <div className="flex flex-col space-y-4">
+            {filteredProducts.map((product) => (
+              <div key={product.id} className="bg-white dark:bg-card rounded-2xl border border-border/50 shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-6 transition-all duration-300 transform hover:-translate-x-1 hover:scale-[1.01] hover:shadow-lg hover:z-20 relative group/list">
+                <div className="flex items-center gap-6 flex-1 min-w-0">
+                  <div className={`relative w-28 h-28 rounded-xl shrink-0 overflow-hidden flex items-center justify-center ${product.bg}`}>
+                    <Image src={product.img} fill alt={product.title} className="object-cover p-2 mix-blend-multiply dark:mix-blend-normal transform group-hover/list:scale-110 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/list:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                      <Link href={`/dashboard/inventory/${product.id}`} className="bg-white text-black font-extrabold text-[10px] py-2 px-3 rounded-lg shadow-xl transform translate-y-2 group-hover/list:translate-y-0 transition-all duration-300 hover:scale-110 active:scale-95">
+                        Details
+                      </Link>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{product.category}</span>
+                    <h3 className="text-lg font-bold text-foreground truncate">{product.title}</h3>
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${product.statusColor}`} />
+                      <span className={`text-xs font-bold ${product.textColor}`}>
+                        {product.status} {product.stock > 0 && <span className="opacity-70">({product.stock} units)</span>}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between sm:justify-end gap-6 sm:w-1/3 shrink-0">
+                  <span className="text-xl font-extrabold text-green-700 dark:text-green-500">{product.price}</span>
+                  <div className="flex items-center gap-2">
+                    <Link href={`/dashboard/inventory/add`} className="px-5 py-2.5 bg-muted/40 hover:bg-muted text-foreground font-bold text-xs rounded-xl transition-colors hover:scale-[1.02] active:scale-[0.98]">
+                      Edit
+                    </Link>
+                    <Link href={`/dashboard/inventory/${product.id}`} className="p-2.5 bg-muted/40 hover:bg-muted text-foreground rounded-xl transition-colors hover:scale-110 active:scale-95">
+                      <Eye size={18} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Elite Sound-Cancel Pro — List Item */}
+            <div className="bg-green-800 dark:bg-[#0f4a26] rounded-2xl shadow-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-6 transition-all duration-300 transform hover:-translate-x-1 hover:scale-[1.01] hover:shadow-2xl hover:z-20 relative group/list">
+              <div className="flex items-center gap-6 flex-1 min-w-0">
+                <div className="relative w-28 h-28 rounded-xl shrink-0 overflow-hidden flex items-center justify-center bg-white/10 p-2">
+                  <Image src="/images/headphones.png" fill alt="Headphones" className="object-contain drop-shadow-lg transform group-hover/list:scale-110 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/list:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                    <Link href={`/dashboard/inventory/elite-pro`} className="bg-white text-green-950 font-extrabold text-[10px] py-2 px-3 rounded-lg shadow-xl transform translate-y-2 group-hover/list:translate-y-0 transition-all duration-300 hover:scale-110 active:scale-95">
+                      Details
+                    </Link>
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-bold text-green-200 uppercase tracking-widest bg-green-900/50 px-2 py-0.5 rounded-full">TOP SELLER</span>
+                  <h3 className="text-lg font-bold text-white truncate mt-2">Elite Sound-Cancel Pro</h3>
+                  <div className="mt-1">
+                    <span className="text-xs font-medium text-green-100/80">Highest performing item - 240+ sales</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between sm:justify-end gap-6 sm:w-1/3 shrink-0">
+                <span className="text-xl font-extrabold text-white">$299.00</span>
+                <div className="flex items-center gap-2">
+                  <Link href={`/dashboard/inventory/elite-pro`} className="flex items-center justify-center px-5 py-2.5 bg-white text-green-900 font-bold text-xs rounded-xl transition-colors shadow-sm hover:scale-[1.02] active:scale-[0.98]">
+                    Inventory Details
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      {/* Pagination Footer */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border/50">
+        <p className="text-sm font-medium text-muted-foreground">
+          Showing <strong className="font-extrabold text-foreground">{filteredProducts.length + 1}</strong> of <strong className="font-extrabold text-foreground">148</strong> products &mdash; Page {currentPage} of {TOTAL_PAGES}
+        </p>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            {"<"}
+          </button>
+          {[1, 2, 3].map((p) => (
+            <button
+              key={p}
+              onClick={() => setCurrentPage(p)}
+              className={`w-8 h-8 flex items-center justify-center rounded-lg font-extrabold transition-colors ${
+                currentPage === p
+                  ? "bg-green-700 text-white shadow-sm shadow-green-700/30"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(TOTAL_PAGES, p + 1))}
+            disabled={currentPage === TOTAL_PAGES}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            {">"}
+          </button>
         </div>
       </div>
     </div>
