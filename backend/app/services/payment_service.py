@@ -42,14 +42,20 @@ class PaymentService:
         customer_email: str, 
         order_id: str
     ) -> str:
-        # In a real integration, we might call Interswitch to get a Paycode or just generate a Webpay URL
-        # For Sandbox, we construct a Webpay URL with the merchant code
-        # Example: https://webpay.interswitchng.com/pay?ref={order_id}&amount={amount}&merchant={code}
         amount_kobo = int(amount * 100)
+        redirect_url = f"{settings.API_BASE_URL}{settings.API_V1_STR}/webhooks/interswitch/callback"
+        
+        # Hash order: txn_ref + product_id + pay_item_id + amount + redirect_url + secret_key
+        # For simplicity in this flow, product_id is often the same as pay_item_id or just merchant_code
+        hash_string = f"{order_id}{self.pay_item_id}{amount_kobo}{redirect_url}{self.secret_key}"
+        hash_value = hashlib.sha512(hash_string.encode()).hexdigest()
+        
         return (
-            f"https://sandbox.interswitchng.com/collections/w/pay?"
-            f"ref={order_id}&amount={amount_kobo}&merchant={self.merchant_code}"
-            f"&item={self.pay_item_id}&email={customer_email}"
+            f"https://newwebpay.qa.interswitchng.com/collections/w/pay?"
+            f"merchantcode={self.merchant_code}&payitemid={self.pay_item_id}"
+            f"&amount={amount_kobo}&txnref={order_id}"
+            f"&site_redirect_url={redirect_url}&hash={hash_value}"
+            f"&currency=566&cust_id={customer_email}"
         )
 
     async def verify_transaction(self, ref: str, amount: float) -> bool:
