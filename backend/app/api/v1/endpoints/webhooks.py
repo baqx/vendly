@@ -2,11 +2,13 @@ import httpx
 import re
 import json
 import time
+import traceback
 from fastapi import APIRouter, Request, Header, HTTPException, Query
 from ....core.db import prisma
 from ....services.ai_service import ai_service
 from ....services.telegram_service import telegram_service
 from ....services.payment_service import payment_service
+from ....core.config import settings
 
 router = APIRouter()
 
@@ -27,9 +29,33 @@ async def send_telegram_photo(token: str, chat_id: int, photo_url: str, caption:
 
 @router.post("/telegram/{token}")
 async def telegram_webhook(token: str, request: Request):
-    data = await request.json()
+    print("DEBUG: Webhook hit!")
+    
+    # Ensure prisma is connected
+    # Proactive connection check
+    if not prisma.is_connected():
+        print("DEBUG: Prisma disconnected. Attempting to reconnect...")
+        try:
+            await prisma.connect()
+            print("DEBUG: Prisma reconnected successfully.")
+        except Exception as e:
+            print(f"DEBUG: Critical error reconnecting to Prisma: {e}")
+            # If reconnection fails, we cannot proceed with DB operations.
+            # Returning an error status is appropriate.
+            return {"status": "error", "message": "Database connection failed"}
+    else:
+        print("DEBUG: Prisma is connected.")
+        
+    try:
+        data = await request.json()
+    except Exception as e:
+        print(f"DEBUG: Error reading JSON: {e}")
+        return {"status": "error"}
+        
+    print(f"DEBUG: Raw data keys: {list(data.keys())}")
     
     if "message" not in data:
+        print("DEBUG: No message in data, ignoring.")
         return {"status": "ignored"}
         
     message = data["message"]
@@ -37,12 +63,22 @@ async def telegram_webhook(token: str, request: Request):
     text = message.get("text", "")
     
     if not text:
+        print("DEBUG: No text in message.")
         return {"status": "no text"}
 
     # 1. Find Vendor by token
-    vendor = await prisma.vendor.find_first(where={"telegramToken": token})
+    print(f"DEBUG: Searching for vendor with token: {token[:10]}...")
+    try:
+        vendor = await prisma.vendor.find_first(where={"telegramToken": token})
+    except Exception as e:
+        print(f"DEBUG: Database error finding vendor: {e}")
+        return {"status": "db error"}
+        
     if not vendor:
+        print(f"DEBUG: Vendor not found for token.")
         return {"status": "vendor not found"}
+    
+    print(f"DEBUG: Found vendor: {vendor.storeName}")
 
     # 2. Find/Create ChatSession
     session = await prisma.chatsession.find_first(
@@ -73,6 +109,7 @@ async def telegram_webhook(token: str, request: Request):
 
     # If human has taken over, ignore (or notify vendor)
     if session.humanTakeover:
+        print(f"DEBUG: Human takeover active for session {session.id}, skipping AI response.")
         return {"status": "human takeover active"}
 
     # 3. Save customer message
@@ -118,6 +155,7 @@ async def telegram_webhook(token: str, request: Request):
     ]
 
     # 6. Call AI Service
+    print(f"DEBUG: Calling AI Service for chat {chat_id}...")
     vendor_context = {
         "storeName": vendor.storeName,
         "botPersonality": vendor.botPersonality,
@@ -137,6 +175,7 @@ async def telegram_webhook(token: str, request: Request):
         vendor_context=vendor_context,
         products=product_list
     )
+    print(f"DEBUG: AI Response received: {ai_response[:100]}...")
 
     # Detect SET_CUSTOMER: { ... } in AI response
     customer_match = re.search(r"SET_CUSTOMER:\s*({.*})", ai_response, re.DOTALL)
@@ -163,13 +202,8 @@ async def telegram_webhook(token: str, request: Request):
         except Exception as e:
             print(f"Customer update error: {e}")
 
-    # Detect human takeover request in AI response
-    if "TRANSFER_TO_HUMAN" in ai_response or "passing you to a human" in ai_response.lower():
-        await prisma.chatsession.update(
-            where={"id": session.id},
-            data={"humanTakeover": True}
-        )
-        ai_response = ai_response.replace("TRANSFER_TO_HUMAN", "").strip()
+    # Remove human takeover request trigger from AI response (but don't enable it automatically)
+    ai_response = ai_response.replace("TRANSFER_TO_HUMAN", "").strip()
 
     # Detect CREATE_ORDER: { ... } in AI response
     order_match = re.search(r"CREATE_ORDER:\s*({.*})", ai_response, re.DOTALL)
@@ -230,6 +264,10 @@ async def telegram_webhook(token: str, request: Request):
                     )
                     
                     # Generate a clean internal redirector link
+                    # Assuming settings.API_BASE_URL and settings.API_V1_STR are defined elsewhere
+                    # For this example, I'll use a placeholder.
+                    # from ....core.config import settings # Example import
+                    # pay_link = f"{settings.API_BASE_URL}{settings.API_V1_STR}/webhooks/pay/{payment_ref}"
                     pay_link = f"{settings.API_BASE_URL}{settings.API_V1_STR}/webhooks/pay/{payment_ref}"
                     
                     order_suffix = (
@@ -263,8 +301,11 @@ async def telegram_webhook(token: str, request: Request):
         photo_url = image_match.group(0)
         # Clean response of the URL to keep it pretty
         clean_response = ai_response.replace(photo_url, "").strip()
+        print(f"DEBUG: Sending photo to {chat_id}")
         await send_telegram_photo(token, int(chat_id), photo_url, clean_response)
     else:
+        print(f"DEBUG: Processing message from {message['from']['id']}: {text}") # Using message['from']['id'] and text from earlier
+        print(f"DEBUG: Prisma connected: {prisma.is_connected()}")
         await send_telegram_message(token, int(chat_id), ai_response)
 
     # 7. Save AI message

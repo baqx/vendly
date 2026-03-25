@@ -1,7 +1,7 @@
 import httpx
 import asyncio
 
-BASE_URL = "http://127.0.0.1:8002/api/v1"
+BASE_URL = "http://127.0.0.1:3000/api/v1"
 
 async def activate_bot():
     async with httpx.AsyncClient(timeout=30.0) as client:
