@@ -44,5 +44,4 @@ class Vendor(VendorBase):
     accountName: Optional[str] = None
     createdAt: datetime
     
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

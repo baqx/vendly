@@ -80,6 +80,9 @@ async def telegram_webhook(token: str, request: Request):
     
     print(f"DEBUG: Found vendor: {vendor.storeName}")
 
+    # 1.5 Send typing indicator
+    await telegram_service.send_chat_action(token, int(chat_id), "typing")
+
     # 2. Find/Create ChatSession
     session = await prisma.chatsession.find_first(
         where={

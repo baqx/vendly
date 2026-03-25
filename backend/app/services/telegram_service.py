@@ -42,6 +42,15 @@ class TelegramService:
         # Wait, let me double check.
         return False
 
+    async def send_chat_action(self, token: str, chat_id: int, action: str = "typing") -> bool:
+        endpoint = f"{self.base_url}{token}/sendChatAction"
+        async with httpx.AsyncClient() as client:
+            r = await client.post(endpoint, json={
+                "chat_id": chat_id,
+                "action": action
+            })
+            return r.status_code == 200
+
     async def send_message(self, token: str, chat_id: int, text: str) -> bool:
         endpoint = f"{self.base_url}{token}/sendMessage"
         async with httpx.AsyncClient() as client:

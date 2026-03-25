@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .endpoints import auth, vendors, products, ai, orders, transactions, coupons, webhooks, chats, dashboard, payouts
+from .endpoints import auth, vendors, products, ai, orders, transactions, coupons, webhooks, chats, dashboard, payouts, customers
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
@@ -13,3 +13,4 @@ api_router.include_router(webhooks.router, prefix="/webhooks", tags=["webhooks"]
 api_router.include_router(chats.router, prefix="/chats", tags=["chats"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 api_router.include_router(payouts.router, prefix="/payouts", tags=["payouts"])
+api_router.include_router(customers.router, prefix="/customers", tags=["customers"])
