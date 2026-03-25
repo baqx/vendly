@@ -16,6 +16,12 @@ async def request_payout(
     payout_in: PayoutRequest,
     current_vendor: Any = Depends(deps.get_current_active_vendor),
 ):
+    if not all([current_vendor.bankName, current_vendor.accountNumber, current_vendor.accountName]):
+        raise HTTPException(
+            status_code=400, 
+            detail="Incomplete bank details. Please update your profile with bank name, account number, and account name."
+        )
+        
     if payout_in.amount <= 0:
         raise HTTPException(status_code=400, detail="Invalid amount")
         

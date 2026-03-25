@@ -63,6 +63,19 @@ async def create_order(
     # We can return this in a custom response or just give the order + link
     return {**order.__dict__, "paymentLink": payment_link}
 
+@router.get("/{id}", response_model=Order)
+async def read_order(
+    id: str,
+    current_vendor: Any = Depends(deps.get_current_active_vendor),
+):
+    order = await prisma.order.find_first(
+        where={"id": id, "vendorId": current_vendor.id},
+        include={"items": {"include": {"product": True}}}
+    )
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order
+
 @router.patch("/{id}", response_model=Order)
 async def update_order_status(
     id: str,
