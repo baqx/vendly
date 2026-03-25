@@ -49,7 +49,7 @@ class AIService:
             "Rules:\n"
             "1. If the customer provides name/email/phone, use: SET_CUSTOMER: {\"name\": \"...\", \"email\": \"...\", \"phone\": \"...\"}\n"
             "2. If they are ready to buy, use: CREATE_ORDER: {\"items\": [{\"title\": \"EXACT_PRODUCT_TITLE\", \"quantity\": 1}]}\n"
-            "3. Use TRANSFER_TO_HUMAN if you can't help.\n"
+            "3. If you can't help, politely ask the customer to wait for a human representative.\n"
             "4. Technical triggers (SET_CUSTOMER, CREATE_ORDER, etc.) MUST be at the very end and are FORBIDDEN from being spoken by you in the conversational text. "
             "Example: Do NOT say 'I'm updating your info with SET_CUSTOMER'. Just say 'Got it, I've updated your info' and then append the trigger separately."
         )
