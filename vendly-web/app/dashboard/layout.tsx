@@ -19,6 +19,7 @@ import {
   Bell,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -31,6 +32,7 @@ const navItems = [
   { name: "Messages", href: "/dashboard/messages", icon: MessageSquare },
   { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
   { name: "Wallet", href: "/dashboard/transactions", icon: WalletIcon },
+  { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -117,7 +119,7 @@ function Sidebar({
       </div>
 
       {/* Nav links */}
-      <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
+      <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto sidebar-scroll">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href ||
@@ -176,8 +178,16 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   // Auto-collapse sidebar on the Messages page for maximum chat viewport
   useEffect(() => {
@@ -248,6 +258,9 @@ export default function DashboardLayout({
               <Search size={18} className="text-muted-foreground" />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
                 placeholder="Search analytics, orders, or products..."
                 className="bg-transparent border-none outline-none text-sm w-full ml-2 text-foreground placeholder:text-muted-foreground font-medium"
               />
@@ -256,14 +269,22 @@ export default function DashboardLayout({
 
           <div className="flex items-center gap-4 ml-4">
             <ThemeToggle />
-            <button className="relative p-2 text-muted-foreground hover:bg-muted rounded-[4px] transition-colors hidden sm:block">
+            <Link href="/dashboard/notifications" className="relative p-2 text-muted-foreground hover:bg-muted rounded-[4px] transition-colors hidden sm:block">
               <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-[4px] border-2 border-background" />
-            </button>
-            <button className="p-2 text-muted-foreground hover:bg-muted rounded-[4px] transition-colors hidden sm:block">
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
+            </Link>
+            <Link 
+              href="/dashboard/messages"
+              className="p-2 text-muted-foreground hover:bg-muted rounded-[4px] transition-colors hidden sm:block"
+              title="Messages"
+            >
               <MessageSquare size={20} />
-            </button>
-            <div className="w-9 h-9 flex-shrink-0 rounded-[4px] overflow-hidden border border-border cursor-pointer ml-1">
+            </Link>
+            <Link
+              href="/dashboard/profile"
+              className="w-9 h-9 flex-shrink-0 rounded-[4px] overflow-hidden border border-border cursor-pointer ml-1 hover:ring-2 hover:ring-green-500/40 transition-all"
+              title="Account Settings"
+            >
               <div className="w-full h-full bg-muted flex items-center justify-center">
                 <Image
                   src="/images/avatar1.png"
@@ -273,7 +294,7 @@ export default function DashboardLayout({
                   className="w-full h-full object-cover"
                 />
               </div>
-            </div>
+            </Link>
           </div>
         </header>
 

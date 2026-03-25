@@ -263,13 +263,13 @@ export default function AnalyticsPage() {
             <Download size={15} />
             Download Report
           </button>
-          <Link
+          {/* <Link
             href="/dashboard/analytics/live"
             className="flex items-center gap-2 px-4 py-2.5 rounded-[4px] bg-green-700 hover:bg-green-800 text-white text-sm font-bold transition-colors shadow-md shadow-green-700/20"
           >
             <Activity size={15} />
             Real-time View
-          </Link>
+          </Link> */}
         </div>
       </div>
 
