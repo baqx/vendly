@@ -89,13 +89,13 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <button 
             onClick={() => toast.info(`Drafting email to ${profile.email}...`)}
-            className="flex-1 sm:flex-none px-5 py-2.5 rounded-[8px] bg-muted/40 hover:bg-muted text-foreground text-sm font-bold border border-border/50 transition-colors shadow-none"
+            className="flex-1 sm:flex-none px-5 py-2.5 rounded-[4px] bg-muted/40 hover:bg-muted text-foreground text-sm font-bold border border-border/50 transition-colors shadow-none"
           >
             Send Email
           </button>
           <button 
             onClick={() => toast.success("Edit Profile modal opened")}
-            className="flex-1 sm:flex-none px-5 py-2.5 rounded-[8px] bg-green-700 hover:bg-green-800 text-white text-sm font-bold shadow-none shadow-green-700/20 transition-colors active:scale-95"
+            className="flex-1 sm:flex-none px-5 py-2.5 rounded-[4px] bg-green-700 hover:bg-green-800 text-white text-sm font-bold shadow-none shadow-green-700/20 transition-colors active:scale-95"
           >
             Edit Profile
           </button>
@@ -106,13 +106,13 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Main Profile Info */}
-        <div className="lg:col-span-2 bg-card border border-border/50 rounded-[8px] p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6 lg:gap-8 shadow-none">
+        <div className="lg:col-span-2 bg-card border border-border/50 rounded-[4px] p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6 lg:gap-8 shadow-none">
           <div className="relative shrink-0">
-            <div className="w-28 h-28 md:w-36 md:h-36 rounded-[8px] overflow-hidden border-2 border-border/50 bg-slate-100 dark:bg-slate-800">
+            <div className="w-28 h-28 md:w-36 md:h-36 rounded-[4px] overflow-hidden border-2 border-border/50 bg-slate-100 dark:bg-slate-800">
                <Image src={profile.avatar} alt={profile.name} width={150} height={150} className="w-full h-full object-cover" />
             </div>
             {profile.status === "VIP" && (
-              <div className="absolute -bottom-3 -right-3 bg-green-400 text-green-950 font-black text-xs px-3 py-1.5 rounded-lg border-2 border-card uppercase tracking-widest shadow-lg">
+              <div className="absolute -bottom-3 -right-3 bg-green-400 text-green-950 font-black text-xs px-3 py-1.5 rounded-[4px] border-2 border-card uppercase tracking-widest shadow-lg">
                 VIP
               </div>
             )}
@@ -142,10 +142,10 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
         </div>
 
         {/* AI Interaction Summary */}
-        <div className="bg-muted/20 border border-border/50 rounded-[8px] p-6 md:p-8 flex flex-col justify-center shadow-none relative overflow-hidden">
+        <div className="bg-muted/20 border border-border/50 rounded-[4px] p-6 md:p-8 flex flex-col justify-center shadow-none relative overflow-hidden">
           <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground mb-4">AI Interaction Summary</p>
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-[8px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-[4px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 flex items-center justify-center shrink-0">
                <Bot size={22} />
             </div>
             <div>
@@ -205,10 +205,10 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
                <div 
                  key={i} 
                  onClick={() => router.push(`/dashboard/orders/${order.id}`)}
-                 className="bg-card border border-border/50 rounded-[8px] p-5 flex items-center justify-between shadow-none hover:shadow-none transition-shadow group cursor-pointer"
+                 className="bg-card border border-border/50 rounded-[4px] p-5 flex items-center justify-between shadow-none hover:shadow-none transition-shadow group cursor-pointer"
                >
                  <div className="flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-[8px] bg-muted/40 border border-border/50 text-muted-foreground flex items-center justify-center group-hover:bg-muted transition-colors">
+                   <div className="w-12 h-12 rounded-[4px] bg-muted/40 border border-border/50 text-muted-foreground flex items-center justify-center group-hover:bg-muted transition-colors">
                      <Package size={20} />
                    </div>
                    <div>
@@ -218,7 +218,7 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
                  </div>
                  <div className="text-right">
                    <p className="text-sm font-black text-foreground mb-1">{order.total}</p>
-                   <span className="inline-block px-2.5 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-[9px] font-black tracking-widest uppercase rounded-md">
+                   <span className="inline-block px-2.5 py-1 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-[9px] font-black tracking-widest uppercase rounded-[4px]">
                      {order.status}
                    </span>
                  </div>
@@ -231,7 +231,7 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
         <div className="space-y-6 pt-2">
           
           {/* Preferred Categories */}
-          <div className="bg-card border border-border/50 rounded-[8px] p-6 lg:p-7 shadow-none">
+          <div className="bg-card border border-border/50 rounded-[4px] p-6 lg:p-7 shadow-none">
              <h3 className="text-xs font-extrabold uppercase tracking-widest text-foreground mb-6">Preferred Categories</h3>
              <div className="space-y-6">
                 {profile.preferences.map((pref, i) => (
@@ -241,9 +241,9 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
                       <span className="text-green-700 dark:text-green-500">{pref.pct}%</span>
                     </div>
                     {/* Progress Bar Container */}
-                    <div className="w-full h-1.5 bg-muted rounded-[8px] overflow-hidden">
+                    <div className="w-full h-1.5 bg-muted rounded-[4px] overflow-hidden">
                        <div 
-                         className="h-full bg-green-700 dark:bg-green-600 rounded-[8px]" 
+                         className="h-full bg-green-700 dark:bg-green-600 rounded-[4px]" 
                          style={{ width: `${pref.pct}%` }}
                        />
                     </div>
@@ -253,7 +253,7 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
           </div>
 
           {/* Private Notes */}
-          <div className="bg-card border border-border/50 rounded-[8px] p-6 lg:p-7 shadow-none">
+          <div className="bg-card border border-border/50 rounded-[4px] p-6 lg:p-7 shadow-none">
              <div className="flex items-center justify-between mb-5">
                <h3 className="text-xs font-extrabold uppercase tracking-widest text-foreground">Private Notes</h3>
                <button 
@@ -270,7 +270,7 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
              {/* Existing Note blocks */}
              <div className="space-y-4 mb-4 max-h-[300px] overflow-y-auto pr-2">
                {savedNotes.map((note, idx) => (
-                 <div key={idx} className="bg-muted/30 border border-border/50 rounded-[8px] p-5">
+                 <div key={idx} className="bg-muted/30 border border-border/50 rounded-[4px] p-5">
                    <p className="text-sm font-medium text-foreground/80 leading-relaxed">
                      {note.text}
                    </p>
@@ -286,12 +286,12 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
                  value={newNote}
                  onChange={(e) => setNewNote(e.target.value)}
                  placeholder="Add a quick note..."
-                 className="w-full bg-transparent border border-border/50 rounded-[8px] p-4 text-sm font-medium text-foreground outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all resize-none h-24 placeholder:text-muted-foreground/50 pb-12"
+                 className="w-full bg-transparent border border-border/50 rounded-[4px] p-4 text-sm font-medium text-foreground outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all resize-none h-24 placeholder:text-muted-foreground/50 pb-12"
                />
                <button 
                  onClick={handleAddNote}
                  disabled={!newNote.trim()}
-                 className="absolute bottom-3 right-3 bg-green-700 hover:bg-green-800 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-none shadow-green-700/20 active:scale-95 disabled:opacity-50"
+                 className="absolute bottom-3 right-3 bg-green-700 hover:bg-green-800 text-white px-4 py-1.5 rounded-[4px] text-xs font-bold transition-all shadow-none shadow-green-700/20 active:scale-95 disabled:opacity-50"
                >
                  Save
                </button>
@@ -308,7 +308,7 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
 // Sub-component for Metrics
 function MetricCard({ label, value, subText, icon, trendColor }: { label: string, value: string, subText: string, icon?: React.ReactNode, trendColor?: string }) {
   return (
-    <div className="bg-card border border-border/50 rounded-[8px] p-6 lg:p-7 shadow-none hover:shadow-none transition-shadow">
+    <div className="bg-card border border-border/50 rounded-[4px] p-6 lg:p-7 shadow-none hover:shadow-none transition-shadow">
       <p className="text-[10px] uppercase font-extrabold tracking-widest text-muted-foreground mb-3">{label}</p>
       <p className="text-3xl font-black text-foreground mb-2">{value}</p>
       <div className="flex items-center gap-2">

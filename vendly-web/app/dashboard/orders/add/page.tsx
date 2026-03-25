@@ -179,10 +179,10 @@ export default function CreateManualOrderPage() {
       {showCustomerModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCustomerModal(false)} />
-          <div className="relative bg-background dark:bg-card rounded-[8px] border border-border shadow-2xl w-full max-w-md p-6 z-10">
+          <div className="relative bg-background dark:bg-card rounded-[4px] border border-border shadow-2xl w-full max-w-md p-6 z-10">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-extrabold text-foreground">Select Customer</h3>
-              <button onClick={() => setShowCustomerModal(false)} className="p-1.5 rounded-[8px] hover:bg-muted transition-colors text-muted-foreground">
+              <button onClick={() => setShowCustomerModal(false)} className="p-1.5 rounded-[4px] hover:bg-muted transition-colors text-muted-foreground">
                 <X size={18} />
               </button>
             </div>
@@ -193,7 +193,7 @@ export default function CreateManualOrderPage() {
                 placeholder="Search by name or email..."
                 value={customerSearch}
                 onChange={(e) => setCustomerSearch(e.target.value)}
-                className="w-full bg-muted/40 border border-border/50 rounded-[8px] pl-10 pr-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all"
+                className="w-full bg-muted/40 border border-border/50 rounded-[4px] pl-10 pr-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all"
                 autoFocus
               />
             </div>
@@ -202,7 +202,7 @@ export default function CreateManualOrderPage() {
                 <button
                   key={c.id}
                   onClick={() => selectCustomer(c)}
-                  className="w-full text-left p-4 rounded-[8px] hover:bg-muted transition-colors border border-transparent hover:border-border/50"
+                  className="w-full text-left p-4 rounded-[4px] hover:bg-muted transition-colors border border-transparent hover:border-border/50"
                 >
                   <p className="text-sm font-extrabold text-foreground">{c.name}</p>
                   <p className="text-xs font-bold text-muted-foreground mt-0.5">{c.email} · {c.phone}</p>
@@ -238,7 +238,7 @@ export default function CreateManualOrderPage() {
           <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[8px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-[4px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
                   <UserPlus size={18} />
                 </div>
                 <h2 className="text-xl font-extrabold text-foreground">Customer Selection</h2>
@@ -262,7 +262,7 @@ export default function CreateManualOrderPage() {
                   placeholder="e.g. Chinua Achebe"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full bg-muted/40 border border-border/50 rounded-xl px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
+                  className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
                 />
               </div>
               <div className="space-y-2">
@@ -272,7 +272,7 @@ export default function CreateManualOrderPage() {
                   placeholder="chinua@example.com"
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="w-full bg-muted/40 border border-border/50 rounded-xl px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
+                  className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
                 />
               </div>
               <div className="col-span-1 md:col-span-2 space-y-2">
@@ -282,7 +282,7 @@ export default function CreateManualOrderPage() {
                   placeholder="+234 ..."
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full bg-muted/40 border border-border/50 rounded-xl px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
+                  className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
                 />
               </div>
             </div>
@@ -292,7 +292,7 @@ export default function CreateManualOrderPage() {
           <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[8px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-[4px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
                   <Package size={18} />
                 </div>
                 <h2 className="text-xl font-extrabold text-foreground">Items &amp; Inventory</h2>
@@ -308,10 +308,10 @@ export default function CreateManualOrderPage() {
                 {cart.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-muted/30 border border-border/60 rounded-[8px] p-4 flex flex-col sm:flex-row items-center gap-4"
+                    className="bg-muted/30 border border-border/60 rounded-[4px] p-4 flex flex-col sm:flex-row items-center gap-4"
                   >
                     <div className="flex items-center gap-4 flex-1 w-full">
-                      <div className="w-14 h-14 rounded-[8px] bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="w-14 h-14 rounded-[4px] bg-slate-900 flex items-center justify-center overflow-hidden shrink-0">
                         <Image src={item.image} width={40} height={40} alt={item.name} className="object-cover brightness-110" />
                       </div>
                       <div>
@@ -323,17 +323,17 @@ export default function CreateManualOrderPage() {
 
                     <div className="flex items-center gap-4 shrink-0">
                       {/* Qty controls */}
-                      <div className="flex items-center gap-2 bg-white dark:bg-card border border-border/60 rounded-[8px] px-3 py-2">
+                      <div className="flex items-center gap-2 bg-white dark:bg-card border border-border/60 rounded-[4px] px-3 py-2">
                         <button
                           onClick={() => updateQty(item.id, -1)}
-                          className="w-6 h-6 flex items-center justify-center rounded-[8px] bg-muted hover:bg-muted/80 transition-colors text-foreground"
+                          className="w-6 h-6 flex items-center justify-center rounded-[4px] bg-muted hover:bg-muted/80 transition-colors text-foreground"
                         >
                           <Minus size={12} />
                         </button>
                         <span className="text-sm font-extrabold text-foreground w-6 text-center">{item.qty}</span>
                         <button
                           onClick={() => updateQty(item.id, 1)}
-                          className="w-6 h-6 flex items-center justify-center rounded-[8px] bg-muted hover:bg-muted/80 transition-colors text-foreground"
+                          className="w-6 h-6 flex items-center justify-center rounded-[4px] bg-muted hover:bg-muted/80 transition-colors text-foreground"
                         >
                           <Plus size={12} />
                         </button>
@@ -347,7 +347,7 @@ export default function CreateManualOrderPage() {
                       {/* Remove */}
                       <button
                         onClick={() => removeItem(item.id, item.name)}
-                        className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-[8px] transition-colors"
+                        className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-[4px] transition-colors"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -359,7 +359,7 @@ export default function CreateManualOrderPage() {
 
             {/* Product search */}
             <div className="relative">
-              <div className="border border-border/60 rounded-[8px] p-6">
+              <div className="border border-border/60 rounded-[4px] p-6">
                 <p className="text-xs font-bold text-muted-foreground mb-3 text-center">
                   {cart.length === 0 ? "Search for products to add to this order" : "Add more products"}
                 </p>
@@ -375,13 +375,13 @@ export default function CreateManualOrderPage() {
                     }}
                     onFocus={() => setShowProductResults(true)}
                     onBlur={() => setTimeout(() => setShowProductResults(false), 200)}
-                    className="w-full bg-muted/40 border border-border/50 rounded-[8px] pl-10 pr-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
+                    className="w-full bg-muted/40 border border-border/50 rounded-[4px] pl-10 pr-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
                   />
                 </div>
 
                 {/* Search results dropdown */}
                 {showProductResults && filteredProducts.length > 0 && (
-                  <div className="mt-3 bg-white dark:bg-card border border-border/50 rounded-[8px] overflow-hidden max-w-sm mx-auto">
+                  <div className="mt-3 bg-white dark:bg-card border border-border/50 rounded-[4px] overflow-hidden max-w-sm mx-auto">
                     {filteredProducts.map((p) => {
                       const inCart = cart.find((c) => c.id === p.id);
                       return (
@@ -390,7 +390,7 @@ export default function CreateManualOrderPage() {
                           onMouseDown={() => addToCart(p)}
                           className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors border-b border-border/30 last:border-0 text-left"
                         >
-                          <div className="w-10 h-10 rounded-[8px] bg-slate-900 overflow-hidden shrink-0">
+                          <div className="w-10 h-10 rounded-[4px] bg-slate-900 overflow-hidden shrink-0">
                             <Image src={p.image} width={40} height={40} alt={p.name} className="object-cover brightness-110" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -417,9 +417,9 @@ export default function CreateManualOrderPage() {
           </div>
 
           {/* Logistics & Notes */}
-          <div className="bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 lg:p-8">
+          <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-6 lg:p-8">
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-[8px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-[4px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
                 <MapPin size={18} />
               </div>
               <h2 className="text-xl font-extrabold text-foreground">Logistics &amp; Notes</h2>
@@ -433,7 +433,7 @@ export default function CreateManualOrderPage() {
                   placeholder="Street Address"
                   value={streetAddress}
                   onChange={(e) => setStreetAddress(e.target.value)}
-                  className="w-full bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
+                  className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <input
@@ -441,14 +441,14 @@ export default function CreateManualOrderPage() {
                     placeholder="City"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
+                    className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
                   />
                   <input
                     type="text"
                     placeholder="State / Province"
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="w-full bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
+                    className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium"
                   />
                 </div>
                 <label
@@ -456,7 +456,7 @@ export default function CreateManualOrderPage() {
                   onClick={() => setShippingSameAsBilling((v) => !v)}
                 >
                   <div
-                    className={`w-5 h-5 rounded-[2px] border-2 flex items-center justify-center transition-colors ${
+                    className={`w-5 h-5 rounded-[4px] border-2 flex items-center justify-center transition-colors ${
                       shippingSameAsBilling
                         ? "bg-green-600 border-green-600 text-white"
                         : "border-muted-foreground bg-transparent"
@@ -476,16 +476,16 @@ export default function CreateManualOrderPage() {
                   placeholder="Add any special instructions or internal notes here..."
                   value={orderNotes}
                   onChange={(e) => setOrderNotes(e.target.value)}
-                  className="w-full h-[150px] bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium resize-none border-dashed"
+                  className="w-full h-[150px] bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 placeholder:font-medium resize-none border-dashed"
                 />
               </div>
             </div>
           </div>
 
           {/* Payment Method */}
-          <div className="bg-white dark:bg-card rounded-[8px] border border-border/50 p-6 lg:p-8">
+          <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-6 lg:p-8">
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-[8px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-[4px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
                 <CreditCard size={18} />
               </div>
               <h2 className="text-xl font-extrabold text-foreground">Payment Method</h2>
@@ -499,7 +499,7 @@ export default function CreateManualOrderPage() {
                     setPaymentMethod(id as any);
                     toast.success(`Payment method set to ${label}`);
                   }}
-                  className={`flex flex-col items-center justify-center gap-3 p-6 rounded-[8px] border-2 transition-all ${
+                  className={`flex flex-col items-center justify-center gap-3 p-6 rounded-[4px] border-2 transition-all ${
                     paymentMethod === id
                       ? "bg-green-100 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400 scale-[1.02]"
                       : "bg-muted/30 border-border/50 hover:border-border hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -516,7 +516,7 @@ export default function CreateManualOrderPage() {
         {/* ── Right Column (Sticky Summary) ── */}
         <div className="w-full xl:w-[400px] shrink-0 space-y-6 xl:sticky xl:top-8">
 
-          <div className="bg-green-50/50 dark:bg-green-950/10 rounded-[8px] border border-green-100 dark:border-green-900/30 p-6 lg:p-8 flex flex-col">
+          <div className="bg-green-50/50 dark:bg-green-950/10 rounded-[4px] border border-green-100 dark:border-green-900/30 p-6 lg:p-8 flex flex-col">
             <h2 className="text-xl font-extrabold text-foreground mb-8">Order Summary</h2>
 
             {/* Cart preview */}
@@ -571,7 +571,7 @@ export default function CreateManualOrderPage() {
               <button
                 onClick={handleCreateOrder}
                 disabled={isSubmitting}
-                className={`w-full bg-green-700 hover:bg-green-800 text-white py-4 rounded-[8px] font-extrabold text-base transition-all hover:scale-105 active:scale-95 ${
+                className={`w-full bg-green-700 hover:bg-green-800 text-white py-4 rounded-[4px] font-extrabold text-base transition-all hover:scale-105 active:scale-95 ${
                   isSubmitting ? "opacity-70 cursor-not-allowed hover:scale-100 active:scale-100" : ""
                 }`}
               >
@@ -580,7 +580,7 @@ export default function CreateManualOrderPage() {
               <button
                 onClick={handleDiscard}
                 disabled={isSubmitting}
-                className="w-full bg-green-100 dark:bg-green-900/30 text-green-900 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-900/50 py-4 rounded-[8px] font-extrabold text-sm transition-colors text-center disabled:opacity-50"
+                className="w-full bg-green-100 dark:bg-green-900/30 text-green-900 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-900/50 py-4 rounded-[4px] font-extrabold text-sm transition-colors text-center disabled:opacity-50"
               >
                 Discard Draft
               </button>
@@ -588,8 +588,8 @@ export default function CreateManualOrderPage() {
           </div>
 
           {/* Quick tip */}
-          <div className="bg-muted/40 rounded-[8px] border border-border/50 p-6 flex gap-4">
-            <div className="w-8 h-8 rounded-[8px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+          <div className="bg-muted/40 rounded-[4px] border border-border/50 p-6 flex gap-4">
+            <div className="w-8 h-8 rounded-[4px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
               <Lightbulb size={16} className="fill-current" />
             </div>
             <div>

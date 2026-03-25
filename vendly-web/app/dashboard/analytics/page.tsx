@@ -90,11 +90,11 @@ const TRAFFIC_SOURCES: TrafficSource[] = [
 /** Metric card at the top */
 function MetricCard({ label, value, badge, badgePositive, sub }: MetricCard) {
   return (
-    <div className="bg-card border border-border/40 rounded-2xl p-6 flex flex-col gap-2 shadow-minimal">
+    <div className="bg-card border border-border/40 rounded-[4px] p-6 flex flex-col gap-2 shadow-minimal">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-muted-foreground">{label}</p>
         <span
-          className={`text-xs font-extrabold px-2.5 py-1 rounded-[6px] ${
+          className={`text-xs font-extrabold px-2.5 py-1 rounded-[4px] ${
             badgePositive
               ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400"
               : "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
@@ -258,14 +258,14 @@ export default function AnalyticsPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => toast.info("Downloading report...")}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-[8px] border border-border bg-background text-sm font-bold text-foreground hover:bg-muted transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-[4px] border border-border bg-background text-sm font-bold text-foreground hover:bg-muted transition-colors"
           >
             <Download size={15} />
             Download Report
           </button>
           <Link
             href="/dashboard/analytics/live"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-[8px] bg-green-700 hover:bg-green-800 text-white text-sm font-bold transition-colors shadow-md shadow-green-700/20"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-[4px] bg-green-700 hover:bg-green-800 text-white text-sm font-bold transition-colors shadow-md shadow-green-700/20"
           >
             <Activity size={15} />
             Real-time View
@@ -284,7 +284,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
         {/* Revenue vs Expenses (2/3 width) */}
-        <div className="lg:col-span-2 bg-card border border-border/40 rounded-2xl p-6 shadow-minimal">
+        <div className="lg:col-span-2 bg-card border border-border/40 rounded-[4px] p-6 shadow-minimal">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6">
             <h2 className="text-base font-extrabold text-foreground">Revenue vs. Expenses</h2>
             
@@ -305,13 +305,13 @@ export default function AnalyticsPage() {
               <div className="relative z-10">
                 <button 
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-muted/40 hover:bg-muted border border-border/50 rounded-[6px] text-xs font-extrabold capitalize text-foreground transition-colors shadow-sm"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-muted/40 hover:bg-muted border border-border/50 rounded-[4px] text-xs font-extrabold capitalize text-foreground transition-colors shadow-sm"
                 >
                   {activeTab} 
                   <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-32 bg-card border border-border/50 shadow-lg rounded-[8px] py-1 z-50 overflow-hidden">
+                  <div className="absolute right-0 top-full mt-1 w-32 bg-card border border-border/50 shadow-lg rounded-[4px] py-1 z-50 overflow-hidden">
                     {(["weekly", "monthly", "yearly"] as const).map(t => (
                       <button
                         key={t}
@@ -336,7 +336,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Top Categories (1/3 width) */}
-        <div className="bg-card border border-border/40 rounded-2xl p-6 shadow-minimal">
+        <div className="bg-card border border-border/40 rounded-[4px] p-6 shadow-minimal">
           <h2 className="text-base font-extrabold text-foreground mb-6">Top Categories</h2>
           <DonutChart categories={TOP_CATEGORIES} />
         </div>
@@ -346,7 +346,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* AI Performance Insights */}
-        <div className="bg-card border border-border/40 rounded-2xl p-6 shadow-minimal relative overflow-hidden">
+        <div className="bg-card border border-border/40 rounded-[4px] p-6 shadow-minimal relative overflow-hidden">
           {/* Sparkle decoration */}
           <div className="absolute top-5 right-5 text-green-400 opacity-60">
             <Sparkles size={22} />
@@ -358,7 +358,7 @@ export default function AnalyticsPage() {
 
           {/* AI Assisted Sales block */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-[8px] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
               <Bot size={20} />
             </div>
             <div>
@@ -374,7 +374,7 @@ export default function AnalyticsPage() {
 
           {/* Sub-stats */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-muted/30 border border-border/40 rounded-[8px] p-4">
+            <div className="bg-muted/30 border border-border/40 rounded-[4px] p-4">
               <div className="flex items-center gap-1.5 mb-1">
                 <Clock size={13} className="text-muted-foreground" />
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
@@ -383,7 +383,7 @@ export default function AnalyticsPage() {
               </div>
               <p className="text-xl font-black text-foreground">142 hrs</p>
             </div>
-            <div className="bg-muted/30 border border-border/40 rounded-[8px] p-4">
+            <div className="bg-muted/30 border border-border/40 rounded-[4px] p-4">
               <div className="flex items-center gap-1.5 mb-1">
                 <Zap size={13} className="text-muted-foreground" />
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
@@ -396,7 +396,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Traffic Sources */}
-        <div className="bg-card border border-border/40 rounded-2xl p-6 shadow-minimal">
+        <div className="bg-card border border-border/40 rounded-[4px] p-6 shadow-minimal">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-extrabold text-foreground">Traffic Sources</h2>
             <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">

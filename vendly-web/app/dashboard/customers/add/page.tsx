@@ -77,12 +77,12 @@ export default function AddCustomerPage() {
       </div>
 
       {/* ── Main Form Card ── */}
-      <div className="bg-card border border-border/50 rounded-[8px] shadow-none p-6 lg:p-10 space-y-12 relative overflow-hidden">
+      <div className="bg-card border border-border/50 rounded-[4px] shadow-none p-6 lg:p-10 space-y-12 relative overflow-hidden">
         
         {/* Section 1: Personal Information */}
         <section className="space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[8px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
               <User size={18} />
             </div>
             <h2 className="text-lg font-extrabold text-foreground">Personal Information</h2>
@@ -97,7 +97,7 @@ export default function AddCustomerPage() {
                 value={formData.fullName}
                 onChange={handleInputChange}
                 placeholder="e.g. Ama Odunayo"
-                className="w-full bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
+                className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
               />
             </div>
             <div className="space-y-2">
@@ -108,7 +108,7 @@ export default function AddCustomerPage() {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="ama.o@example.com"
-                className="w-full bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
+                className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
               />
             </div>
             <div className="col-span-1 md:col-span-2 space-y-2">
@@ -119,7 +119,7 @@ export default function AddCustomerPage() {
                     name="countryCode"
                     value={formData.countryCode}
                     onChange={handleInputChange}
-                    className="w-full bg-muted/40 border border-border/50 rounded-[8px] pl-4 pr-8 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all appearance-none cursor-pointer"
+                    className="w-full bg-muted/40 border border-border/50 rounded-[4px] pl-4 pr-8 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all appearance-none cursor-pointer"
                   >
                     <option value="+234">+234</option>
                     <option value="+233">+233</option>
@@ -135,7 +135,7 @@ export default function AddCustomerPage() {
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="812 345 6789"
-                  className="w-full bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
+                  className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
                 />
               </div>
             </div>
@@ -145,7 +145,7 @@ export default function AddCustomerPage() {
         {/* Section 2: Shipping Address */}
         <section className="space-y-6">
            <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[8px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
               <Truck size={18} />
             </div>
             <h2 className="text-lg font-extrabold text-foreground">Shipping Address</h2>
@@ -160,7 +160,7 @@ export default function AddCustomerPage() {
                 value={formData.street}
                 onChange={handleInputChange}
                 placeholder="House number, Street name, Area"
-                className="w-full bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
+                className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
               />
             </div>
             
@@ -173,7 +173,7 @@ export default function AddCustomerPage() {
                   value={formData.city}
                   onChange={handleInputChange}
                   placeholder="Lagos"
-                  className="w-full bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
+                  className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
                 />
               </div>
                <div className="space-y-2">
@@ -184,7 +184,7 @@ export default function AddCustomerPage() {
                   value={formData.state}
                   onChange={handleInputChange}
                   placeholder="Lagos State"
-                  className="w-full bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
+                  className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
                 />
               </div>
               <div className="space-y-2">
@@ -195,7 +195,7 @@ export default function AddCustomerPage() {
                   value={formData.postalCode}
                   onChange={handleInputChange}
                   placeholder="100001"
-                  className="w-full bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
+                  className="w-full bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50"
                 />
               </div>
             </div>
@@ -205,7 +205,7 @@ export default function AddCustomerPage() {
         {/* Section 3: Private Notes */}
         <section className="space-y-6">
            <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[8px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
               <FileText size={18} />
             </div>
             <h2 className="text-lg font-extrabold text-foreground">Private Notes</h2>
@@ -218,7 +218,7 @@ export default function AddCustomerPage() {
                 value={formData.notes}
                 onChange={handleInputChange}
                 placeholder="Mention sizing preferences, preferred delivery times, or previous communication history..."
-                className="w-full h-32 bg-muted/40 border border-border/50 rounded-[8px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 resize-none"
+                className="w-full h-32 bg-muted/40 border border-border/50 rounded-[4px] px-4 py-3 text-sm font-bold text-foreground focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-muted-foreground/50 resize-none"
               />
           </div>
         </section>
@@ -235,7 +235,7 @@ export default function AddCustomerPage() {
           <button
             onClick={handleCreateCustomer}
             disabled={isSubmitting}
-            className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-8 py-3 rounded-[8px] text-sm font-extrabold transition-all shadow-md shadow-green-700/20 active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
+            className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-8 py-3 rounded-[4px] text-sm font-extrabold transition-all shadow-md shadow-green-700/20 active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
           >
             {isSubmitting ? "Creating..." : "Create Customer"}
             {!isSubmitting && <CheckCircle2 size={16} />}
@@ -247,13 +247,13 @@ export default function AddCustomerPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
         
         {/* Pro Tip Card */}
-        <div className="bg-card border border-border/50 rounded-[8px] p-6 lg:p-8 flex gap-5 relative overflow-hidden transition-all hover:shadow-none">
+        <div className="bg-card border border-border/50 rounded-[4px] p-6 lg:p-8 flex gap-5 relative overflow-hidden transition-all hover:shadow-none">
           {/* Faint star background graphic */}
           <div className="absolute -right-8 -bottom-8 text-muted/30 rotate-12 pointer-events-none">
             <StarGraphic />
           </div>
           
-          <div className="w-10 h-10 rounded-[8px] bg-green-400 dark:bg-green-600 flex items-center justify-center shrink-0 relative z-10 shadow-inner">
+          <div className="w-10 h-10 rounded-[4px] bg-green-400 dark:bg-green-600 flex items-center justify-center shrink-0 relative z-10 shadow-inner">
              <Sparkles size={20} className="text-white fill-current" />
           </div>
           <div className="relative z-10">
@@ -265,12 +265,12 @@ export default function AddCustomerPage() {
         </div>
 
         {/* Total Customers Metric */}
-        <div className="bg-card border border-border/50 rounded-[8px] p-6 lg:p-8 flex items-center justify-between transition-all hover:shadow-none">
+        <div className="bg-card border border-border/50 rounded-[4px] p-6 lg:p-8 flex items-center justify-between transition-all hover:shadow-none">
            <div>
             <p className="text-[10px] uppercase tracking-widest font-extrabold text-muted-foreground mb-2">Total Customers</p>
             <span className="text-4xl font-black text-green-700 dark:text-green-500 tracking-tight">1,284</span>
           </div>
-          <div className="w-12 h-12 rounded-[8px] bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 shrink-0">
+          <div className="w-12 h-12 rounded-[4px] bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 shrink-0">
             <TrendingUp size={20} />
           </div>
         </div>

@@ -34,7 +34,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
         </div>
         <h2 className="text-2xl font-extrabold text-foreground">Product Deleted</h2>
         <p className="text-muted-foreground font-medium">This product has been removed from your inventory.</p>
-        <Link href="/dashboard/inventory" className="mt-4 bg-green-700 text-white px-8 py-3 rounded-[8px] font-bold hover:bg-green-800 transition-colors shadow-lg">
+        <Link href="/dashboard/inventory" className="mt-4 bg-green-700 text-white px-8 py-3 rounded-[4px] font-bold hover:bg-green-800 transition-colors shadow-lg">
           Back to Inventory
         </Link>
       </div>
@@ -47,12 +47,12 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
       {/* DELETE CONFIRMATION MODAL */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-card rounded-[8px] p-8 max-w-md w-full shadow-2xl border border-border/50">
+          <div className="bg-white dark:bg-card rounded-[4px] p-8 max-w-md w-full shadow-2xl border border-border/50">
             <div className="flex items-center justify-between mb-6">
-              <div className="w-14 h-14 rounded-[8px] bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600">
+              <div className="w-14 h-14 rounded-[4px] bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600">
                 <Trash2 size={28} />
               </div>
-              <button onClick={() => setShowDeleteModal(false)} className="p-2 hover:bg-muted rounded-[8px] transition-colors text-muted-foreground">
+              <button onClick={() => setShowDeleteModal(false)} className="p-2 hover:bg-muted rounded-[4px] transition-colors text-muted-foreground">
                 <X size={20} />
               </button>
             </div>
@@ -61,10 +61,10 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
               Are you sure you want to delete <strong className="text-foreground">Premium Shea Butter Gold</strong>? This action cannot be undone.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-3 rounded-[8px] border border-border font-bold text-foreground hover:bg-muted transition-colors">
+              <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-3 rounded-[4px] border border-border font-bold text-foreground hover:bg-muted transition-colors">
                 Cancel
               </button>
-              <button onClick={handleDelete} className="flex-1 py-3 rounded-[8px] bg-red-600 hover:bg-red-700 text-white font-bold transition-colors shadow-lg active:scale-95">
+              <button onClick={handleDelete} className="flex-1 py-3 rounded-[4px] bg-red-600 hover:bg-red-700 text-white font-bold transition-colors shadow-lg active:scale-95">
                 Yes, Delete
               </button>
             </div>
@@ -75,10 +75,10 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
       {/* REVIEW MODAL */}
       {showReviewModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-card rounded-[8px] p-8 max-w-lg w-full shadow-2xl border border-border/50 max-h-[85vh] overflow-y-auto">
+          <div className="bg-white dark:bg-card rounded-[4px] p-8 max-w-lg w-full shadow-2xl border border-border/50 max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6 sticky top-0 bg-white dark:bg-card pb-2 z-10">
               <h2 className="text-2xl font-extrabold text-foreground">Customer Reviews</h2>
-              <button onClick={() => setShowReviewModal(false)} className="p-2 hover:bg-muted rounded-[8px] transition-colors text-muted-foreground">
+              <button onClick={() => setShowReviewModal(false)} className="p-2 hover:bg-muted rounded-[4px] transition-colors text-muted-foreground">
                 <X size={20} />
               </button>
             </div>
@@ -88,7 +88,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
                 { name: "Nkechi B.", rating: 5, comment: "Love the texture and the fact that it's ethically sourced. Will definitely reorder.", date: "Nov 22, 2024" },
                 { name: "Sarah M.", rating: 4, comment: "Great quality. Packaging could be improved slightly but the product itself is amazing.", date: "Nov 15, 2024" },
               ].map((review, i) => (
-                <div key={i} className="p-4 bg-muted/30 rounded-[8px] border border-border/40">
+                <div key={i} className="p-4 bg-muted/30 rounded-[4px] border border-border/40">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div>
                       <p className="font-extrabold text-foreground text-sm">{review.name}</p>
@@ -120,14 +120,14 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-muted/50 hover:bg-red-50 dark:hover:bg-red-950/40 text-muted-foreground hover:text-red-600 rounded-[8px] font-bold transition-all text-sm border border-transparent hover:border-red-100 dark:hover:border-red-900/50"
+            className="flex items-center gap-2 px-5 py-2.5 bg-muted/50 hover:bg-red-50 dark:hover:bg-red-950/40 text-muted-foreground hover:text-red-600 rounded-[4px] font-bold transition-all text-sm border border-transparent hover:border-red-100 dark:hover:border-red-900/50"
           >
             <Trash2 size={16} />
             <span>Delete</span>
           </button>
           <Link
             href={`/dashboard/inventory/add`}
-            className="bg-green-700 hover:bg-green-800 text-white px-6 py-2.5 rounded-[8px] font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-700/20 hover:scale-105 active:scale-95 text-sm"
+            className="bg-green-700 hover:bg-green-800 text-white px-6 py-2.5 rounded-[4px] font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-700/20 hover:scale-105 active:scale-95 text-sm"
           >
             <Edit2 size={16} />
             <span>Edit Product</span>
@@ -193,7 +193,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  className={`px-6 py-3 rounded-[8px] text-sm font-extrabold transition-all active:scale-95 shadow-none ${
+                  className={`px-6 py-3 rounded-[4px] text-sm font-extrabold transition-all active:scale-95 shadow-none ${
                     selectedSize === size
                       ? "border-2 border-green-700 bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-400 shadow-green-700/10"
                       : "border border-border bg-white dark:bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -218,7 +218,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
           <div className="grid grid-cols-2 gap-x-8 gap-y-2 pt-4">
             <div className="space-y-4">
               <h3 className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest pl-1">Specifications</h3>
-              <div className="space-y-3 bg-muted/30 p-4 rounded-[8px] border border-border/40">
+              <div className="space-y-3 bg-muted/30 p-4 rounded-[4px] border border-border/40">
                 {[["Weight", "0.65 kg"], ["Origin", "Northern Ghana"], ["Texture", "Smooth/Creamy"]].map(([k, v]) => (
                   <div key={k} className="flex justify-between items-center text-sm">
                     <span className="font-bold text-muted-foreground">{k}</span>
@@ -229,7 +229,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
             </div>
             <div className="space-y-4">
               <h3 className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest pl-1">Inventory</h3>
-              <div className="space-y-3 bg-muted/30 p-4 rounded-[8px] border border-border/40">
+              <div className="space-y-3 bg-muted/30 p-4 rounded-[4px] border border-border/40">
                 {[["Quantity", "1,248 units"], ["Warehouse", "Accra Central B2"], ["Min. Stock", "150 units"]].map(([k, v]) => (
                   <div key={k} className="flex justify-between items-center text-sm">
                     <span className="font-bold text-muted-foreground">{k}</span>
@@ -253,7 +253,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
             </div>
             <div className="text-right flex flex-col items-end shrink-0">
               <span className="text-2xl font-extrabold text-green-700 dark:text-green-500">+$12,450.00</span>
-              <div className="flex items-center justify-end gap-1 text-[11px] font-bold bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400 mt-2 px-2 py-1 rounded-md">
+              <div className="flex items-center justify-end gap-1 text-[11px] font-bold bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-400 mt-2 px-2 py-1 rounded-[4px]">
                 <TrendingUp size={12} />
                 <span>12.5% vs last month</span>
               </div>
@@ -264,10 +264,10 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
             {[45, 65, 30, 95, 45, 80, 50, 75].map((height, i) => (
               <div key={i} className="w-full relative group/bar flex flex-col justify-end h-full">
                 <div
-                  className="w-full bg-green-600/15 dark:bg-green-500/15 hover:bg-green-600/40 dark:hover:bg-green-500/40 rounded-t-lg transition-all duration-300 relative cursor-pointer"
+                  className="w-full bg-green-600/15 dark:bg-green-500/15 hover:bg-green-600/40 dark:hover:bg-green-500/40 rounded-t-[4px] transition-all duration-300 relative cursor-pointer"
                   style={{ height: `${height}%` }}
                 >
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-foreground text-background text-[11px] font-bold py-1.5 px-2.5 rounded-lg opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap shadow-xl z-10 pointer-events-none">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-foreground text-background text-[11px] font-bold py-1.5 px-2.5 rounded-[4px] opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap shadow-xl z-10 pointer-events-none">
                     ${height * 128}
                   </div>
                 </div>
@@ -325,7 +325,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
           <div className="mt-10 max-w-sm">
             <button
               onClick={() => setShowReviewModal(true)}
-              className="w-full py-4 rounded-[8px] border-2 border-border/80 font-extrabold text-sm text-foreground hover:bg-muted/50 hover:border-border transition-colors shadow-none active:scale-[0.98]"
+              className="w-full py-4 rounded-[4px] border-2 border-border/80 font-extrabold text-sm text-foreground hover:bg-muted/50 hover:border-border transition-colors shadow-none active:scale-[0.98]"
             >
               View Detailed Reviews
             </button>
@@ -362,7 +362,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
                 onClick={() => setExpandedLogistic(expandedLogistic === item.id ? null : item.id)}
                 className="w-full flex items-center gap-5 p-5 hover:bg-muted/30 transition-colors rounded-[1.5rem] group text-left"
               >
-                <div className={`w-14 h-14 rounded-[8px] flex items-center justify-center shrink-0 ${item.iconBg}`}>
+                <div className={`w-14 h-14 rounded-[4px] flex items-center justify-center shrink-0 ${item.iconBg}`}>
                   {item.icon}
                 </div>
                 <div className="flex-1 min-w-0 pr-4">
@@ -379,7 +379,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
               </button>
 
               {expandedLogistic === item.id && (
-                <div className="mx-5 mb-4 p-5 bg-muted/30 rounded-[8px] border border-border/40 text-sm font-medium text-muted-foreground leading-relaxed">
+                <div className="mx-5 mb-4 p-5 bg-muted/30 rounded-[4px] border border-border/40 text-sm font-medium text-muted-foreground leading-relaxed">
                   {item.detail}
                 </div>
               )}

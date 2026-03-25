@@ -215,13 +215,13 @@ export default function MessagesPage() {
             >
               <ChevronLeft size={20} />
             </button>
-            <div className="w-10 h-10 rounded-[8px] bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-300 font-black text-sm flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-[4px] bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-300 font-black text-sm flex items-center justify-center shrink-0">
               {selected.avatar}
             </div>
             <div>
               <p className="text-sm font-extrabold text-foreground leading-tight">{selected.name}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className={`w-1.5 h-1.5 rounded-[8px] shrink-0 ${STATUS_STYLES[selected.status].dot}`} />
+                <span className={`w-1.5 h-1.5 rounded-[4px] shrink-0 ${STATUS_STYLES[selected.status].dot}`} />
                 <span className="text-[10px] font-bold text-muted-foreground">
                   {takenOver ? "Human Active" : selected.status}
                 </span>
@@ -231,7 +231,7 @@ export default function MessagesPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleTakeOver}
-              className={`hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-[8px] text-sm font-extrabold transition-all shadow-none active:scale-95 ${
+              className={`hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-[4px] text-sm font-extrabold transition-all shadow-none active:scale-95 ${
                 takenOver
                   ? "bg-muted text-foreground border border-border"
                   : "bg-green-700 hover:bg-green-800 text-white shadow-green-700/20"
@@ -255,7 +255,7 @@ export default function MessagesPage() {
             if (msg.sender === "customer") {
               return (
                 <div key={msg.id} className="flex flex-col items-start gap-1 max-w-[70%]">
-                  <div className="bg-card border border-border/50 rounded-[8px] px-5 py-4 text-sm font-medium text-foreground shadow-minimal leading-relaxed">
+                  <div className="bg-card border border-border/50 rounded-[4px] px-5 py-4 text-sm font-medium text-foreground shadow-minimal leading-relaxed">
                     {msg.text}
                   </div>
                   <span className="text-[10px] text-muted-foreground font-medium px-1">{msg.time}</span>
@@ -268,7 +268,7 @@ export default function MessagesPage() {
                   <div className="text-[10px] font-extrabold text-green-700 dark:text-green-500 uppercase tracking-widest flex items-center gap-1.5 pr-1">
                     Verdant AI <Bot size={12} />
                   </div>
-                  <div className="bg-green-700 text-white rounded-3xl rounded-tr-lg px-5 py-4 text-sm font-medium leading-relaxed shadow-md shadow-green-700/20">
+                  <div className="bg-green-700 text-white rounded-[4px] rounded-tr-[4px] px-5 py-4 text-sm font-medium leading-relaxed shadow-md shadow-green-700/20">
                     {msg.text}
                   </div>
                   <span className="text-[10px] text-muted-foreground font-medium px-1">{msg.time}</span>
@@ -281,7 +281,7 @@ export default function MessagesPage() {
                 <div className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1.5 pr-1">
                   You <User size={12} />
                 </div>
-                <div className="bg-blue-600 text-white rounded-3xl rounded-tr-lg px-5 py-4 text-sm font-medium leading-relaxed">
+                <div className="bg-blue-600 text-white rounded-[4px] rounded-tr-[4px] px-5 py-4 text-sm font-medium leading-relaxed">
                   {msg.text}
                 </div>
                 <span className="text-[10px] text-muted-foreground font-medium px-1">{msg.time}</span>
@@ -295,7 +295,7 @@ export default function MessagesPage() {
               <div className="text-[10px] font-extrabold text-green-700 dark:text-green-500 uppercase tracking-widest flex items-center gap-1.5 pr-1">
                 Verdant AI <Bot size={12} />
               </div>
-              <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-2xl px-5 py-3 text-xs italic text-green-700 dark:text-green-400 font-semibold flex items-center gap-2">
+              <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-[4px] px-5 py-3 text-xs italic text-green-700 dark:text-green-400 font-semibold flex items-center gap-2">
                 <Loader2 size={12} className="animate-spin" />
                 AI is drafting a reply...
               </div>
@@ -307,7 +307,7 @@ export default function MessagesPage() {
 
         {/* Input Bar */}
         <div className="p-4 lg:p-5 border-t border-border/30 bg-card shrink-0">
-          <div className="flex items-center gap-3 bg-muted/40 rounded-2xl border border-border/50 px-4 py-3 focus-within:ring-2 focus-within:ring-green-500/20 focus-within:border-green-500 transition-all">
+          <div className="flex items-center gap-3 bg-muted/40 rounded-[4px] border border-border/50 px-4 py-3 focus-within:ring-2 focus-within:ring-green-500/20 focus-within:border-green-500 transition-all">
             <button
               onClick={() => toast.info("Attachment picker")}
               className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
@@ -331,7 +331,7 @@ export default function MessagesPage() {
             <button
               onClick={handleSend}
               disabled={!input.trim()}
-              className="w-9 h-9 bg-green-700 hover:bg-green-800 text-white rounded-[8px] flex items-center justify-center transition-all shadow-md shadow-green-700/20 active:scale-95 disabled:opacity-50 shrink-0"
+              className="w-9 h-9 bg-green-700 hover:bg-green-800 text-white rounded-[4px] flex items-center justify-center transition-all shadow-md shadow-green-700/20 active:scale-95 disabled:opacity-50 shrink-0"
             >
               <Send size={16} />
             </button>
@@ -358,11 +358,11 @@ export default function MessagesPage() {
           <div className="space-y-4">
             <PerfCard label="Avg. Response Time" value="1.2s" trend="↓ 40%" positive />
             <PerfCard label="Conversion Rate" value="24.8%" trend="↑ 5.2%" positive />
-            <div className="bg-muted/20 border border-border/50 rounded-2xl p-4">
+            <div className="bg-muted/20 border border-border/50 rounded-[4px] p-4">
               <p className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-widest mb-2">AI Autonomy</p>
               <p className="text-3xl font-black text-foreground mb-2">92%</p>
-              <div className="w-full h-1.5 bg-muted rounded-[8px] overflow-hidden mb-2">
-                <div className="h-full bg-green-600 rounded-[8px]" style={{ width: "92%" }} />
+              <div className="w-full h-1.5 bg-muted rounded-[4px] overflow-hidden mb-2">
+                <div className="h-full bg-green-600 rounded-[4px]" style={{ width: "92%" }} />
               </div>
               <p className="text-[10px] font-medium text-muted-foreground leading-snug">
                 92% of queries resolved without human intervention.
@@ -387,7 +387,7 @@ export default function MessagesPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-[8px] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
                 <Wallet size={14} />
               </div>
               <div>
@@ -402,14 +402,14 @@ export default function MessagesPage() {
         <div className="p-5 space-y-3">
           <button
             onClick={() => toast.info("Opening order history...")}
-            className="w-full py-3 rounded-[8px] bg-muted/40 hover:bg-muted border border-border/50 text-sm font-bold text-foreground transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-[4px] bg-muted/40 hover:bg-muted border border-border/50 text-sm font-bold text-foreground transition-colors flex items-center justify-center gap-2"
           >
             <ShoppingBag size={15} />
             View Order History
           </button>
           <button
             onClick={() => toast.info("Add Customer Tag")}
-            className="w-full py-3 rounded-[8px] bg-muted/40 hover:bg-muted border border-border/50 text-sm font-bold text-foreground transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-[4px] bg-muted/40 hover:bg-muted border border-border/50 text-sm font-bold text-foreground transition-colors flex items-center justify-center gap-2"
           >
             <Tag size={15} />
             Add Customer Tag
@@ -423,7 +423,7 @@ export default function MessagesPage() {
 // Sub-component for AI Performance metrics
 function PerfCard({ label, value, trend, positive }: { label: string; value: string; trend: string; positive: boolean }) {
   return (
-    <div className="bg-muted/20 border border-border/50 rounded-2xl p-4">
+    <div className="bg-muted/20 border border-border/50 rounded-[4px] p-4">
       <p className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-widest mb-1">{label}</p>
       <div className="flex items-baseline justify-between">
         <p className="text-2xl font-black text-foreground">{value}</p>

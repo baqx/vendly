@@ -99,14 +99,14 @@ function Sidebar({
         {mobile ? (
           <button
             onClick={onClose}
-            className="p-1.5 rounded-[8px] hover:bg-muted text-muted-foreground"
+            className="p-1.5 rounded-[4px] hover:bg-muted text-muted-foreground"
           >
             <X size={18} />
           </button>
         ) : (
           <button
             onClick={onToggle}
-            className="p-1.5 rounded-[8px] hover:bg-muted text-muted-foreground absolute -right-3 top-7 bg-background border border-border"
+            className="p-1.5 rounded-[4px] hover:bg-muted text-muted-foreground absolute -right-3 top-7 bg-background border border-border"
           >
             <ChevronLeft
               className={`${!isSidebarOpen && "rotate-180"} transition-transform`}
@@ -127,7 +127,7 @@ function Sidebar({
               key={item.href}
               href={item.href}
               onClick={() => mobile && onClose()}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-[8px] transition-all group font-bold text-[15px] ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-[4px] transition-all group font-bold text-[15px] ${
                 isActive
                   ? "bg-white dark:bg-muted border border-border/40 dark:border-border text-green-700 dark:text-green-500"
                   : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -149,8 +149,8 @@ function Sidebar({
 
       {/* User card */}
       <div className="p-4 mt-auto">
-        <div className="bg-background dark:bg-muted/50 rounded-[8px] p-3 border border-border/50 flex items-center gap-3 cursor-pointer hover:bg-muted/50 transition-colors">
-          <div className="w-10 h-10 rounded-[8px] bg-green-700 flex items-center justify-center text-white font-bold text-sm shrink-0">
+        <div className="bg-background dark:bg-muted/50 rounded-[4px] p-3 border border-border/50 flex items-center gap-3 cursor-pointer hover:bg-muted/50 transition-colors">
+          <div className="w-10 h-10 rounded-[4px] bg-green-700 flex items-center justify-center text-white font-bold text-sm shrink-0">
             VS
           </div>
           {expanded && (
@@ -235,7 +235,7 @@ export default function DashboardLayout({
         <header className="h-16 bg-background/80 backdrop-blur-md border-b border-border flex items-center justify-between px-6 sticky top-0 z-[40] transition-colors shadow-minimal">
           <div className="flex items-center gap-4 flex-1">
             <button
-              className="md:hidden p-2 hover:bg-muted rounded-[8px] transition-colors"
+              className="md:hidden p-2 hover:bg-muted rounded-[4px] transition-colors"
               onClick={() => setIsMobileSidebarOpen(true)}
             >
               <Menu size={24} />
@@ -244,7 +244,7 @@ export default function DashboardLayout({
               Vendly Dashboard
             </h2>
 
-            <div className="hidden md:flex items-center flex-1 max-w-md ml-8 bg-muted/50 dark:bg-muted/30 border border-border/50 rounded-[8px] px-4 py-2 hover:bg-muted/80 transition-colors focus-within:bg-background focus-within:ring-2 focus-within:ring-green-500/20 shadow-minimal">
+            <div className="hidden md:flex items-center flex-1 max-w-md ml-8 bg-muted/50 dark:bg-muted/30 border border-border/50 rounded-[4px] px-4 py-2 hover:bg-muted/80 transition-colors focus-within:bg-background focus-within:ring-2 focus-within:ring-green-500/20 shadow-minimal">
               <Search size={18} className="text-muted-foreground" />
               <input
                 type="text"
@@ -256,14 +256,14 @@ export default function DashboardLayout({
 
           <div className="flex items-center gap-4 ml-4">
             <ThemeToggle />
-            <button className="relative p-2 text-muted-foreground hover:bg-muted rounded-[8px] transition-colors hidden sm:block">
+            <button className="relative p-2 text-muted-foreground hover:bg-muted rounded-[4px] transition-colors hidden sm:block">
               <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-[8px] border-2 border-background" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-[4px] border-2 border-background" />
             </button>
-            <button className="p-2 text-muted-foreground hover:bg-muted rounded-[8px] transition-colors hidden sm:block">
+            <button className="p-2 text-muted-foreground hover:bg-muted rounded-[4px] transition-colors hidden sm:block">
               <MessageSquare size={20} />
             </button>
-            <div className="w-9 h-9 flex-shrink-0 rounded-[8px] overflow-hidden border border-border cursor-pointer ml-1">
+            <div className="w-9 h-9 flex-shrink-0 rounded-[4px] overflow-hidden border border-border cursor-pointer ml-1">
               <div className="w-full h-full bg-muted flex items-center justify-center">
                 <Image
                   src="/images/avatar1.png"
