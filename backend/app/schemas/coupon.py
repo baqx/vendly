@@ -18,5 +18,4 @@ class Coupon(CouponBase):
     vendorId: str
     createdAt: datetime
     
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

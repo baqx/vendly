@@ -16,5 +16,4 @@ class Transaction(TransactionBase):
     vendorId: str
     timestamp: datetime
     
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
