@@ -3,7 +3,7 @@
 This document is the definitive guide to the Vendly Backend API (v1). It contains every available endpoint, full request payloads, and unshortened example responses.
 
 ## 🌐 Base URL
-`https://vendly.outray.app/api/v1`
+`https://vendly-oqsy.onrender.com/api/v1`
 
 ## 📦 Standard Response Wrapper
 Most API responses are wrapped in a standard JSON object. Some endpoints return raw objects (noted below).
