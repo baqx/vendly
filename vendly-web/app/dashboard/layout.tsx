@@ -9,6 +9,7 @@ import {
   Users,
   MessageSquare,
   BarChart3,
+  Activity,
   Wallet as WalletIcon,
   Settings,
   ChevronLeft,
@@ -23,6 +24,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutGrid },
+  { name: "Live Activity", href: "/dashboard/analytics/live", icon: Activity },
   { name: "Products", href: "/dashboard/inventory", icon: Package },
   { name: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
@@ -192,14 +194,14 @@ export default function DashboardLayout({
       {/* Mobile backdrop */}
       {isMobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[50] md:hidden"
           onClick={() => setIsMobileSidebarOpen(false)}
         />
       )}
 
       {/* Mobile sidebar drawer */}
       <aside
-        className={`fixed top-0 left-0 h-full w-72 bg-background dark:bg-card border-r border-border flex flex-col z-50 transform transition-transform duration-300 md:hidden ${
+        className={`fixed top-0 left-0 h-full w-72 bg-background dark:bg-card border-r border-border flex flex-col z-[60] transform transition-transform duration-300 md:hidden ${
           isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -230,7 +232,7 @@ export default function DashboardLayout({
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-16 bg-background/80 backdrop-blur-md border-b border-border flex items-center justify-between px-6 sticky top-0 z-10 transition-colors shadow-minimal">
+        <header className="h-16 bg-background/80 backdrop-blur-md border-b border-border flex items-center justify-between px-6 sticky top-0 z-[40] transition-colors shadow-minimal">
           <div className="flex items-center gap-4 flex-1">
             <button
               className="md:hidden p-2 hover:bg-muted rounded-[8px] transition-colors"

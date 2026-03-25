@@ -16,6 +16,8 @@ import {
   User,
   CircleCheck,
   Loader2,
+  ChevronLeft,
+  Info
 } from "lucide-react";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -104,6 +106,7 @@ export default function MessagesPage() {
   const [input, setInput] = useState("");
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [isTakenOver, setIsTakenOver] = useState<Record<string, boolean>>({});
+  const [mobileView, setMobileView] = useState<"inbox" | "chat" | "info">("inbox");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const selected = CONVERSATIONS.find((c) => c.id === selectedId) || CONVERSATIONS[0];
@@ -114,6 +117,7 @@ export default function MessagesPage() {
     setSelectedId(id);
     setInput("");
     setIsAiTyping(false);
+    setMobileView("chat");
   };
 
   useEffect(() => {
@@ -161,7 +165,7 @@ export default function MessagesPage() {
     <div className="flex h-[calc(100vh-72px)] -m-6 lg:-m-8 overflow-hidden rounded-[4px] border border-border/30">
 
       {/* ── Column 1: Inbox List ── */}
-      <div className="w-[280px] lg:w-[300px] shrink-0 border-r border-border/40 bg-card flex flex-col">
+      <div className={`shrink-0 border-r border-border/40 bg-card flex-col lg:flex lg:w-[300px] ${mobileView === "inbox" ? "flex w-full" : "hidden"}`}>
         <div className="flex items-center justify-between p-5 border-b border-border/30">
           <h2 className="text-base font-black text-foreground">Inbox</h2>
           <span className="bg-green-700 text-white text-[10px] font-black px-2.5 py-1 rounded-[4px] tracking-wide">
@@ -201,10 +205,16 @@ export default function MessagesPage() {
       </div>
 
       {/* ── Column 2: Chat View ── */}
-      <div className="flex-1 flex flex-col bg-background min-w-0">
+      <div className={`flex-1 flex-col bg-background min-w-0 lg:flex ${mobileView === "chat" ? "flex" : "hidden"}`}>
         {/* Chat Header */}
         <div className="flex items-center justify-between p-4 lg:p-5 border-b border-border/30 bg-card shrink-0">
           <div className="flex items-center gap-3">
+            <button 
+              className="lg:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground" 
+              onClick={() => setMobileView("inbox")}
+            >
+              <ChevronLeft size={20} />
+            </button>
             <div className="w-10 h-10 rounded-[8px] bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-300 font-black text-sm flex items-center justify-center shrink-0">
               {selected.avatar}
             </div>
@@ -218,17 +228,25 @@ export default function MessagesPage() {
               </div>
             </div>
           </div>
-          <button
-            onClick={handleTakeOver}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-[8px] text-sm font-extrabold transition-all shadow-none active:scale-95 ${
-              takenOver
-                ? "bg-muted text-foreground border border-border"
-                : "bg-green-700 hover:bg-green-800 text-white shadow-green-700/20"
-            }`}
-          >
-            {takenOver ? <Bot size={16} /> : <User size={16} />}
-            {takenOver ? "Restore AI" : "Take Over Manually"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleTakeOver}
+              className={`hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-[8px] text-sm font-extrabold transition-all shadow-none active:scale-95 ${
+                takenOver
+                  ? "bg-muted text-foreground border border-border"
+                  : "bg-green-700 hover:bg-green-800 text-white shadow-green-700/20"
+              }`}
+            >
+              {takenOver ? <Bot size={16} /> : <User size={16} />}
+              {takenOver ? "Restore AI" : "Take Over"}
+            </button>
+            <button 
+              className="lg:hidden p-2 text-muted-foreground hover:text-foreground" 
+              onClick={() => setMobileView("info")}
+            >
+              <Info size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Messages Scroll Area */}
@@ -322,11 +340,17 @@ export default function MessagesPage() {
       </div>
 
       {/* ── Column 3: AI Performance & Customer Info ── */}
-      <div className="w-[260px] lg:w-[280px] shrink-0 border-l border-border/40 bg-card flex flex-col overflow-y-auto">
+      <div className={`shrink-0 border-l border-border/40 bg-card flex-col overflow-y-auto lg:flex lg:w-[280px] ${mobileView === "info" ? "flex w-full" : "hidden"}`}>
         
         {/* AI Performance */}
         <div className="p-5 border-b border-border/30">
           <div className="flex items-center gap-2 mb-4">
+            <button 
+              className="lg:hidden p-1 -ml-2 text-muted-foreground hover:text-foreground" 
+              onClick={() => setMobileView("chat")}
+            >
+              <ChevronLeft size={16} />
+            </button>
             <TrendingUp size={14} className="text-green-600 dark:text-green-500" />
             <h3 className="text-xs font-extrabold uppercase tracking-widest text-foreground">AI Performance</h3>
           </div>
@@ -354,7 +378,7 @@ export default function MessagesPage() {
           </h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-[8px] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-[8pxipip] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
                 <MapPin size={14} />
               </div>
               <div>

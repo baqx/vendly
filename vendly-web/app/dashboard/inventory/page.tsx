@@ -97,11 +97,11 @@ export default function InventoryPage() {
 
       {/* Invisible overlay to close dropdowns on outside click */}
       {openDropdown && (
-        <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />
+        <div className="fixed inset-0 z-30" onClick={() => setOpenDropdown(null)} />
       )}
 
       {/* Filters & View Controls */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-8 relative z-50">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-8 relative z-[35]">
         <div className="flex flex-wrap items-center gap-3">
 
           {/* CATEGORY FILTER */}
