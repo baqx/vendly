@@ -4,15 +4,29 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { login } from "@/lib/auth";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: Implement login logic
-    setTimeout(() => setLoading(false), 2000);
+    try {
+      await login(email, password);
+      toast.success("Welcome back.");
+      router.push("/dashboard");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to sign in.";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,6 +50,8 @@ export default function LoginPage() {
                 type="email" 
                 placeholder="name@company.com" 
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
               />
             </div>
@@ -53,6 +69,8 @@ export default function LoginPage() {
                 type="password" 
                 placeholder="••••••••" 
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
               />
             </div>

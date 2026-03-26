@@ -13,6 +13,9 @@ import {
   Loader2,
   AlertCircle
 } from "lucide-react";
+import useSWR from "swr";
+import { apiJson } from "@/lib/api";
+import { formatCurrency } from "@/lib/format";
 
 export default function WithdrawFundsPage() {
   const [amount, setAmount] = useState<string>("5000");

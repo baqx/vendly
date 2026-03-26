@@ -1,19 +1,107 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Download, Plus, Filter, Calendar, ChevronLeft, ChevronRight, ChevronRight as ChevronRightSmall, CheckCircle2, Clock, MapPin, Phone, Mail } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
+import { buildQuery } from "@/lib/api";
+import { formatCurrency, formatDate } from "@/lib/format";
 
-const allOrders = [
-  { id: "#ORD-8821", customer: "Elena Aris", email: "elena@example.com", avatar: "EA", product: "Organic Coffee Beans", qty: "2× 500g Packs", status: "DELIVERED", statusColor: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400", amount: "$45.00", date: "Oct 24, 2023" },
-  { id: "#ORD-8820", customer: "Kofi Osei", email: "kofi.o@provider.gh", avatar: "KO", product: "Premium Shea Butter", qty: "1× 1kg Tub", status: "SHIPPED", statusColor: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400", amount: "$28.50", date: "Oct 24, 2023" },
-  { id: "#ORD-8819", customer: "Mariam Ade", email: "m.ade@web.ng", avatar: "MA", product: "Artisan Spice Kit", qty: "3× Starter Sets", status: "PAID", statusColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400", amount: "$112.00", date: "Oct 23, 2023" },
-  { id: "#ORD-8818", customer: "Chidi L.", email: "chidi@corp.com", avatar: "CL", product: "Woven Storage Baskets", qty: "4× Medium", status: "PENDING", statusColor: "bg-green-50 text-green-700 dark:bg-muted dark:text-muted-foreground border border-green-200 dark:border-border", amount: "$210.00", date: "Oct 23, 2023" },
-  { id: "#ORD-8817", customer: "Jane Doe", email: "jane.doe@mail.com", avatar: "JD", product: "Handcrafted Soap Bar", qty: "10× Bulk Order", status: "DELIVERED", statusColor: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400", amount: "$60.00", date: "Oct 22, 2023" },
-  { id: "#ORD-8816", customer: "Sarah T.", email: "sarah@web.com", avatar: "ST", product: "Vanilla Extract", qty: "2× Bottles", status: "PENDING", statusColor: "bg-green-50 text-green-700 dark:bg-muted dark:text-muted-foreground border border-green-200 dark:border-border", amount: "$35.00", date: "Oct 21, 2023" },
-  { id: "#ORD-8815", customer: "Mark Z.", email: "markz@mail.com", avatar: "MZ", product: "Cocoa Powder", qty: "5× 1kg Bags", status: "PAID", statusColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400", amount: "$85.00", date: "Oct 20, 2023" },
+type OrderItem = {
+  id: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  variant?: string | null;
+  product?: { title?: string | null };
+};
+
+type Order = {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  shippingAddress?: string | null;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+  items: OrderItem[];
+};
+
+type NormalizedOrder = {
+  id: string;
+  customer: string;
+  email: string;
+  avatar: string;
+  product: string;
+  qty: string;
+  status: string;
+  statusColor: string;
+  amountValue: number;
+  amountLabel: string;
+  dateValue: string;
+  dateLabel: string;
+  shippingAddress?: string | null;
+  customerPhone?: string | null;
+};
+
+const STATUS_STYLES: Record<string, string> = {
+  PENDING: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200/60 dark:border-amber-900/50",
+  PAID: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  SHIPPED: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  DELIVERED: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  CANCELLED: "bg-muted text-muted-foreground",
+};
+
+const FALLBACK_ORDERS: NormalizedOrder[] = [
+  {
+    id: "ORD-8821",
+    customer: "Elena Aris",
+    email: "elena@example.com",
+    avatar: "EA",
+    product: "Organic Coffee Beans",
+    qty: "2x 500g Packs",
+    status: "DELIVERED",
+    statusColor: STATUS_STYLES.DELIVERED,
+    amountValue: 4500,
+    amountLabel: formatCurrency(4500),
+    dateValue: "2023-10-24",
+    dateLabel: "Oct 24, 2023",
+    shippingAddress: "42 Innovation Dr. Osu, Accra, Ghana",
+    customerPhone: "+233 24 555 0192",
+  },
+  {
+    id: "ORD-8820",
+    customer: "Kofi Osei",
+    email: "kofi.o@provider.gh",
+    avatar: "KO",
+    product: "Premium Shea Butter",
+    qty: "1x 1kg Tub",
+    status: "SHIPPED",
+    statusColor: STATUS_STYLES.SHIPPED,
+    amountValue: 2850,
+    amountLabel: formatCurrency(2850),
+    dateValue: "2023-10-24",
+    dateLabel: "Oct 24, 2023",
+    shippingAddress: "27 Gamel Abdul Nasser Ave, Accra",
+    customerPhone: "+233 24 555 0192",
+  },
+  {
+    id: "ORD-8819",
+    customer: "Mariam Ade",
+    email: "m.ade@web.ng",
+    avatar: "MA",
+    product: "Artisan Spice Kit",
+    qty: "3x Starter Sets",
+    status: "PAID",
+    statusColor: STATUS_STYLES.PAID,
+    amountValue: 11200,
+    amountLabel: formatCurrency(11200),
+    dateValue: "2023-10-23",
+    dateLabel: "Oct 23, 2023",
+    shippingAddress: "Ikoyi, Lagos, Nigeria",
+    customerPhone: "+234 801 234 5678",
+  },
 ];
 
 const tabs = ["All Orders", "Pending", "Paid", "Shipped", "Delivered"];
@@ -21,35 +109,90 @@ const tabs = ["All Orders", "Pending", "Paid", "Shipped", "Delivered"];
 export default function OrdersPage() {
   const router = useRouter();
   const [activeTab, setActiveTab ] = useState("All Orders");
-  const [activeOrder, setActiveOrder] = useState(allOrders[0]); // For bottom preview
+  const [activeOrder, setActiveOrder] = useState<NormalizedOrder>(FALLBACK_ORDERS[0]); // For bottom preview
   
   // Interactive States
   const [currentPage, setCurrentPage] = useState(1);
   const [isDateOpen, setIsDateOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [selectedDateFilter, setSelectedDateFilter] = useState("Oct 01 - Oct 31, 2023");
+  const [selectedDateFilter, setSelectedDateFilter] = useState("Last 30 Days");
   
   const ITEMS_PER_PAGE = 5;
+  const { data: orders } = useSWR<Order[]>(
+    `/orders${buildQuery({ skip: (currentPage - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE })}`
+  );
+
+  const normalizedOrders = useMemo<NormalizedOrder[]>(() => {
+    if (!orders || orders.length === 0) return FALLBACK_ORDERS;
+    return orders.map((order) => {
+      const productName = order.items?.[0]?.product?.title || order.items?.[0]?.productId || "Order items";
+      const qty = order.items?.[0]?.quantity ? `${order.items[0].quantity}x` : "--";
+      const status = order.status?.toUpperCase?.() || order.status;
+      const amountValue = order.totalAmount ?? 0;
+      return {
+        id: order.id,
+        customer: order.customerName || "Customer",
+        email: "--",
+        avatar: order.customerName?.slice(0, 2).toUpperCase() ?? "CU",
+        product: productName,
+        qty,
+        status,
+        statusColor: STATUS_STYLES[status] || "bg-muted text-muted-foreground",
+        amountValue,
+        amountLabel: formatCurrency(amountValue),
+        dateValue: order.createdAt,
+        dateLabel: formatDate(order.createdAt),
+        shippingAddress: order.shippingAddress,
+        customerPhone: order.customerPhone,
+      };
+    });
+  }, [orders]);
+
+  useEffect(() => {
+    if (normalizedOrders.length && activeOrder.id !== normalizedOrders[0].id) {
+      setActiveOrder(normalizedOrders[0]);
+    }
+  }, [normalizedOrders, activeOrder.id]);
+
+  const stats = useMemo(() => {
+    const totalOrders = normalizedOrders.length;
+    const pending = normalizedOrders.filter((order) => order.status === "PENDING").length;
+    const delivered = normalizedOrders.filter((order) => order.status === "DELIVERED").length;
+    const totalAmount = normalizedOrders.reduce((sum, order) => sum + (order.amountValue || 0), 0);
+    const avg = totalOrders ? totalAmount / totalOrders : 0;
+    const deliveryRate = totalOrders ? (delivered / totalOrders) * 100 : 0;
+    return {
+      totalOrders,
+      pending,
+      avg,
+      deliveryRate,
+    };
+  }, [normalizedOrders]);
+
+  const todayLabel = formatDate(new Date().toISOString());
+  const yesterdayLabel = formatDate(new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
   
   // Filter Data
-  const filteredOrders = allOrders.filter(o => {
+  const filteredOrders = normalizedOrders.filter(o => {
     // Tab Filter
     const matchesTab = activeTab === "All Orders" ? true : o.status === activeTab.toUpperCase();
     
-    // Date Filter (Simulated logic to actually change the list)
+    // Date Filter
     let matchesDate = true;
     if (selectedDateFilter === "Today") {
-      matchesDate = o.date === "Oct 24, 2023"; // Simulating "Today"
+      matchesDate = o.dateLabel === todayLabel;
     } else if (selectedDateFilter === "Yesterday") {
-      matchesDate = o.date === "Oct 23, 2023";
+      matchesDate = o.dateLabel === yesterdayLabel;
     } else if (selectedDateFilter === "Last 7 Days") {
-      matchesDate = ["Oct 24, 2023", "Oct 23, 2023", "Oct 22, 2023", "Oct 21, 2023", "Oct 20, 2023"].includes(o.date);
+      const date = new Date(o.dateValue);
+      const diff = Date.now() - date.getTime();
+      matchesDate = diff <= 7 * 24 * 60 * 60 * 1000;
     }
     
     return matchesTab && matchesDate;
   });
   
-  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / ITEMS_PER_PAGE));
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const handleExport = () => {
@@ -81,7 +224,7 @@ export default function OrdersPage() {
         {/* Total Orders */}
         <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">TOTAL ORDERS</p>
-          <h3 className="text-4xl font-extrabold mt-2 text-foreground">1,284</h3>
+          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.totalOrders.toLocaleString()}</h3>
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-green-600 dark:text-green-400 mt-auto pt-4">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-45"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             <span>+12.5% this month</span>
@@ -91,7 +234,7 @@ export default function OrdersPage() {
         {/* Pending Fulfillment */}
         <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">PENDING FULFILLMENT</p>
-          <h3 className="text-4xl font-extrabold mt-2 text-foreground">42</h3>
+          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.pending.toLocaleString()}</h3>
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
             <span>Requires Action</span>
           </div>
@@ -100,7 +243,7 @@ export default function OrdersPage() {
         {/* Average Order Value */}
         <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">AVERAGE ORDER VALUE</p>
-          <h3 className="text-4xl font-extrabold mt-2 text-foreground">$158.20</h3>
+          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{formatCurrency(stats.avg)}</h3>
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-green-600 dark:text-green-400 mt-auto pt-4">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-45"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             <span>+$4.10 growth</span>
@@ -110,10 +253,13 @@ export default function OrdersPage() {
         {/* Successful Delivery */}
         <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">SUCCESSFUL DELIVERY</p>
-          <h3 className="text-4xl font-extrabold mt-2 text-foreground">98.2%</h3>
+          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.deliveryRate.toFixed(1)}%</h3>
           <div className="mt-auto pt-5">
             <div className="h-1.5 w-full bg-muted rounded-[4px] overflow-hidden">
-              <div className="h-full bg-green-700 dark:bg-green-500 w-[98.2%] rounded-[4px]" />
+              <div
+                className="h-full bg-green-700 dark:bg-green-500 rounded-[4px]"
+                style={{ width: `${Math.min(100, Math.max(0, stats.deliveryRate)).toFixed(1)}%` }}
+              />
             </div>
           </div>
         </div>
@@ -153,7 +299,7 @@ export default function OrdersPage() {
               </button>
               {isDateOpen && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-card border border-border/50 rounded-[4px] shadow-xl z-10 overflow-hidden">
-                  {["Today", "Yesterday", "Last 7 Days", "Oct 01 - Oct 31, 2023", "Custom Range..."].map((d) => (
+                  {["Today", "Yesterday", "Last 7 Days", "Last 30 Days", "Custom Range..."].map((d) => (
                     <button key={d} onClick={() => { setSelectedDateFilter(d); setIsDateOpen(false); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition-colors">
                       {d}
                     </button>
@@ -240,11 +386,11 @@ export default function OrdersPage() {
                     </span>
                   </td>
 
-                  <td className="py-5 px-6 text-sm font-extrabold text-foreground">{order.amount}</td>
+                  <td className="py-5 px-6 text-sm font-extrabold text-foreground">{order.amountLabel}</td>
                   
                   <td className="py-5 px-6">
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-muted-foreground whitespace-nowrap">{order.date}</span>
+                      <span className="text-xs font-bold text-muted-foreground whitespace-nowrap">{order.dateLabel}</span>
                     </div>
                   </td>
 
@@ -335,7 +481,7 @@ export default function OrdersPage() {
               </div>
               <div>
                 <h3 className="text-base font-extrabold text-foreground">Logistics Status</h3>
-                <p className="text-xs font-bold text-muted-foreground mt-0.5">Tracker ID: #LX-200938</p>
+                <p className="text-xs font-bold text-muted-foreground mt-0.5">Order ID: {activeOrder.id}</p>
               </div>
             </div>
 
@@ -382,7 +528,7 @@ export default function OrdersPage() {
               </div>
               <div>
                 <h4 className="text-lg font-extrabold text-foreground">{activeOrder.customer}</h4>
-                <p className="text-xs font-bold text-muted-foreground mt-1">Premium Customer since 2021</p>
+                <p className="text-xs font-bold text-muted-foreground mt-1">Last order: {activeOrder.dateLabel}</p>
               </div>
             </div>
 
@@ -393,7 +539,7 @@ export default function OrdersPage() {
               </div>
               <div className="flex items-center gap-3">
                 <Phone size={16} className="text-muted-foreground shrink-0" />
-                <span className="text-sm font-bold text-foreground">+233 24 555 0192</span>
+                <span className="text-sm font-bold text-foreground">{activeOrder.customerPhone || "--"}</span>
               </div>
             </div>
           </div>
@@ -404,9 +550,7 @@ export default function OrdersPage() {
             
             <div className="bg-muted/30 p-5 rounded-[4px] border border-border/40 mb-6 flex-1">
               <p className="text-[15px] font-extrabold text-foreground leading-relaxed">
-                42 Innovation Dr. <br />
-                Floor 4, Suite 102 <br />
-                Osu, Accra, Ghana
+                {activeOrder.shippingAddress || "No shipping address provided."}
               </p>
             </div>
 

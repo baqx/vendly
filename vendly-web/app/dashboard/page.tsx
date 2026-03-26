@@ -5,6 +5,48 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, Cell } from "recharts";
+import useSWR from "swr";
+import { buildQuery } from "@/lib/api";
+import { formatCurrency, formatDate } from "@/lib/format";
+
+type DashboardStats = {
+  todayRevenue: number;
+  monthRevenue: number;
+  walletBalance: number;
+  activeChats: number;
+  takeoverAlerts: number;
+  productCount: number;
+  pendingOrders: number;
+  botEnabled: boolean;
+  chartData: { date: string; amount: number }[];
+};
+
+type OrderItem = {
+  id: string;
+  orderId: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  variant?: string | null;
+  product?: { title?: string | null };
+};
+
+type Order = {
+  id: string;
+  customerName: string;
+  status: string;
+  totalAmount: number;
+  createdAt: string;
+  items: OrderItem[];
+};
+
+type Product = {
+  id: string;
+  title: string;
+  basePrice: number;
+  stockLevel: number;
+  images?: { id: string; url: string }[];
+};
 
 const allData: Record<string, { name: string; revenue: number }[]> = {
   "Last 6 Months": [
@@ -30,12 +72,78 @@ const allData: Record<string, { name: string; revenue: number }[]> = {
 
 const PERIODS = ["Last 6 Months", "Last 3 Months", "Last Month"];
 
+const FALLBACK_ORDERS = [
+  { id: "VL-8821", customer: "Amara Okafor", product: "Premium Honey Bundle", status: "SHIPPED", amount: 12400, date: "2023-10-24" },
+  { id: "VL-8820", customer: "David Mensah", product: "Organic Coffee Beans", status: "PAID", amount: 4550, date: "2023-10-24" },
+  { id: "VL-8819", customer: "Sarah Johnson", product: "Hand-woven Basket", status: "PENDING", amount: 8900, date: "2023-10-23" },
+  { id: "VL-8818", customer: "Kwame Boateng", product: "Shea Butter Gold", status: "SHIPPED", amount: 21000, date: "2023-10-23" },
+];
+
+const FALLBACK_TOP_SELLERS = [
+  { name: "Wild Forest Honey", meta: "PANTRY", amount: 2480, bg: "bg-amber-100", img: "/images/honey.png" },
+  { name: "Shea Butter Gold", meta: "BEAUTY", amount: 1960, bg: "bg-orange-100", img: "/images/shea.png" },
+  { name: "Ceramic Earth Vase", meta: "DECOR", amount: 1520, bg: "bg-stone-200", img: "/images/vase.png" },
+  { name: "Premium Mangoes", meta: "FRUIT", amount: 1280, bg: "bg-yellow-100", img: "/images/mangoes.png" },
+];
+
+const statusPill = (status: string) => {
+  switch (status) {
+    case "PAID":
+      return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
+    case "SHIPPED":
+    case "DELIVERED":
+      return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+    case "PENDING":
+    default:
+      return "bg-green-50 text-green-700 dark:bg-muted dark:text-muted-foreground border border-green-200 dark:border-border";
+  }
+};
+
 export default function DashboardHome() {
   const [period, setPeriod] = useState("Last 6 Months");
   const [periodOpen, setPeriodOpen] = useState(false);
   const [taskModal, setTaskModal] = useState(false);
 
-  const revenueData = allData[period];
+  const { data: dashboard } = useSWR<DashboardStats>("/dashboard");
+  const { data: orders } = useSWR<Order[]>(
+    `/orders${buildQuery({ skip: 0, limit: 6 })}`
+  );
+  const { data: products } = useSWR<Product[]>(
+    `/products${buildQuery({ skip: 0, limit: 8 })}`
+  );
+
+  const apiChart = dashboard?.chartData?.map((entry) => ({
+    name: formatDate(entry.date),
+    revenue: entry.amount,
+  }));
+  const revenueData = apiChart && apiChart.length > 0 ? apiChart : allData[period];
+
+  const topProducts = products?.slice(0, 4) ?? [];
+  const recentRows =
+    orders && orders.length > 0
+      ? orders.slice(0, 4).map((order) => ({
+          id: order.id,
+          customer: order.customerName,
+          product:
+            order.items?.[0]?.product?.title ||
+            order.items?.[0]?.productId ||
+            "Order items",
+          status: order.status,
+          amount: order.totalAmount,
+          date: order.createdAt,
+        }))
+      : FALLBACK_ORDERS;
+
+  const sellerRows =
+    topProducts.length > 0
+      ? topProducts.map((p) => ({
+          name: p.title,
+          meta: "PRODUCT",
+          amount: p.basePrice,
+          bg: "bg-green-50",
+          img: p.images?.[0]?.url || "/images/honey.png",
+        }))
+      : FALLBACK_TOP_SELLERS;
 
   return (
     <div className="space-y-6 relative pb-20">
@@ -86,18 +194,20 @@ export default function DashboardHome() {
         <Link href="/dashboard/analytics" className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col justify-between h-full hover:bg-muted/5 transition-all group">
           <p className="text-sm font-bold text-muted-foreground">Total Revenue</p>
           <div className="mt-2">
-            <h3 className="text-4xl font-extrabold text-green-700 dark:text-green-500 tracking-tight">$12,450.00</h3>
+            <h3 className="text-4xl font-extrabold text-green-700 dark:text-green-500 tracking-tight">
+              {formatCurrency(dashboard?.monthRevenue ?? 0)}
+            </h3>
             <div className="flex items-center gap-1.5 text-[13px] font-bold text-green-600 dark:text-green-400 mt-3">
               <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              <span>+12.5% from last month</span>
+              <span>Month to date</span>
             </div>
           </div>
         </Link>
 
-        {/* Total Orders */}
+        {/* Pending Orders */}
         <Link href="/dashboard/orders" className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col h-full hover:bg-muted/5 transition-all">
-          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">TOTAL ORDERS</p>
-          <h3 className="text-3xl font-extrabold mt-2 text-foreground">324</h3>
+          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">PENDING ORDERS</p>
+          <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.pendingOrders ?? 0}</h3>
           <div className="mt-auto pt-6">
             <div className="h-1.5 w-full bg-muted rounded-[4px] overflow-hidden">
               <div className="h-full bg-green-700 dark:bg-green-500 w-2/3 rounded-[4px]" />
@@ -105,10 +215,10 @@ export default function DashboardHome() {
           </div>
         </Link>
 
-        {/* Active Customers */}
+        {/* Active Chats */}
         <Link href="/dashboard/customers" className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col h-full hover:bg-muted/5 transition-all">
-          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ACTIVE CUSTOMERS</p>
-          <h3 className="text-3xl font-extrabold mt-2 text-foreground">215</h3>
+          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ACTIVE CHATS</p>
+          <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.activeChats ?? 0}</h3>
           <div className="mt-auto pt-6 flex items-center">
             <div className="flex -space-x-3">
               {[1, 2, 3, 4].map((i) => (
@@ -123,13 +233,13 @@ export default function DashboardHome() {
           </div>
         </Link>
 
-        {/* Pending Tasks — opens modal */}
+        {/* Takeover Alerts — opens modal */}
         <button
           onClick={() => setTaskModal(true)}
           className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col h-full text-left hover:bg-muted/5 transition-all hover:border-red-200 dark:hover:border-red-900/50"
         >
-          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">PENDING TASKS</p>
-          <h3 className="text-3xl font-extrabold mt-2 text-foreground">12</h3>
+          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">TAKEOVER ALERTS</p>
+          <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.takeoverAlerts ?? 0}</h3>
           <div className="mt-auto pt-6 flex items-center gap-1.5 text-[13px] font-bold text-red-500">
             <span className="w-4 h-4 rounded-[4px] bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-[10px] shrink-0">!</span>
             <span>Needs attention</span>
@@ -273,23 +383,18 @@ export default function DashboardHome() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-muted/50">
-                {[
-                  { id: "#VL-8821", customer: "Amara Okafor", product: "Premium Honey Bundle", status: "SHIPPED", statusColor: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400", amount: "$124.00", date: "Oct 24, 2023" },
-                  { id: "#VL-8820", customer: "David Mensah", product: "Organic Coffee Beans", status: "PAID", statusColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400", amount: "$45.50", date: "Oct 24, 2023" },
-                  { id: "#VL-8819", customer: "Sarah Johnson", product: "Hand-woven Basket", status: "PENDING", statusColor: "bg-green-50 text-green-700 dark:bg-muted dark:text-muted-foreground border border-green-200 dark:border-border", amount: "$89.00", date: "Oct 23, 2023" },
-                  { id: "#VL-8818", customer: "Kwame Boateng", product: "Shea Butter Gold", status: "SHIPPED", statusColor: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400", amount: "$210.00", date: "Oct 23, 2023" },
-                ].map((row, i) => (
+                {recentRows.map((row, i) => (
                   <tr key={i} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => {}}>
-                    <td className="py-4 px-2 text-xs font-bold text-muted-foreground whitespace-nowrap">{row.id}</td>
+                    <td className="py-4 px-2 text-xs font-bold text-muted-foreground whitespace-nowrap">#{row.id}</td>
                     <td className="py-4 px-2 text-sm font-bold text-foreground whitespace-nowrap">{row.customer}</td>
                     <td className="py-4 px-2 text-sm font-medium text-foreground max-w-[150px] truncate">{row.product}</td>
                     <td className="py-4 px-2">
-                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-[4px] uppercase tracking-wider ${row.statusColor}`}>
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-[4px] uppercase tracking-wider ${statusPill(row.status)}`}>
                         {row.status}
                       </span>
                     </td>
-                    <td className="py-4 px-2 text-sm font-extrabold text-foreground text-right whitespace-nowrap">{row.amount}</td>
-                    <td className="py-4 px-2 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">{row.date}</td>
+                    <td className="py-4 px-2 text-sm font-extrabold text-foreground text-right whitespace-nowrap">{formatCurrency(row.amount)}</td>
+                    <td className="py-4 px-2 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">{formatDate(row.date)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -301,12 +406,7 @@ export default function DashboardHome() {
         <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-6 flex flex-col">
           <h3 className="text-xl font-bold text-foreground mb-6">Top Sellers</h3>
           <div className="space-y-5 flex-1">
-            {[
-              { name: "Wild Forest Honey", meta: "PANTRY • 124 SALES", amount: "$2,480", bg: "bg-amber-100", img: "/images/honey.png" },
-              { name: "Shea Butter Gold", meta: "BEAUTY • 98 SALES", amount: "$1,960", bg: "bg-orange-100", img: "/images/shea.png" },
-              { name: "Ceramic Earth Vase", meta: "DECOR • 76 SALES", amount: "$1,520", bg: "bg-stone-200", img: "/images/vase.png" },
-              { name: "Premium Mangoes", meta: "FRUIT • 64 SALES", amount: "$1,280", bg: "bg-yellow-100", img: "/images/mangoes.png" },
-            ].map((item, i) => (
+            {sellerRows.map((item, i) => (
               <Link key={i} href="/dashboard/inventory" className="flex items-center gap-4 hover:bg-muted/30 rounded-[4px] p-1.5 -mx-1.5 transition-colors group">
                 <div className={`w-12 h-12 rounded-[4px] flex items-center justify-center shrink-0 overflow-hidden ${item.bg}`}>
                   <Image src={item.img} width={48} height={48} alt={item.name} className="w-full h-full object-cover mix-blend-multiply opacity-90" />
@@ -316,7 +416,7 @@ export default function DashboardHome() {
                   <p className="text-[10px] font-bold text-muted-foreground tracking-wider mt-0.5">{item.meta}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-extrabold text-sm text-green-700 dark:text-green-500">{item.amount}</p>
+                  <p className="font-extrabold text-sm text-green-700 dark:text-green-500">{formatCurrency(item.amount)}</p>
                 </div>
               </Link>
             ))}

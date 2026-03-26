@@ -15,6 +15,9 @@ import {
   Rocket
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
+import { apiForm } from "@/lib/api";
+import { getToken } from "@/lib/auth-store";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -32,9 +35,30 @@ export default function OnboardingPage() {
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
-  const handleFinish = () => {
-    // In a real app, we'd save to backend here
-    router.push("/dashboard");
+  const handleFinish = async () => {
+    const token = getToken();
+    if (!token) {
+      toast.error("Please log in to complete onboarding.");
+      router.push("/login");
+      return;
+    }
+
+    const form = new FormData();
+    form.append("storeName", formData.storeName);
+    form.append("category", formData.category);
+    form.append("location", formData.location);
+    form.append("botPersonality", formData.botPersonality);
+    if (formData.telegramToken) form.append("telegramToken", formData.telegramToken);
+    if (formData.whatsappToken) form.append("whatsappMetaToken", formData.whatsappToken);
+
+    try {
+      await apiForm("/vendors/me", "PATCH", form);
+      toast.success("Onboarding completed.");
+      router.push("/dashboard");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to save onboarding info.";
+      toast.error(message);
+    }
   };
 
   return (

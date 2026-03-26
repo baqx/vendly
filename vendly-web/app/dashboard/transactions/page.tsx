@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { 
   Building2, 
@@ -13,50 +13,107 @@ import {
   ShieldCheck,
   Building
 } from "lucide-react";
+import useSWR from "swr";
+import { buildQuery } from "@/lib/api";
+import { formatCurrency, formatDate } from "@/lib/format";
 
-const recentTransactions = [
+type Transaction = {
+  id: string;
+  amount: number;
+  type: string;
+  timestamp: string;
+  orderId?: string | null;
+};
+
+type Summary = {
+  totalEarned: number;
+  totalWithdrawn: number;
+  currentBalance: number;
+  pendingPayouts: number;
+};
+
+type Payout = {
+  id: string;
+  amount: number;
+  type: string;
+  timestamp: string;
+};
+
+const FALLBACK_TRANSACTIONS: Transaction[] = [
   {
-    id: "#TRX-829103",
-    date: "Nov 08, 2023",
-    type: "Sale",
-    status: "Completed",
-    amount: "+$450.00",
-    isPositive: true,
+    id: "tx_829103",
+    timestamp: "2023-11-08T10:05:00.000Z",
+    type: "SALE",
+    amount: 45000,
   },
   {
-    id: "#TRX-112893",
-    date: "Nov 06, 2023",
-    type: "Payout",
-    status: "Completed",
-    amount: "-$1,200.00",
-    isPositive: false,
+    id: "tx_112893",
+    timestamp: "2023-11-06T10:05:00.000Z",
+    type: "PAYOUT",
+    amount: -120000,
   },
   {
-    id: "#TRX-553401",
-    date: "Nov 05, 2023",
-    type: "Refund",
-    status: "Processing",
-    amount: "-$82.50",
-    isPositive: false,
+    id: "tx_553401",
+    timestamp: "2023-11-05T10:05:00.000Z",
+    type: "REFUND",
+    amount: -8250,
   },
   {
-    id: "#TRX-998124",
-    date: "Nov 04, 2023",
-    type: "Sale",
-    status: "Completed",
-    amount: "+$1,040.20",
-    isPositive: true,
+    id: "tx_998124",
+    timestamp: "2023-11-04T10:05:00.000Z",
+    type: "SALE",
+    amount: 104020,
   },
 ];
+
 
 export default function WalletPage() {
   const [chartFilter, setChartFilter] = useState<"7days" | "30days">("7days");
   const [txFilter, setTxFilter] = useState<string>("All Types");
   const [filterOpen, setFilterOpen] = useState(false);
 
-  const filteredTransactions = recentTransactions.filter((tx) => {
+  const { data: summary } = useSWR<Summary>("/transactions/summary");
+  const { data: transactions } = useSWR<Transaction[]>(
+    `/transactions${buildQuery({ skip: 0, limit: 100 })}`
+  );
+  const { data: payouts } = useSWR<Payout[]>("/payouts");
+
+  const transactionRows = useMemo(() => {
+    const list = transactions && transactions.length > 0 ? transactions : FALLBACK_TRANSACTIONS;
+    return list.map((tx) => {
+      const typeKey = tx.type.toUpperCase();
+      const label =
+        typeKey === "SALE"
+          ? "Sale"
+          : typeKey === "PAYOUT"
+          ? "Payout"
+          : typeKey === "REFUND"
+          ? "Refund"
+          : typeKey;
+      return {
+        id: tx.id,
+        date: formatDate(tx.timestamp),
+        type: label,
+        typeKey,
+        status: "Completed",
+        amount: formatCurrency(tx.amount),
+        isPositive: tx.amount >= 0,
+      };
+    });
+  }, [transactions]);
+
+  const payoutRows = useMemo(() => {
+    const list = payouts && payouts.length > 0 ? payouts : [];
+    return list.map((tx) => ({
+      id: tx.id,
+      date: formatDate(tx.timestamp),
+      amount: formatCurrency(Math.abs(tx.amount)),
+    }));
+  }, [payouts]);
+
+  const filteredTransactions = transactionRows.filter((tx) => {
     if (txFilter === "All Types") return true;
-    return tx.type === txFilter;
+    return tx.typeKey === txFilter.toUpperCase();
   });
   
   return (
@@ -92,7 +149,7 @@ export default function WalletPage() {
           </div>
           <div>
             <p className="text-sm font-bold text-muted-foreground mb-1">Available Balance</p>
-            <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">$14,280.50</h2>
+            <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">{formatCurrency(summary?.currentBalance ?? 0)}</h2>
             <div className="flex items-center gap-1.5 text-green-600 dark:text-green-500 font-bold text-sm">
               <ArrowUpRight size={16} strokeWidth={3} />
               <span>+12.5% from last month</span>
@@ -112,7 +169,7 @@ export default function WalletPage() {
           </div>
           <div>
             <p className="text-sm font-bold text-muted-foreground mb-1">Pending Balance</p>
-            <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">$2,140.00</h2>
+            <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">{formatCurrency(summary?.pendingPayouts ?? 0)}</h2>
             <p className="text-muted-foreground font-medium text-sm italic opacity-80">Expected settlement in 3 business days</p>
           </div>
         </div>
@@ -129,10 +186,10 @@ export default function WalletPage() {
           </div>
           <div>
             <p className="text-sm font-bold text-muted-foreground mb-1">Total Withdrawn</p>
-            <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">$84,920.00</h2>
+            <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">{formatCurrency(summary?.totalWithdrawn ?? 0)}</h2>
             <div className="flex items-center gap-2 text-foreground font-bold text-sm opacity-80">
               <ShieldCheck size={16} />
-              <span>142 successful payouts</span>
+              <span>{payoutRows.length} successful payouts</span>
             </div>
           </div>
         </div>
@@ -310,8 +367,8 @@ export default function WalletPage() {
                     <td className="py-5 font-medium text-[14px] text-muted-foreground">{tx.date}</td>
                     <td className="py-5">
                       <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-bold ${
-                        tx.type === "Sale" ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" :
-                        tx.type === "Payout" ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" :
+                        tx.typeKey === "SALE" ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" :
+                        tx.typeKey === "PAYOUT" ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" :
                         "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                       }`}>
                         {tx.type}
@@ -349,6 +406,44 @@ export default function WalletPage() {
         )}
       </div>
 
+
+
+      {/* Payouts */}
+      <div className="bg-white dark:bg-card rounded-[4px] shadow-minimal border border-border/50 p-6 sm:p-8 flex flex-col">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 className="text-xl font-bold text-foreground">Payout Requests</h3>
+            <p className="text-sm font-medium text-muted-foreground mt-1">Latest withdrawal activity.</p>
+          </div>
+        </div>
+        {payoutRows.length === 0 ? (
+          <div className="py-10 flex flex-col items-center justify-center border-2 border-dashed border-border/60 rounded-[4px]">
+            <p className="text-muted-foreground font-bold">No payouts yet.</p>
+            <p className="text-xs text-muted-foreground mt-1">Withdrawals will show here once requested.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[500px]">
+              <thead>
+                <tr className="border-b border-border/60">
+                  <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase">PAYOUT ID</th>
+                  <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase">DATE</th>
+                  <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase text-right">AMOUNT</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {payoutRows.map((payout) => (
+                  <tr key={payout.id} className="group hover:bg-muted/20 transition-colors">
+                    <td className="py-5 font-bold text-[13px] text-foreground">{payout.id}</td>
+                    <td className="py-5 font-medium text-[14px] text-muted-foreground">{payout.date}</td>
+                    <td className="py-5 text-right font-black text-[15px] text-foreground">{payout.amount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
       {/* Footer Text */}
       <div className="flex justify-center mt-12 pb-8">
         <p className="text-[10px] font-extrabold text-muted-foreground/60 uppercase tracking-[0.25em]">

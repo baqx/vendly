@@ -1,64 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, ChevronDown, LayoutGrid, List, Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import useSWR from "swr";
+import { buildQuery } from "@/lib/api";
+import { formatCurrency } from "@/lib/format";
 
-const products = [
+type Product = {
+  id: string;
+  title: string;
+  basePrice: number;
+  stockLevel: number;
+  tags?: string | null;
+  images?: { id: string; url: string }[];
+};
+
+const FALLBACK_PRODUCTS = [
   { 
-    id: 1, 
+    id: "p1", 
     title: "Nordic Minimalist Watch", 
-    price: "$124.00", 
-    stock: 42, 
-    status: "In Stock",
-    statusColor: "bg-green-600 dark:bg-green-500",
-    textColor: "text-green-700 dark:text-green-500", 
-    category: "ELECTRONICS", 
-    img: "/images/watch.png",
-    bg: "bg-slate-50 dark:bg-slate-900",
-    padding: "p-6"
+    basePrice: 12400, 
+    stockLevel: 42, 
+    tags: "ELECTRONICS", 
+    images: [{ id: "img1", url: "/images/watch.png" }],
   },
   { 
-    id: 2, 
+    id: "p2", 
     title: "Crimson Aero Runners", 
-    price: "$89.50", 
-    stock: 3, 
-    status: "Low Stock",
-    statusColor: "bg-orange-500", 
-    textColor: "text-orange-600 dark:text-orange-500",
-    category: "FASHION", 
-    img: "/images/shoes.png",
-    bg: "bg-slate-50 dark:bg-slate-900",
-    padding: "p-4"
+    basePrice: 8950, 
+    stockLevel: 3, 
+    tags: "FASHION", 
+    images: [{ id: "img2", url: "/images/shoes.png" }],
   },
   { 
-    id: 3, 
+    id: "p3", 
     title: "Sonic Pods G2", 
-    price: "$55.00", 
-    stock: 0, 
-    status: "Out of Stock",
-    statusColor: "bg-red-500", 
-    textColor: "text-red-600 dark:text-red-500",
-    category: "ELECTRONICS", 
-    img: "/images/earbuds.png",
-    bg: "bg-[#A29E8D] dark:bg-[#726E5D]",
-    padding: "p-3"
+    basePrice: 5500, 
+    stockLevel: 0, 
+    tags: "ELECTRONICS", 
+    images: [{ id: "img3", url: "/images/earbuds.png" }],
   },
   { 
-    id: 4, 
+    id: "p4", 
     title: "Vintage Shot Z-10", 
-    price: "$410.00", 
-    stock: 12, 
-    status: "In Stock",
-    statusColor: "bg-green-600 dark:bg-green-500", 
-    textColor: "text-green-700 dark:text-green-500",
-    category: "ELECTRONICS", 
-    img: "/images/camera.png",
-    bg: "bg-[#A0C3B5] dark:bg-[#608375]",
-    padding: "p-3"
+    basePrice: 41000, 
+    stockLevel: 12, 
+    tags: "ELECTRONICS", 
+    images: [{ id: "img4", url: "/images/camera.png" }],
   },
 ];
+
+const bgOptions = ["bg-slate-50 dark:bg-slate-900", "bg-[#A29E8D] dark:bg-[#726E5D]", "bg-[#A0C3B5] dark:bg-[#608375]"];
 
 export default function InventoryPage() {
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -67,7 +61,45 @@ export default function InventoryPage() {
   const [stock, setStock] = useState("All Status");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const TOTAL_PAGES = 3;
+  const PAGE_SIZE = 12;
+
+  const { data: apiProducts } = useSWR<Product[]>(
+    `/products${buildQuery({ skip: (currentPage - 1) * PAGE_SIZE, limit: PAGE_SIZE })}`
+  );
+
+  const products = (apiProducts && apiProducts.length > 0 ? apiProducts : FALLBACK_PRODUCTS).map((product, index) => {
+    const status =
+      product.stockLevel <= 0 ? "Out of Stock" : product.stockLevel < 5 ? "Low Stock" : "In Stock";
+    const statusColor =
+      product.stockLevel <= 0 ? "bg-red-500" : product.stockLevel < 5 ? "bg-orange-500" : "bg-green-600 dark:bg-green-500";
+    const textColor =
+      product.stockLevel <= 0 ? "text-red-600 dark:text-red-500" : product.stockLevel < 5 ? "text-orange-600 dark:text-orange-500" : "text-green-700 dark:text-green-500";
+    const tags = product.tags?.split(",").map((t) => t.trim()).filter(Boolean) ?? [];
+    const categoryLabel = tags[0]?.toUpperCase() || "GENERAL";
+
+    return {
+      id: product.id,
+      title: product.title,
+      price: formatCurrency(product.basePrice),
+      priceValue: product.basePrice,
+      stock: product.stockLevel,
+      status,
+      statusColor,
+      textColor,
+      category: categoryLabel,
+      img: product.images?.[0]?.url || "/images/watch.png",
+      bg: bgOptions[index % bgOptions.length],
+      padding: "p-4",
+    };
+  });
+
+  const categories = useMemo(() => {
+    const unique = new Set(products.map((p) => p.category));
+    return ["All Categories", ...Array.from(unique)];
+  }, [products]);
+
+  const hasNextPage = (apiProducts?.length ?? 0) === PAGE_SIZE;
+  const totalPages = hasNextPage ? currentPage + 1 : currentPage;
 
   // Filter Logic
   const filteredProducts = products.filter((p) => {
@@ -75,9 +107,9 @@ export default function InventoryPage() {
     if (stock === "In Stock" && p.status !== "In Stock") return false;
     if (stock === "Low Stock" && p.status !== "Low Stock") return false;
     if (stock === "Out of Stock" && p.status !== "Out of Stock") return false;
-    const priceNum = parseFloat(p.price.replace("$", ""));
-    if (price === "Under $100" && priceNum >= 100) return false;
-    if (price === "Over $100" && priceNum < 100) return false;
+    const priceNum = p.priceValue ?? 0;
+    if (price === "Under ₦100,000" && priceNum >= 100000) return false;
+    if (price === "Over ₦100,000" && priceNum < 100000) return false;
     return true;
   });
 
@@ -117,7 +149,7 @@ export default function InventoryPage() {
             </button>
             <div className={`absolute top-[calc(100%+8px)] left-0 w-full min-w-[200px] bg-white dark:bg-card border border-border/60 rounded-[4px] shadow-none overflow-hidden z-50 transition-all origin-top duration-200 ${openDropdown === "category" ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"}`}>
               <div className="py-1.5 flex flex-col">
-                {["All Categories", "ELECTRONICS", "FASHION"].map((item) => (
+                {categories.map((item) => (
                   <button
                     key={item}
                     onClick={() => { setCategory(item); setOpenDropdown(null); }}
@@ -143,7 +175,7 @@ export default function InventoryPage() {
             </button>
             <div className={`absolute top-[calc(100%+8px)] left-0 w-full min-w-[180px] bg-white dark:bg-card border border-border/60 rounded-[4px] shadow-none overflow-hidden z-50 transition-all origin-top duration-200 ${openDropdown === "price" ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"}`}>
               <div className="py-1.5 flex flex-col">
-                {["Any Price", "Under $100", "Over $100"].map((item) => (
+                {["Any Price", "Under ₦100,000", "Over ₦100,000"].map((item) => (
                   <button
                     key={item}
                     onClick={() => { setPrice(item); setOpenDropdown(null); }}
@@ -362,7 +394,7 @@ export default function InventoryPage() {
       {/* Pagination Footer */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border/50">
         <p className="text-sm font-medium text-muted-foreground">
-          Showing <strong className="font-extrabold text-foreground">{filteredProducts.length + 1}</strong> of <strong className="font-extrabold text-foreground">148</strong> products &mdash; Page {currentPage} of {TOTAL_PAGES}
+          Showing <strong className="font-extrabold text-foreground">{filteredProducts.length}</strong> products — Page {currentPage} of {totalPages}
         </p>
         <div className="flex items-center gap-1.5">
           <button
@@ -372,7 +404,9 @@ export default function InventoryPage() {
           >
             {"<"}
           </button>
-          {[1, 2, 3].map((p) => (
+          {Array.from({ length: totalPages }).map((_, idx) => {
+            const p = idx + 1;
+            return (
             <button
               key={p}
               onClick={() => setCurrentPage(p)}
@@ -384,10 +418,11 @@ export default function InventoryPage() {
             >
               {p}
             </button>
-          ))}
+            );
+          })}
           <button
-            onClick={() => setCurrentPage((p) => Math.min(TOTAL_PAGES, p + 1))}
-            disabled={currentPage === TOTAL_PAGES}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
             className="w-8 h-8 flex items-center justify-center rounded-[4px] text-muted-foreground hover:bg-muted font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             {">"}

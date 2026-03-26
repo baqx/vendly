@@ -23,10 +23,49 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
 import { toast } from "sonner";
+import { apiJson, buildQuery } from "@/lib/api";
+import { formatCurrency } from "@/lib/format";
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-const PRODUCT_CATALOG = [
+type Product = {
+  id: string;
+  name: string;
+  sku?: string;
+  price: number;
+  stock: number;
+  image: string;
+};
+
+type Customer = {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+};
+
+type ApiProduct = {
+  id: string;
+  title: string;
+  basePrice?: number;
+  mapPrice?: number;
+  stockLevel?: number;
+  images?: { url: string }[];
+};
+
+type ApiCustomer = {
+  id: string;
+  identifier: string;
+  name: string;
+  phone?: string;
+};
+
+type OrderResponse = {
+  id: string;
+  paymentLink?: string;
+};
+
+const FALLBACK_PRODUCTS: Product[] = [
   { id: "p1", name: "Emerald Trail Runners", sku: "VLD-4421-G", price: 45000, stock: 12, image: "/images/shoes.png" },
   { id: "p2", name: "Velocity X1 Sneakers", sku: "VL-RUN-42", price: 38000, stock: 8, image: "/images/shoes.png" },
   { id: "p3", name: "Heritage Leather Watch", sku: "WR-LTH-01", price: 120000, stock: 5, image: "/images/shoes.png" },
@@ -36,7 +75,7 @@ const PRODUCT_CATALOG = [
   { id: "p7", name: "Artisan Spice Kit", sku: "SK-ART-01", price: 22000, stock: 30, image: "/images/shoes.png" },
 ];
 
-const EXISTING_CUSTOMERS = [
+const FALLBACK_CUSTOMERS: Customer[] = [
   { id: "c1", name: "Adebola Johnson", email: "ade.johnson@example.com", phone: "+234 812 345 6789" },
   { id: "c2", name: "Elena Aris", email: "elena@example.com", phone: "+234 801 234 5678" },
   { id: "c3", name: "Kofi Osei", email: "kofi.o@provider.gh", phone: "+233 24 555 0192" },
@@ -44,7 +83,7 @@ const EXISTING_CUSTOMERS = [
   { id: "c5", name: "Chidi Laolu", email: "chidi@corp.com", phone: "+234 905 678 9012" },
 ];
 
-type CartItem = { id: string; name: string; sku: string; price: number; qty: number; image: string };
+type CartItem = { id: string; name: string; sku: string; price: number; qty: number; image: string; variant?: string };
 
 const PAYMENT_METHODS = [
   { id: "CASH", label: "Cash", icon: Banknote },
@@ -56,6 +95,33 @@ const PAYMENT_METHODS = [
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function CreateManualOrderPage() {
   const router = useRouter();
+  const { data: products } = useSWR<ApiProduct[]>(
+    `/products${buildQuery({ skip: 0, limit: 100 })}`
+  );
+  const { data: customers } = useSWR<ApiCustomer[]>(
+    `/customers${buildQuery({ skip: 0, limit: 100 })}`
+  );
+
+  const productCatalog = useMemo<Product[]>(() => {
+    if (!products || products.length === 0) return FALLBACK_PRODUCTS;
+    return products.map((product) => ({
+      id: product.id,
+      name: product.title,
+      sku: product.id,
+      price: product.basePrice ?? product.mapPrice ?? 0,
+      stock: product.stockLevel ?? 0,
+      image: product.images?.[0]?.url || "/images/shoes.png",
+    }));
+  }, [products]);
+
+  const customerCatalog = useMemo<Customer[]>(() => {
+    if (!customers || customers.length === 0) return FALLBACK_CUSTOMERS;
+    return customers.map((customer) => ({
+      id: customer.identifier || customer.id,
+      name: customer.name || customer.identifier,
+      phone: customer.phone || customer.identifier,
+    }));
+  }, [customers]);
 
   // Customer form
   const [customerName, setCustomerName] = useState("");
@@ -81,23 +147,24 @@ export default function CreateManualOrderPage() {
 
   // Submit
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentLink, setPaymentLink] = useState<string | null>(null);
 
   // ── Derived ────────────────────────────────────────────────────────────────
   const filteredProducts = useMemo(() => {
     if (!productSearch.trim()) return [];
     const q = productSearch.toLowerCase();
-    return PRODUCT_CATALOG.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)
+    return productCatalog.filter(
+      (p) => p.name.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q)
     );
-  }, [productSearch]);
+  }, [productSearch, productCatalog]);
 
   const filteredCustomers = useMemo(() => {
-    if (!customerSearch.trim()) return EXISTING_CUSTOMERS;
+    if (!customerSearch.trim()) return customerCatalog;
     const q = customerSearch.toLowerCase();
-    return EXISTING_CUSTOMERS.filter(
-      (c) => c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q)
+    return customerCatalog.filter(
+      (c) => c.name.toLowerCase().includes(q) || (c.email || \"\").toLowerCase().includes(q)
     );
-  }, [customerSearch]);
+  }, [customerSearch, customerCatalog]);
 
   const SHIPPING_COST = 2500;
   const TAX_RATE = 0.075;
@@ -105,10 +172,10 @@ export default function CreateManualOrderPage() {
   const tax = Math.round(subtotal * TAX_RATE);
   const total = subtotal + SHIPPING_COST + tax;
 
-  const fmt = (n: number) => `₦${n.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`;
+  const fmt = (n: number) => formatCurrency(n);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
-  const addToCart = (product: (typeof PRODUCT_CATALOG)[0]) => {
+  const addToCart = (product: Product) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === product.id);
       if (existing) {
@@ -136,16 +203,16 @@ export default function CreateManualOrderPage() {
     toast.success(`${name} removed from order`);
   };
 
-  const selectCustomer = (c: (typeof EXISTING_CUSTOMERS)[0]) => {
+  const selectCustomer = (c: Customer) => {
     setCustomerName(c.name);
-    setCustomerEmail(c.email);
+    setCustomerEmail(c.email || "");
     setCustomerPhone(c.phone);
     setShowCustomerModal(false);
     setCustomerSearch("");
     toast.success(`Customer set to ${c.name}`);
   };
 
-  const handleCreateOrder = () => {
+  const handleCreateOrder = async () => {
     if (!customerName.trim()) {
       toast.error("Customer name is required.");
       return;
@@ -156,14 +223,35 @@ export default function CreateManualOrderPage() {
     }
     setIsSubmitting(true);
     toast.loading("Creating order...", { id: "create-order" });
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success("Order #ORD-8822 created successfully!", {
+
+    const shippingAddress = [streetAddress, city, state].filter(Boolean).join(", ");
+    try {
+      const payload = {
+        customerName,
+        customerPhone,
+        shippingAddress,
+        totalAmount: total,
+        notes: orderNotes,
+        items: cart.map((item) => ({
+          productId: item.id,
+          quantity: item.qty,
+          price: item.price,
+          variant: item.variant || undefined,
+        })),
+      };
+
+      const created = await apiJson<OrderResponse>("/orders", "POST", payload);
+      setPaymentLink(created.paymentLink || null);
+      toast.success(`Order ${created.id} created successfully!`, {
         id: "create-order",
-        description: "Navigating back to orders list.",
+        description: created.paymentLink ? "Payment link is ready." : undefined,
       });
-      router.push("/dashboard/orders");
-    }, 1500);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to create order.";
+      toast.error(message, { id: "create-order" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDiscard = () => {
@@ -205,7 +293,9 @@ export default function CreateManualOrderPage() {
                   className="w-full text-left p-4 rounded-[4px] hover:bg-muted transition-colors border border-transparent hover:border-border/50"
                 >
                   <p className="text-sm font-extrabold text-foreground">{c.name}</p>
-                  <p className="text-xs font-bold text-muted-foreground mt-0.5">{c.email} · {c.phone}</p>
+                  <p className="text-xs font-bold text-muted-foreground mt-0.5">
+                    {c.email ? `${c.email} · ${c.phone || "--"}` : c.phone || "--"}
+                  </p>
                 </button>
               ))}
               {filteredCustomers.length === 0 && (
@@ -557,15 +647,43 @@ export default function CreateManualOrderPage() {
                 TOTAL<br />AMOUNT
               </span>
               <div className="text-right">
-                <div className="flex items-center gap-1.5 justify-end text-green-700 dark:text-green-400">
-                  <span className="text-xl font-black">₦</span>
-                  <span className="text-4xl font-black tracking-tight">{(total / 1).toLocaleString("en-NG", { minimumFractionDigits: 2 })}</span>
+                <div className="text-4xl font-black tracking-tight text-green-700 dark:text-green-400">
+                  {fmt(total)}
                 </div>
                 <p className="text-[9px] font-bold text-muted-foreground mt-1">
-                  {PAYMENT_METHODS.find((m) => m.id === paymentMethod)?.label} · ₦1,200/USD
+                  {PAYMENT_METHODS.find((m) => m.id === paymentMethod)?.label}
                 </p>
               </div>
             </div>
+
+            {paymentLink && (
+              <div className="mb-6 rounded-[4px] border border-green-200/60 bg-white/80 dark:bg-card/40 p-4">
+                <p className="text-[11px] font-extrabold uppercase tracking-widest text-green-700 dark:text-green-400 mb-2">
+                  Payment Link
+                </p>
+                <p className="text-xs font-bold text-muted-foreground break-all mb-3">{paymentLink}</p>
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href={paymentLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 rounded-[4px] bg-green-700 hover:bg-green-800 text-white text-xs font-extrabold transition-colors"
+                  >
+                    Open Link
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(paymentLink);
+                      toast.success("Payment link copied.");
+                    }}
+                    className="px-4 py-2 rounded-[4px] border border-border text-xs font-extrabold text-foreground hover:bg-muted transition-colors"
+                  >
+                    Copy Link
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-3 mt-auto">
               <button

@@ -1,9 +1,12 @@
 "use client";
 
-import { ArrowLeft, Trash2, Edit2, TrendingUp, Star, Truck, Clock, Plus, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, Edit2, TrendingUp, Star, Truck, Clock, Plus, X, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import useSWR from "swr";
+import { apiRequest } from "@/lib/api";
+import { formatCurrency } from "@/lib/format";
 
 const SIZES = ["250ml", "500ml", "1000ml"];
 
@@ -13,6 +16,19 @@ const THUMBS = [
   { bg: "bg-green-100 dark:bg-green-900/20", border: false },
 ];
 
+type Product = {
+  id: string;
+  title: string;
+  description?: string | null;
+  basePrice: number;
+  mapPrice?: number | null;
+  stockLevel: number;
+  tags?: string | null;
+  technicalSpecs?: Record<string, string> | null;
+  images?: { id: string; url: string }[];
+  variants?: { id: string; name: string; value: string }[];
+};
+
 export default function InventoryDetailsPage({ params }: { params: { id: string } }) {
   const [selectedSize, setSelectedSize] = useState("250ml");
   const [activeThumb, setActiveThumb] = useState(0);
@@ -20,10 +36,16 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [expandedLogistic, setExpandedLogistic] = useState<number | null>(null);
   const [deleted, setDeleted] = useState(false);
+  const { data: product } = useSWR<Product>(`/products/${params.id}`);
 
-  const handleDelete = () => {
-    setDeleted(true);
-    setShowDeleteModal(false);
+  const handleDelete = async () => {
+    try {
+      await apiRequest(`/products/${params.id}`, { method: "DELETE" });
+      setDeleted(true);
+      setShowDeleteModal(false);
+    } catch (error) {
+      setShowDeleteModal(false);
+    }
   };
 
   if (deleted) {
@@ -113,9 +135,11 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
         <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground">
           <Link href="/dashboard/inventory" className="hover:text-foreground transition-colors">Products</Link>
           <span>›</span>
-          <span className="hover:text-foreground transition-colors cursor-pointer">Organic Skincare</span>
+          <span className="hover:text-foreground transition-colors cursor-pointer">
+            {product?.tags?.split(",")[0] || "Inventory"}
+          </span>
           <span>›</span>
-          <span className="text-foreground">Premium Shea Butter Gold</span>
+          <span className="text-foreground">{product?.title || "Product"}</span>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -126,7 +150,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
             <span>Delete</span>
           </button>
           <Link
-            href={`/dashboard/inventory/add`}
+            href={`/dashboard/inventory/add?id=${params.id}`}
             className="bg-green-700 hover:bg-green-800 text-white px-6 py-2.5 rounded-[4px] font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-700/20 hover:scale-105 active:scale-95 text-sm"
           >
             <Edit2 size={16} />
@@ -140,16 +164,21 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
         {/* Left: Gallery */}
         <div className="space-y-4">
           <div className="relative aspect-square w-full rounded-[2rem] bg-[#a06830] overflow-hidden flex items-center justify-center shadow-lg">
-            <Image src="/images/shea_butter.png" fill alt="Shea Butter" className="object-cover mix-blend-normal transition-opacity duration-300" />
+            <Image
+              src={product?.images?.[activeThumb]?.url || "/images/shea_butter.png"}
+              fill
+              alt={product?.title || "Product"}
+              className="object-cover mix-blend-normal transition-opacity duration-300"
+            />
           </div>
           <div className="grid grid-cols-4 gap-4">
-            {THUMBS.map((t, i) => (
+            {(product?.images?.length ? product.images : THUMBS).slice(0, 3).map((t: any, i: number) => (
               <button
                 key={i}
                 onClick={() => setActiveThumb(i)}
-                className={`aspect-square rounded-[1.2rem] ${t.bg} relative overflow-hidden flex items-center justify-center p-3 cursor-pointer transition-all ${activeThumb === i ? "border-[3px] border-green-700 shadow-md" : "border border-border/70 hover:opacity-80"}`}
+                className={`aspect-square rounded-[1.2rem] ${t.bg || "bg-muted"} relative overflow-hidden flex items-center justify-center p-3 cursor-pointer transition-all ${activeThumb === i ? "border-[3px] border-green-700 shadow-md" : "border border-border/70 hover:opacity-80"}`}
               >
-                <Image src="/images/shea_butter.png" fill alt={`Thumb ${i + 1}`} className="object-cover mix-blend-multiply dark:mix-blend-normal" />
+                <Image src={t.url || "/images/shea_butter.png"} fill alt={`Thumb ${i + 1}`} className="object-cover mix-blend-multiply dark:mix-blend-normal" />
               </button>
             ))}
             <button
@@ -176,12 +205,14 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
           </div>
 
           <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight leading-tight">
-            Premium Shea Butter Gold
+            {product?.title || "Premium Shea Butter Gold"}
           </h1>
 
           <div className="flex items-center gap-4 flex-wrap">
-            <span className="text-4xl font-extrabold text-green-700 dark:text-green-500">$48.00</span>
-            <span className="text-xl font-extrabold text-muted-foreground line-through">$62.00</span>
+            <span className="text-4xl font-extrabold text-green-700 dark:text-green-500">{formatCurrency(product?.basePrice ?? 0)}</span>
+            {product?.mapPrice ? (
+              <span className="text-xl font-extrabold text-muted-foreground line-through">{formatCurrency(product.mapPrice)}</span>
+            ) : null}
             <span className="text-sm font-bold text-muted-foreground">SKU: V-PSB-GOLD-500</span>
           </div>
 
@@ -189,7 +220,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
           <div className="space-y-4 pt-4">
             <h3 className="text-xs font-extrabold text-muted-foreground uppercase tracking-wider">Select Size</h3>
             <div className="flex items-center gap-3 flex-wrap">
-              {SIZES.map((size) => (
+              {(product?.variants?.length ? product.variants.map((v) => v.value) : SIZES).map((size) => (
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
@@ -204,14 +235,14 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
               ))}
             </div>
             <p className="text-xs font-medium text-muted-foreground">
-              Selected: <strong className="text-green-700 dark:text-green-500">{selectedSize}</strong> — 1,248 units available
+              Selected: <strong className="text-green-700 dark:text-green-500">{selectedSize}</strong> — {product?.stockLevel ?? 0} units available
             </p>
           </div>
 
           <div className="space-y-3 pt-2">
             <h3 className="text-lg font-extrabold text-foreground">Product Description</h3>
             <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-              Our Gold Grade Shea Butter is ethically sourced from the heart of Northern Ghana. Cold-pressed to preserve its natural bioactive compounds, this premium butter offers unparalleled moisture and skin-healing properties. Infused with a hint of wild honey and baobab oil for a luxury finish.
+              {product?.description || "No description provided for this product yet."}
             </p>
           </div>
 
@@ -219,23 +250,31 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
             <div className="space-y-4">
               <h3 className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest pl-1">Specifications</h3>
               <div className="space-y-3 bg-muted/30 p-4 rounded-[4px] border border-border/40">
-                {[["Weight", "0.65 kg"], ["Origin", "Northern Ghana"], ["Texture", "Smooth/Creamy"]].map(([k, v]) => (
-                  <div key={k} className="flex justify-between items-center text-sm">
-                    <span className="font-bold text-muted-foreground">{k}</span>
-                    <span className="font-extrabold text-foreground">{v}</span>
-                  </div>
-                ))}
+                {product?.technicalSpecs
+                  ? Object.entries(product.technicalSpecs).map(([k, v]) => (
+                      <div key={k} className="flex justify-between items-center text-sm">
+                        <span className="font-bold text-muted-foreground">{k}</span>
+                        <span className="font-extrabold text-foreground">{v}</span>
+                      </div>
+                    ))
+                  : (
+                    <p className="text-sm font-medium text-muted-foreground">No specifications provided.</p>
+                  )}
               </div>
             </div>
             <div className="space-y-4">
               <h3 className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest pl-1">Inventory</h3>
               <div className="space-y-3 bg-muted/30 p-4 rounded-[4px] border border-border/40">
-                {[["Quantity", "1,248 units"], ["Warehouse", "Accra Central B2"], ["Min. Stock", "150 units"]].map(([k, v]) => (
-                  <div key={k} className="flex justify-between items-center text-sm">
-                    <span className="font-bold text-muted-foreground">{k}</span>
-                    <span className="font-extrabold text-foreground truncate max-w-[110px]" title={v}>{v}</span>
-                  </div>
-                ))}
+                <div className="flex justify-between items-center text-sm">
+                  <span className="font-bold text-muted-foreground">Quantity</span>
+                  <span className="font-extrabold text-foreground">{product?.stockLevel ?? 0} units</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="font-bold text-muted-foreground">Status</span>
+                  <span className="font-extrabold text-foreground">
+                    {(product?.stockLevel ?? 0) > 0 ? "In Stock" : "Out of Stock"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

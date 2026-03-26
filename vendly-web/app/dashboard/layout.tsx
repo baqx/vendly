@@ -22,6 +22,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
+import useSWR from "swr";
+import { useAuthToken } from "@/hooks/use-auth-token";
 
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutGrid },
@@ -43,12 +45,16 @@ function Sidebar({
   mobile = false,
   onClose,
   pathname,
+  storeName,
+  logoUrl,
 }: {
   isSidebarOpen: boolean;
   onToggle: () => void;
   mobile?: boolean;
   onClose: () => void;
   pathname: string;
+  storeName?: string;
+  logoUrl?: string | null;
 }) {
   const expanded = isSidebarOpen || mobile;
 
@@ -152,13 +158,18 @@ function Sidebar({
       {/* User card */}
       <div className="p-4 mt-auto">
         <div className="bg-background dark:bg-muted/50 rounded-[4px] p-3 border border-border/50 flex items-center gap-3 cursor-pointer hover:bg-muted/50 transition-colors">
-          <div className="w-10 h-10 rounded-[4px] bg-green-700 flex items-center justify-center text-white font-bold text-sm shrink-0">
-            VS
+          <div className="w-10 h-10 rounded-[4px] bg-green-700 flex items-center justify-center text-white font-bold text-sm shrink-0 overflow-hidden">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt={storeName || "Store logo"} className="w-full h-full object-cover" />
+            ) : (
+              "VS"
+            )}
           </div>
           {expanded && (
             <div className="overflow-hidden">
               <p className="font-bold text-sm text-foreground truncate">
-                Vendly Store
+                {storeName || "Vendly Store"}
               </p>
               <p className="text-[11px] text-muted-foreground font-medium truncate">
                 Premium Merchant
@@ -179,6 +190,8 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { token, ready } = useAuthToken();
+  const { data: vendor } = useSWR(token ? "/vendors/me" : null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -197,6 +210,12 @@ export default function DashboardLayout({
       setIsSidebarOpen(true);
     }
   }, [pathname]);
+
+  useEffect(() => {
+    if (ready && !token) {
+      router.replace("/login");
+    }
+  }, [ready, token, router]);
 
   return (
     <div className="flex min-h-screen bg-muted/30 dark:bg-background text-foreground transition-colors duration-300">
@@ -221,6 +240,8 @@ export default function DashboardLayout({
           mobile={true}
           onClose={() => setIsMobileSidebarOpen(false)}
           pathname={pathname}
+          storeName={vendor?.storeName}
+          logoUrl={vendor?.logoUrl}
         />
       </aside>
 
@@ -236,6 +257,8 @@ export default function DashboardLayout({
           mobile={false}
           onClose={() => {}}
           pathname={pathname}
+          storeName={vendor?.storeName}
+          logoUrl={vendor?.logoUrl}
         />
       </aside>
 
@@ -251,7 +274,7 @@ export default function DashboardLayout({
               <Menu size={24} />
             </button>
             <h2 className="text-xl font-extrabold hidden sm:block tracking-tight text-foreground">
-              Vendly Dashboard
+              {vendor?.storeName ? `${vendor.storeName} Dashboard` : "Vendly Dashboard"}
             </h2>
 
             <div className="hidden md:flex items-center flex-1 max-w-md ml-8 bg-muted/50 dark:bg-muted/30 border border-border/50 rounded-[4px] px-4 py-2 hover:bg-muted/80 transition-colors focus-within:bg-background focus-within:ring-2 focus-within:ring-green-500/20 shadow-minimal">

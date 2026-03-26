@@ -5,28 +5,78 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import useSWR from "swr";
 import { toast } from "sonner";
+import { apiRequest } from "@/lib/api";
+import { formatCurrency, formatDate, formatTime } from "@/lib/format";
+
+type OrderItem = {
+  id: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  variant?: string | null;
+  product?: { title?: string | null };
+};
+
+type Order = {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  shippingAddress?: string | null;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+  items: OrderItem[];
+};
+
+const STATUS_STYLES: Record<string, string> = {
+  PENDING: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200/60 dark:border-amber-900/50",
+  PAID: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  SHIPPED: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  DELIVERED: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+};
+
+const STATUS_FLOW = ["PENDING", "PAID", "SHIPPED", "DELIVERED"] as const;
+
+type OrderStatus = (typeof STATUS_FLOW)[number];
+
+const getNextStatus = (status: string) => {
+  const currentIndex = STATUS_FLOW.indexOf(status as OrderStatus);
+  if (currentIndex === -1 || currentIndex === STATUS_FLOW.length - 1) return null;
+  return STATUS_FLOW[currentIndex + 1];
+};
 
 export default function OrderDetailsPage() {
   const params = useParams();
   const rawId = params.id as string;
-  
-  // Default to a PENDING order so "Update Status" button visually works
-  const queriedId = rawId ? `#${rawId}` : "#ORD-8818"; 
 
-  const allOrders = [
-    { id: "#ORD-8821", customer: "Elena Aris", email: "elena@example.com", avatar: "EA", product: "Organic Coffee Beans", qty: "2× 500g Packs", status: "DELIVERED", statusColor: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400", amount: "$45.00", date: "Oct 24, 2023" },
-    { id: "#ORD-8820", customer: "Kofi Osei", email: "kofi.o@provider.gh", avatar: "KO", product: "Premium Shea Butter", qty: "1× 1kg Tub", status: "SHIPPED", statusColor: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400", amount: "$28.50", date: "Oct 24, 2023" },
-    { id: "#ORD-8819", customer: "Mariam Ade", email: "m.ade@web.ng", avatar: "MA", product: "Artisan Spice Kit", qty: "3× Starter Sets", status: "PAID", statusColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400", amount: "$112.00", date: "Oct 23, 2023" },
-    { id: "#ORD-8818", customer: "Chidi L.", email: "chidi@corp.com", avatar: "CL", product: "Woven Storage Baskets", qty: "4× Medium", status: "PENDING", statusColor: "bg-green-50 text-green-700 dark:bg-muted dark:text-muted-foreground border border-green-200 dark:border-border", amount: "$210.00", date: "Oct 23, 2023" },
-    { id: "#ORD-8817", customer: "Jane Doe", email: "jane.doe@mail.com", avatar: "JD", product: "Handcrafted Soap Bar", qty: "10× Bulk Order", status: "DELIVERED", statusColor: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400", amount: "$60.00", date: "Oct 22, 2023" },
-    { id: "#ORD-8816", customer: "Sarah T.", email: "sarah@web.com", avatar: "ST", product: "Vanilla Extract", qty: "2× Bottles", status: "PENDING", statusColor: "bg-green-50 text-green-700 dark:bg-muted dark:text-muted-foreground border border-green-200 dark:border-border", amount: "$35.00", date: "Oct 21, 2023" },
-    { id: "#ORD-8815", customer: "Mark Z.", email: "markz@mail.com", avatar: "MZ", product: "Cocoa Powder", qty: "5× 1kg Bags", status: "PAID", statusColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400", amount: "$85.00", date: "Oct 20, 2023" },
-  ];
-
-  const foundOrder = allOrders.find(o => o.id === queriedId) || allOrders[0];
-  const [order, setOrder] = useState(foundOrder);
+  const { data: orderData, mutate } = useSWR<Order>(rawId ? `/orders/${rawId}` : null);
   const [isRefunding, setIsRefunding] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const order: Order = orderData ?? {
+    id: rawId || "order",
+    customerName: "Customer",
+    customerPhone: "--",
+    shippingAddress: "--",
+    totalAmount: 0,
+    status: "PENDING",
+    createdAt: new Date().toISOString(),
+    items: [],
+  };
+
+  const statusPill = STATUS_STYLES[order.status] || "bg-muted text-muted-foreground";
+  const placedDate = formatDate(order.createdAt);
+  const placedTime = formatTime(order.createdAt);
+  const itemSubtotal = order.items?.reduce((sum, item) => sum + item.price * item.quantity, 0) ?? 0;
+  const orderTotal = order.totalAmount || itemSubtotal;
+  const customerInitials = order.customerName
+    ? order.customerName.split(" ").slice(0, 2).map((part) => part[0]).join("").toUpperCase()
+    : "CU";
+  const customerLink = order.customerPhone
+    ? `/dashboard/customers/${encodeURIComponent(order.customerPhone)}`
+    : "/dashboard/customers";
 
   const handlePrint = () => {
     window.print();
@@ -35,25 +85,32 @@ export default function OrderDetailsPage() {
 
   const handleRefund = () => {
     setIsRefunding(true);
-    toast.loading("Processing refund...", { id: "refund-toast" });
-    setTimeout(() => {
-      setIsRefunding(false);
-      toast.success("Refund processed successfully", { 
-        id: "refund-toast",
-        description: "The amount has been returned to the customer's original payment method and inventory has been restocked."
-      });
-    }, 1500);
+    toast.info("Refunds are not available yet for Vendly orders.");
+    setTimeout(() => setIsRefunding(false), 800);
   };
 
-  const handleUpdateStatus = () => {
-    if (order.status === "DELIVERED") {
+  const handleUpdateStatus = async () => {
+    const nextStatus = getNextStatus(order.status);
+    if (!nextStatus) {
       toast.info("Order is already delivered.");
       return;
     }
-    setOrder({ ...order, status: "DELIVERED", statusColor: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" });
-    toast.success("Order status updated!", {
-      description: `Status for ${order.id} changed to DELIVERED.`,
-    });
+
+    setIsUpdating(true);
+    try {
+      const updated = await apiRequest<Order>(`/orders/${order.id}?status=${nextStatus}`, {
+        method: "PATCH",
+      });
+      mutate(updated, false);
+      toast.success("Order status updated!", {
+        description: `Status for ${order.id} changed to ${nextStatus}.`,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to update order status.";
+      toast.error(message);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const isPaid = ["PAID", "SHIPPED", "DELIVERED"].includes(order.status);
@@ -63,8 +120,10 @@ export default function OrderDetailsPage() {
   let progressWidth = "33.33%";
   if (isPaid) progressWidth = "66.66%";
   if (isShipped) progressWidth = "100%";
+  const nextStatus = getNextStatus(order.status);
 
   return (
+
     <div className="space-y-6 pb-20">
       
       {/* Breadcrumb & Header Action */}
@@ -78,11 +137,11 @@ export default function OrderDetailsPage() {
 
           <div className="flex items-center gap-4">
             <h1 className="text-4xl font-black text-foreground">{order.id}</h1>
-            <span className={`font-extrabold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-[4px] mt-1 ${order.statusColor}`}>
+            <span className={`font-extrabold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-[4px] mt-1 ${statusPill}`}>
               {order.status}
             </span>
           </div>
-          <p className="text-sm font-bold text-muted-foreground">Placed on {order.date} at 02:45 PM</p>
+          <p className="text-sm font-bold text-muted-foreground">Placed on {placedDate} at {placedTime}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -94,8 +153,14 @@ export default function OrderDetailsPage() {
             <RotateCcw size={16} className={isRefunding ? "animate-spin" : ""} />
             <span className="hidden sm:inline">{isRefunding ? "Processing..." : "Refund Order"}</span>
           </button>
-          <button onClick={handleUpdateStatus} className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-[4px] font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 text-sm">
-            <span>Update Status</span>
+          <button
+            onClick={handleUpdateStatus}
+            disabled={!nextStatus || isUpdating}
+            className={`bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-[4px] font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 text-sm ${
+              !nextStatus || isUpdating ? "opacity-60 cursor-not-allowed hover:scale-100 active:scale-100" : ""
+            }`}
+          >
+            <span>{isUpdating ? "Updating..." : nextStatus ? `Mark ${nextStatus}` : "Order Completed"}</span>
           </button>
         </div>
       </div>
@@ -123,7 +188,7 @@ export default function OrderDetailsPage() {
                 </div>
                 <div className="text-center absolute top-14 w-full">
                   <p className="text-[13px] font-extrabold text-foreground">Order Placed</p>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Oct 24, 02:45 PM</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{placedDate} • {placedTime}</p>
                 </div>
               </div>
 
@@ -134,7 +199,7 @@ export default function OrderDetailsPage() {
                 </div>
                 <div className="text-center absolute top-14 w-full">
                   <p className="text-[13px] font-extrabold text-foreground">Paid</p>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{isPaid ? "Oct 24, 03:10 PM" : "PENDING"}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{isPaid ? placedDate : "PENDING"}</p>
                 </div>
               </div>
 
@@ -145,7 +210,7 @@ export default function OrderDetailsPage() {
                 </div>
                 <div className="text-center absolute top-14 w-full">
                   <p className={`text-[13px] font-extrabold ${isShipped ? "text-green-700 dark:text-green-500" : "text-foreground"}`}>Shipped</p>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{isShipped ? "Oct 25, 09:30 AM" : "PENDING"}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{isShipped ? placedDate : "PENDING"}</p>
                 </div>
               </div>
 
@@ -156,7 +221,7 @@ export default function OrderDetailsPage() {
                 </div>
                 <div className="text-center absolute top-14 w-full">
                   <p className={`text-[13px] font-extrabold ${isDelivered ? "text-green-700 dark:text-green-500" : "text-foreground"}`}>Delivered</p>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{isDelivered ? order.date : "ESTIMATED OCT 27"}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{isDelivered ? placedDate : "PENDING"}</p>
                 </div>
               </div>
             </div>
@@ -167,62 +232,40 @@ export default function OrderDetailsPage() {
 
           {/* Ordered Items */}
           <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-6 lg:p-8">
-            <h2 className="text-xl font-extrabold text-foreground mb-6">Ordered Items (3)</h2>
+            <h2 className="text-xl font-extrabold text-foreground mb-6">Ordered Items ({order.items.length})</h2>
             <div className="space-y-6">
-                {/* Item 1 */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 group pb-6 border-b border-border/40">
-                  <div className={`w-20 h-20 rounded-[4px] flex items-center justify-center overflow-hidden shrink-0 bg-slate-50 dark:bg-slate-900/50 border border-border/40`}>
-                    <Image src="/images/shoes.png" width={80} height={80} alt="Velocity X1 Run Sneakers" className="object-cover group-hover:scale-110 transition-transform duration-500 mix-blend-normal" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-extrabold text-foreground truncate">Velocity X1 Run Sneakers</h4>
-                    <p className="text-[11px] font-bold text-muted-foreground mt-1 truncate">
-                      SKU: VL-RUN-42 <span className="mx-1.5 opacity-50">|</span> Color: Crimson Red
-                    </p>
-                  </div>
-                  <div className="text-right sm:pl-4">
-                    <p className="text-base font-black text-foreground">$120.00</p>
-                    <p className="text-xs font-bold text-muted-foreground mt-0.5">Qty: 01</p>
-                  </div>
+              {order.items.length === 0 ? (
+                <div className="py-6 text-sm font-bold text-muted-foreground">
+                  No items found for this order.
                 </div>
-
-                {/* Item 2 */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 group pb-6 border-b border-border/40">
-                  <div className={`relative w-20 h-20 rounded-[4px] flex items-center justify-center overflow-hidden shrink-0 bg-slate-800 border border-border/40`}>
-                    <Image src="/images/shoes.png" width={80} height={80} alt="Heritage Leather Watch" className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-0" />
-                    {/* Fallback emoji */}
-                    <div className="absolute inset-0 flex items-center justify-center text-white/50 text-2xl">⌚</div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-extrabold text-foreground truncate">Heritage Leather Watch</h4>
-                    <p className="text-[11px] font-bold text-muted-foreground mt-1 truncate">
-                      SKU: WR-LTH-01 <span className="mx-1.5 opacity-50">|</span> Size: Standard
-                    </p>
-                  </div>
-                  <div className="text-right sm:pl-4">
-                    <p className="text-base font-black text-foreground">$245.00</p>
-                    <p className="text-xs font-bold text-muted-foreground mt-0.5">Qty: 01</p>
-                  </div>
-                </div>
-
-                {/* Item 3 */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 group">
-                  <div className={`relative w-20 h-20 rounded-[4px] flex items-center justify-center overflow-hidden shrink-0 bg-slate-900 border border-border/40`}>
-                    <Image src="/images/shoes.png" width={80} height={80} alt="Verdant Pro Headphones" className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-0" />
-                    {/* Fallback emoji */}
-                    <div className="absolute inset-0 flex items-center justify-center text-white/50 text-2xl">🎧</div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-extrabold text-foreground truncate">Verdant Pro Headphones</h4>
-                    <p className="text-[11px] font-bold text-muted-foreground mt-1 truncate">
-                      SKU: VD-PRO-90 <span className="mx-1.5 opacity-50">|</span> Noise Cancelling
-                    </p>
-                  </div>
-                  <div className="text-right sm:pl-4">
-                    <p className="text-base font-black text-foreground">$89.00</p>
-                    <p className="text-xs font-bold text-muted-foreground mt-0.5">Qty: 02</p>
-                  </div>
-                </div>
+              ) : (
+                order.items.map((item, index) => {
+                  const title = item.product?.title || item.productId || "Order item";
+                  const variantLabel = item.variant ? `Variant: ${item.variant}` : "Variant: --";
+                  return (
+                    <div
+                      key={item.id}
+                      className={`flex flex-col sm:flex-row sm:items-center gap-4 group ${
+                        index < order.items.length - 1 ? "pb-6 border-b border-border/40" : ""
+                      }`}
+                    >
+                      <div className="w-20 h-20 rounded-[4px] flex items-center justify-center overflow-hidden shrink-0 bg-slate-50 dark:bg-slate-900/50 border border-border/40">
+                        <Image src="/images/shoes.png" width={80} height={80} alt={title} className="object-cover group-hover:scale-110 transition-transform duration-500 mix-blend-normal" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-extrabold text-foreground truncate">{title}</h4>
+                        <p className="text-[11px] font-bold text-muted-foreground mt-1 truncate">
+                          {variantLabel}
+                        </p>
+                      </div>
+                      <div className="text-right sm:pl-4">
+                        <p className="text-base font-black text-foreground">{formatCurrency(item.price)}</p>
+                        <p className="text-xs font-bold text-muted-foreground mt-0.5">Qty: {item.quantity}</p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -230,23 +273,23 @@ export default function OrderDetailsPage() {
           <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-6 lg:p-8 flex flex-col transition-all">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-extrabold text-foreground">Logistics & Tracking</h3>
-              <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-500 font-extrabold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-[4px]">
-                DHL Express
+              <span className="bg-muted text-muted-foreground font-extrabold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-[4px]">
+                Not Linked
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
               <div>
                 <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mb-1.5">TRACKING NUMBER</p>
-                <p className="text-sm font-black text-foreground">9921-8842-7721</p>
+                <p className="text-sm font-black text-foreground">--</p>
               </div>
               <div>
                 <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mb-1.5">CARRIER PARTNER</p>
-                <p className="text-sm font-bold text-foreground">DHL Global Logistics</p>
+                <p className="text-sm font-bold text-foreground">--</p>
               </div>
               <div>
                 <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mb-1.5">WEIGHT</p>
-                <p className="text-sm font-bold text-foreground">2.4 kg (5.3 lbs)</p>
+                <p className="text-sm font-bold text-foreground">--</p>
               </div>
             </div>
 
@@ -255,8 +298,8 @@ export default function OrderDetailsPage() {
                 <CheckCircle2 size={18} className="stroke-[2.5]" />
               </div>
               <div>
-                <h4 className="text-sm font-extrabold text-foreground">Latest Update: En Route to Destination</h4>
-                <p className="text-[11px] font-bold text-muted-foreground mt-1">Lagos Sorting Facility, Nigeria</p>
+                <h4 className="text-sm font-extrabold text-foreground">Latest Update: Logistics not available</h4>
+                <p className="text-[11px] font-bold text-muted-foreground mt-1">Tracking data will appear once logistics are connected.</p>
                 <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mt-2">OCT 25, 2023 • 11:20 PM</p>
               </div>
             </div>
@@ -272,12 +315,12 @@ export default function OrderDetailsPage() {
             <h3 className="text-lg font-extrabold text-foreground mb-6">Customer Details</h3>
             
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-[4px] bg-orange-100 flex items-center justify-center font-black text-orange-700 text-lg overflow-hidden shrink-0 ring-1 ring-border/50 object-cover relative">
-                <Image src="/rahman.jpeg" fill className="object-cover" alt="Adebola Johnson" />
+              <div className="w-12 h-12 rounded-[4px] bg-green-100 flex items-center justify-center font-black text-green-700 text-lg overflow-hidden shrink-0 ring-1 ring-border/50">
+                {customerInitials}
               </div>
               <div>
-                <h4 className="text-sm font-extrabold text-foreground">Adebola Johnson</h4>
-                <Link href="/dashboard/customers" className="text-[11px] font-extrabold text-green-700 dark:text-green-500 uppercase tracking-widest hover:underline mt-0.5 inline-block">
+                <h4 className="text-sm font-extrabold text-foreground">{order.customerName || "Customer"}</h4>
+                <Link href={customerLink} className="text-[11px] font-extrabold text-green-700 dark:text-green-500 uppercase tracking-widest hover:underline mt-0.5 inline-block">
                   View Profile
                 </Link>
               </div>
@@ -288,14 +331,14 @@ export default function OrderDetailsPage() {
                 <Mail size={16} className="text-muted-foreground shrink-0 mt-0.5" />
                 <div>
                   <p className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-widest mb-0.5">EMAIL ADDRESS</p>
-                  <p className="text-sm font-bold text-foreground break-all">ade.johnson@example.com</p>
+                  <p className="text-sm font-bold text-foreground break-all">--</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Phone size={16} className="text-muted-foreground shrink-0 mt-0.5" />
                 <div>
                   <p className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-widest mb-0.5">PHONE NUMBER</p>
-                  <p className="text-sm font-bold text-foreground">+234 812 345 6789</p>
+                  <p className="text-sm font-bold text-foreground">{order.customerPhone || "--"}</p>
                 </div>
               </div>
             </div>
@@ -310,13 +353,9 @@ export default function OrderDetailsPage() {
                 <Truck className="w-4 h-4 text-green-700 dark:text-green-500" />
                 <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">SHIPPING ADDRESS</p>
               </div>
-              <h4 className="text-sm font-extrabold text-foreground mb-2">Adebola Johnson</h4>
+              <h4 className="text-sm font-extrabold text-foreground mb-2">{order.customerName || "Customer"}</h4>
               <p className="text-xs font-bold text-muted-foreground leading-loose">
-                42 Victoria Island Business<br/>
-                District<br/>
-                Suite 110, Palms Plaza<br/>
-                Lagos, 101241<br/>
-                Nigeria
+                {order.shippingAddress || "--"}
               </p>
             </div>
 
@@ -338,15 +377,15 @@ export default function OrderDetailsPage() {
             <div className="space-y-4 mb-6 pb-6 border-b border-green-200/50 dark:border-green-900/30">
               <div className="flex justify-between items-center text-sm">
                 <span className="font-bold text-muted-foreground">Subtotal</span>
-                <span className="font-extrabold text-foreground">$543.00</span>
+                <span className="font-extrabold text-foreground">{formatCurrency(itemSubtotal)}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="font-bold text-muted-foreground">Shipping</span>
-                <span className="font-extrabold text-foreground">$25.00</span>
+                <span className="font-extrabold text-foreground">{formatCurrency(0)}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="font-bold text-muted-foreground">Tax (VAT 7.5%)</span>
-                <span className="font-extrabold text-foreground">$40.73</span>
+                <span className="font-extrabold text-foreground">{formatCurrency(0)}</span>
               </div>
             </div>
             
@@ -356,14 +395,14 @@ export default function OrderDetailsPage() {
                 <span className="font-black text-foreground block">Amount</span>
               </div>
               <div className="text-right">
-                <span className="text-3xl font-black text-green-700 dark:text-green-500 tracking-tight">$608.73</span>
-                <span className="block text-[9px] font-extrabold text-muted-foreground uppercase tracking-widest mt-1">PAID VIA VISA CARD</span>
+                <span className="text-3xl font-black text-green-700 dark:text-green-500 tracking-tight">{formatCurrency(orderTotal)}</span>
+                <span className="block text-[9px] font-extrabold text-muted-foreground uppercase tracking-widest mt-1">PAYMENT STATUS: {order.status}</span>
               </div>
             </div>
             
             <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-100/50 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded-[4px] border border-green-200/50 dark:border-green-900/30">
               <ShieldCheck size={16} />
-              <span className="text-[10px] font-black uppercase tracking-widest">SECURED BY STRIPE</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">SECURED BY VENDLY</span>
             </div>
           </div>
 
