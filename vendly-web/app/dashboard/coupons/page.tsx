@@ -28,7 +28,7 @@ interface Coupon {
 }
 
 export default function CouponsPage() {
-  const { data, isLoading, mutate } = useSWR("/coupons", swrFetcher);
+  const { data, isLoading, mutate } = useSWR<any>("/coupons", swrFetcher);
   const coupons: Coupon[] = data?.data || [];
 
   const [isCreating, setIsCreating] = useState(false);

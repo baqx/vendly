@@ -15,13 +15,11 @@ import {
   ChevronRight,
   Bot
 } from "lucide-react";
-import { format } from "date-fns";
-
 export default function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
   const identifier = decodeURIComponent(unwrappedParams.id);
   
-  const { data, isLoading, error } = useSWR(`/customers/${identifier}`, swrFetcher);
+  const { data, isLoading, error } = useSWR<any>(`/customers/${identifier}`, swrFetcher);
 
   if (isLoading) {
     return (

@@ -136,7 +136,7 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ProfilePage() {
-  const { data: vendorData, mutate } = useSWR("/vendors/me", swrFetcher);
+  const { data: vendorData, mutate } = useSWR<any>("/vendors/me", swrFetcher);
 
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);

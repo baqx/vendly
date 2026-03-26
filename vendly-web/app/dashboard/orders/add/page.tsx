@@ -167,7 +167,7 @@ export default function CreateManualOrderPage() {
           i.id === product.id ? { ...i, qty: Math.min(i.qty + 1, product.stock) } : i
         );
       }
-      return [...prev, { id: product.id, name: product.name, sku: product.sku, price: product.price, qty: 1, image: product.image }];
+      return [...prev, { id: product.id, name: product.name, sku: product.sku || "", price: product.price, qty: 1, image: product.image }];
     });
     setProductSearch("");
     setShowProductResults(false);

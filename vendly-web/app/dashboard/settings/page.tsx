@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 
 export default function SettingsPage() {
-  const { data: vendorData, mutate } = useSWR("/vendors/me", swrFetcher);
+  const { data: vendorData, mutate } = useSWR<any>("/vendors/me", swrFetcher);
 
   const [activeSection, setActiveSection] = useState("profile");
   const [tone, setTone] = useState("professional");

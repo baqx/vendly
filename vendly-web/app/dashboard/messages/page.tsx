@@ -40,7 +40,7 @@ function getSessionStatus(session: any): MessageStatus {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 export default function MessagesPage() {
-  const { data: chats, mutate, isLoading } = useSWR("/chats", swrFetcher, { refreshInterval: 5000 });
+  const { data: chats, mutate, isLoading } = useSWR<any>("/chats", swrFetcher, { refreshInterval: 5000 });
   const conversations = chats || [];
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
