@@ -39,32 +39,6 @@ type Payout = {
   timestamp: string;
 };
 
-const FALLBACK_TRANSACTIONS: Transaction[] = [
-  {
-    id: "tx_829103",
-    timestamp: "2023-11-08T10:05:00.000Z",
-    type: "SALE",
-    amount: 45000,
-  },
-  {
-    id: "tx_112893",
-    timestamp: "2023-11-06T10:05:00.000Z",
-    type: "PAYOUT",
-    amount: -120000,
-  },
-  {
-    id: "tx_553401",
-    timestamp: "2023-11-05T10:05:00.000Z",
-    type: "REFUND",
-    amount: -8250,
-  },
-  {
-    id: "tx_998124",
-    timestamp: "2023-11-04T10:05:00.000Z",
-    type: "SALE",
-    amount: 104020,
-  },
-];
 
 
 export default function WalletPage() {
@@ -79,7 +53,7 @@ export default function WalletPage() {
   const { data: payouts } = useSWR<Payout[]>("/payouts");
 
   const transactionRows = useMemo(() => {
-    const list = transactions && transactions.length > 0 ? transactions : FALLBACK_TRANSACTIONS;
+    const list: Transaction[] = transactions || [];
     return list.map((tx) => {
       const typeKey = tx.type.toUpperCase();
       const label =
@@ -103,7 +77,7 @@ export default function WalletPage() {
   }, [transactions]);
 
   const payoutRows = useMemo(() => {
-    const list = payouts && payouts.length > 0 ? payouts : [];
+    const list: Payout[] = payouts || [];
     return list.map((tx) => ({
       id: tx.id,
       date: formatDate(tx.timestamp),

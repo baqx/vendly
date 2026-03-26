@@ -20,144 +20,72 @@ import {
   Info
 } from "lucide-react";
 
-// ─── Types ─────────────────────────────────────────────────────────────────
+import useSWR from "swr";
+import { swrFetcher } from "@/lib/swr";
+import { apiJson } from "@/lib/api";
+
 type MessageStatus = "AI Active" | "Human Needed" | "Resolved";
-
-interface Conversation {
-  id: string;
-  name: string;
-  preview: string;
-  time: string;
-  status: MessageStatus;
-  avatar: string;
-  location: string;
-  lifetimeValue: string;
-  messages: ChatMessage[];
-}
-
-interface ChatMessage {
-  id: string;
-  sender: "customer" | "ai" | "human";
-  text: string;
-  time: string;
-}
-
-// ─── Mock Data ──────────────────────────────────────────────────────────────
-const CONVERSATIONS: Conversation[] = [
-  {
-    id: "m1",
-    name: "Adama Traoré",
-    preview: "Can I pay for the organic fertilizers via mobile...",
-    time: "10:42 AM",
-    status: "AI Active",
-    avatar: "AT",
-    location: "Abuja, Nigeria",
-    lifetimeValue: "₦142,500.00",
-    messages: [
-      { id: "1", sender: "customer", text: "Hello, I'm interested in the Organic Fertilizer (25kg). Is it available in stock for Abuja delivery?", time: "10:40 AM" },
-      { id: "2", sender: "ai", text: "Yes, Adama! We have 45 bags of Organic Fertilizer in stock. Delivery to Abuja typically takes 24-48 hours. Would you like me to calculate the shipping cost for you?", time: "10:41 AM" },
-      { id: "3", sender: "customer", text: "Yes, please. Also, can I pay via mobile money on arrival?", time: "10:42 AM" },
-    ],
-  },
-  {
-    id: "m2",
-    name: "Fatima Bello",
-    preview: "The last batch of seeds didn't sprout. I'd like a ...",
-    time: "09:15 AM",
-    status: "Human Needed",
-    avatar: "FB",
-    location: "Kano, Nigeria",
-    lifetimeValue: "₦85,000.00",
-    messages: [
-      { id: "1", sender: "customer", text: "Hi, I bought seeds last week and none of them sprouted. I need a refund.", time: "09:10 AM" },
-      { id: "2", sender: "ai", text: "I'm so sorry to hear that, Fatima. Let me check your recent order.", time: "09:11 AM" },
-      { id: "3", sender: "customer", text: "The last batch of seeds didn't sprout. I'd like a replacement or a full refund.", time: "09:15 AM" },
-    ],
-  },
-  {
-    id: "m3",
-    name: "John Okafor",
-    preview: "Thank you! The delivery was very fast. Great ...",
-    time: "Yesterday",
-    status: "Resolved",
-    avatar: "JO",
-    location: "Lagos, Nigeria",
-    lifetimeValue: "₦220,000.00",
-    messages: [
-      { id: "1", sender: "customer", text: "I just received my order. Thank you! The delivery was very fast.", time: "Yesterday" },
-      { id: "2", sender: "ai", text: "Wonderful! We're so glad your order arrived on time, John. Thank you for shopping with us!", time: "Yesterday" },
-      { id: "3", sender: "customer", text: "Great service, will definitely order again.", time: "Yesterday" },
-    ],
-  },
-];
 
 const STATUS_STYLES: Record<MessageStatus, { pill: string; dot: string; label: string }> = {
   "AI Active":     { pill: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400", dot: "bg-green-500", label: "AI Active" },
-  "Human Needed":  { pill: "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400", dot: "bg-red-500", label: "Human Needed" },
+  "Human Needed":  { pill: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400", dot: "bg-amber-500", label: "Human Needed" },
   "Resolved":      { pill: "bg-muted text-muted-foreground", dot: "bg-muted-foreground", label: "Resolved" },
 };
 
+function getSessionStatus(session: any): MessageStatus {
+  if (!session.active) return "Resolved";
+  if (session.humanTakeover) return "Human Needed";
+  return "AI Active";
+}
+
 // ─── Component ──────────────────────────────────────────────────────────────
 export default function MessagesPage() {
-  const [selectedId, setSelectedId] = useState(CONVERSATIONS[0].id);
-  const [messages, setMessages] = useState<Record<string, ChatMessage[]>>(
-    Object.fromEntries(CONVERSATIONS.map((c) => [c.id, c.messages]))
-  );
+  const { data: chats, mutate, isLoading } = useSWR("/chats", swrFetcher, { refreshInterval: 5000 });
+  const conversations = chats || [];
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [input, setInput] = useState("");
-  const [isAiTyping, setIsAiTyping] = useState(false);
-  const [isTakenOver, setIsTakenOver] = useState<Record<string, boolean>>({});
   const [mobileView, setMobileView] = useState<"inbox" | "chat" | "info">("inbox");
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const selected = CONVERSATIONS.find((c) => c.id === selectedId) || CONVERSATIONS[0];
-  const currentMessages = messages[selectedId] || [];
-  const takenOver = isTakenOver[selectedId] || false;
+  useEffect(() => {
+    if (!selectedId && conversations.length > 0) {
+      setSelectedId(conversations[0].id);
+    }
+  }, [conversations, selectedId]);
+
+  const selected = conversations.find((c: any) => c.id === selectedId) || null;
+  const currentMessages = selected?.messages || [];
+  const takenOver = selected?.humanTakeover || false;
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
     setInput("");
-    setIsAiTyping(false);
     setMobileView("chat");
   };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [currentMessages, isAiTyping]);
+  }, [currentMessages]);
 
   const handleSend = () => {
     if (!input.trim()) return;
-
-    const newMsg: ChatMessage = {
-      id: Date.now().toString(),
-      sender: takenOver ? "human" : "customer",
-      text: input,
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
-
-    setMessages((prev) => ({ ...prev, [selectedId]: [...(prev[selectedId] || []), newMsg] }));
+    toast.error("Dashboard messaging is not yet implemented. Please reply directly via WhatsApp/Telegram.");
     setInput("");
-
-    // Simulate AI reply if not taken over
-    if (!takenOver) {
-      setIsAiTyping(true);
-      setTimeout(() => {
-        const aiReply: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          sender: "ai",
-          text: "Thank you for your message! Let me look into that for you right away.",
-          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        };
-        setMessages((prev) => ({ ...prev, [selectedId]: [...(prev[selectedId] || []), aiReply] }));
-        setIsAiTyping(false);
-      }, 1800);
-    }
   };
 
-  const handleTakeOver = () => {
-    setIsTakenOver((prev) => ({ ...prev, [selectedId]: !prev[selectedId] }));
-    toast.success(
-      takenOver ? "AI resumed for this conversation" : `You've taken over this conversation`
-    );
+  const handleTakeOver = async () => {
+    if (!selected) return;
+    try {
+      const isTakingOver = !takenOver;
+      await apiJson(`/chats/${selected.id}/takeover?takeover=${isTakingOver}`, "PATCH");
+      await mutate();
+      toast.success(
+        isTakingOver ? "You've taken over this conversation." : "AI resumed for this conversation."
+      );
+    } catch (e) {
+      toast.error("Takeover action failed");
+    }
   };
 
   return (
@@ -168,39 +96,56 @@ export default function MessagesPage() {
       <div className={`shrink-0 border-r border-border/40 bg-card flex-col lg:flex lg:w-[300px] ${mobileView === "inbox" ? "flex w-full" : "hidden"}`}>
         <div className="flex items-center justify-between p-5 border-b border-border/30">
           <h2 className="text-base font-black text-foreground">Inbox</h2>
-          <span className="bg-green-700 text-white text-[10px] font-black px-2.5 py-1 rounded-[4px] tracking-wide">
-            12 New
-          </span>
+          {conversations.length > 0 && (
+            <span className="bg-green-700 text-white text-[10px] font-black px-2.5 py-1 rounded-[4px] tracking-wide">
+              {conversations.length} Active
+            </span>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {CONVERSATIONS.map((conv) => {
-            const s = STATUS_STYLES[conv.status];
-            const isActive = selectedId === conv.id;
-            return (
-              <button
-                key={conv.id}
-                onClick={() => handleSelect(conv.id)}
-                className={`w-full text-left p-4 border-b border-border/20 transition-colors ${
-                  isActive
-                    ? "bg-green-50 dark:bg-green-900/10 border-l-[3px] border-l-green-600"
-                    : "hover:bg-muted/40"
-                }`}
-              >
-                <div className="flex justify-between items-start mb-1">
-                  <span className="text-sm font-extrabold text-foreground">{conv.name}</span>
-                  <span className="text-[10px] text-muted-foreground font-medium shrink-0 ml-2">{conv.time}</span>
-                </div>
-                <p className="text-xs text-muted-foreground font-medium mb-2 line-clamp-1">{conv.preview}</p>
-                <span className={`inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-1 rounded-[4px] uppercase tracking-widest ${s.pill}`}>
-                  <span className={`w-1.5 h-1.5 rounded-[4px] shrink-0 ${s.dot}`} />
-                  {conv.status === "Resolved" ? (
-                    <><CircleCheck size={10} /> {s.label}</>
-                  ) : s.label}
-                </span>
-              </button>
-            );
-          })}
+          {isLoading ? (
+            <div className="flex justify-center py-10"><Loader2 className="animate-spin text-green-700" /></div>
+          ) : (
+            conversations.map((conv: any) => {
+              const status = getSessionStatus(conv);
+              const s = STATUS_STYLES[status];
+              const isActive = selectedId === conv.id;
+              const name = conv.customerName || conv.customerIdentifier || "Anonymous";
+              
+              let preview = "No messages";
+              let time = "";
+              if (conv.messages?.length > 0) {
+                const lastMsg = conv.messages[conv.messages.length - 1];
+                preview = lastMsg.content;
+                time = new Date(lastMsg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              }
+
+              return (
+                <button
+                  key={conv.id}
+                  onClick={() => handleSelect(conv.id)}
+                  className={`w-full text-left p-4 border-b border-border/20 transition-colors ${
+                    isActive
+                      ? "bg-green-50 dark:bg-green-900/10 border-l-[3px] border-l-green-600"
+                      : "hover:bg-muted/40"
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="text-sm font-extrabold text-foreground truncate pl-1">{name}</span>
+                    <span className="text-[10px] text-muted-foreground font-medium shrink-0 ml-2">{time}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-medium mb-2 line-clamp-1 pl-1">{preview}</p>
+                  <span className={`inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-1 rounded-[4px] uppercase tracking-widest ${s.pill} mx-1`}>
+                    <span className={`w-1.5 h-1.5 rounded-[4px] shrink-0 ${s.dot}`} />
+                    {status === "Resolved" ? (
+                      <><CircleCheck size={10} /> {s.label}</>
+                    ) : s.label}
+                  </span>
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -208,26 +153,27 @@ export default function MessagesPage() {
       <div className={`flex-1 flex-col bg-background min-w-0 lg:flex ${mobileView === "chat" ? "flex" : "hidden"}`}>
         {/* Chat Header */}
         <div className="flex items-center justify-between p-4 lg:p-5 border-b border-border/30 bg-card shrink-0">
-          <div className="flex items-center gap-3">
-            <button 
-              className="lg:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground" 
-              onClick={() => setMobileView("inbox")}
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <div className="w-10 h-10 rounded-[4px] bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-300 font-black text-sm flex items-center justify-center shrink-0">
-              {selected.avatar}
-            </div>
-            <div>
-              <p className="text-sm font-extrabold text-foreground leading-tight">{selected.name}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className={`w-1.5 h-1.5 rounded-[4px] shrink-0 ${STATUS_STYLES[selected.status].dot}`} />
-                <span className="text-[10px] font-bold text-muted-foreground">
-                  {takenOver ? "Human Active" : selected.status}
-                </span>
+          {selected && (
+            <div className="flex items-center gap-3">
+              <button 
+                className="lg:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground" 
+                onClick={() => setMobileView("inbox")}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <div className="w-10 h-10 rounded-[4px] bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-300 font-black text-sm flex items-center justify-center shrink-0 uppercase">
+                {(selected.customerName || selected.customerIdentifier || "A").substring(0, 2)}
+              </div>
+              <div>
+                <p className="text-sm font-extrabold text-foreground leading-tight">{selected.customerName || selected.customerIdentifier}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-muted px-2 py-0.5 rounded-[4px]">
+                    {selected.channel}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           <div className="flex items-center gap-2">
             <button
               onClick={handleTakeOver}
@@ -251,56 +197,45 @@ export default function MessagesPage() {
 
         {/* Messages Scroll Area */}
         <div className="flex-1 overflow-y-auto p-5 lg:p-6 space-y-5">
-          {currentMessages.map((msg) => {
-            if (msg.sender === "customer") {
+          {currentMessages.map((msg: any) => {
+            const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (msg.role === "CUSTOMER") {
               return (
                 <div key={msg.id} className="flex flex-col items-start gap-1 max-w-[70%]">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground px-1 mb-0.5">Customer</span>
                   <div className="bg-card border border-border/50 rounded-[4px] px-5 py-4 text-sm font-medium text-foreground shadow-minimal leading-relaxed">
-                    {msg.text}
+                    {msg.content}
                   </div>
-                  <span className="text-[10px] text-muted-foreground font-medium px-1">{msg.time}</span>
+                  <span className="text-[10px] text-muted-foreground font-medium px-1 mt-0.5">{time}</span>
                 </div>
               );
             }
-            if (msg.sender === "ai") {
+            if (msg.role === "BOT") {
               return (
                 <div key={msg.id} className="flex flex-col items-end gap-1 ml-auto max-w-[70%]">
                   <div className="text-[10px] font-extrabold text-green-700 dark:text-green-500 uppercase tracking-widest flex items-center gap-1.5 pr-1">
                     Verdant AI <Bot size={12} />
                   </div>
                   <div className="bg-green-700 text-white rounded-[4px] rounded-tr-[4px] px-5 py-4 text-sm font-medium leading-relaxed shadow-md shadow-green-700/20">
-                    {msg.text}
+                    {msg.content}
                   </div>
-                  <span className="text-[10px] text-muted-foreground font-medium px-1">{msg.time}</span>
+                  <span className="text-[10px] text-muted-foreground font-medium px-1 mt-0.5">{time}</span>
                 </div>
               );
             }
-            // human
+            // human (VENDOR)
             return (
               <div key={msg.id} className="flex flex-col items-end gap-1 ml-auto max-w-[70%]">
                 <div className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1.5 pr-1">
                   You <User size={12} />
                 </div>
                 <div className="bg-blue-600 text-white rounded-[4px] rounded-tr-[4px] px-5 py-4 text-sm font-medium leading-relaxed">
-                  {msg.text}
+                  {msg.content}
                 </div>
-                <span className="text-[10px] text-muted-foreground font-medium px-1">{msg.time}</span>
+                <span className="text-[10px] text-muted-foreground font-medium px-1 mt-0.5">{time}</span>
               </div>
             );
           })}
-
-          {/* AI Typing Indicator */}
-          {isAiTyping && (
-            <div className="flex flex-col items-end gap-1 ml-auto max-w-[70%]">
-              <div className="text-[10px] font-extrabold text-green-700 dark:text-green-500 uppercase tracking-widest flex items-center gap-1.5 pr-1">
-                Verdant AI <Bot size={12} />
-              </div>
-              <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-[4px] px-5 py-3 text-xs italic text-green-700 dark:text-green-400 font-semibold flex items-center gap-2">
-                <Loader2 size={12} className="animate-spin" />
-                AI is drafting a reply...
-              </div>
-            </div>
-          )}
 
           <div ref={bottomRef} />
         </div>
@@ -382,17 +317,8 @@ export default function MessagesPage() {
                 <MapPin size={14} />
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground font-semibold">Location</p>
-                <p className="text-sm font-extrabold text-foreground">{selected.location}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
-                <Wallet size={14} />
-              </div>
-              <div>
-                <p className="text-[10px] text-muted-foreground font-semibold">Lifetime Value</p>
-                <p className="text-sm font-extrabold text-foreground">{selected.lifetimeValue}</p>
+                <p className="text-[10px] text-muted-foreground font-semibold">Interaction Value</p>
+                <p className="text-sm font-extrabold text-foreground">Tracked via Orders</p>
               </div>
             </div>
           </div>

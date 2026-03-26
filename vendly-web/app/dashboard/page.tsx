@@ -72,19 +72,7 @@ const allData: Record<string, { name: string; revenue: number }[]> = {
 
 const PERIODS = ["Last 6 Months", "Last 3 Months", "Last Month"];
 
-const FALLBACK_ORDERS = [
-  { id: "VL-8821", customer: "Amara Okafor", product: "Premium Honey Bundle", status: "SHIPPED", amount: 12400, date: "2023-10-24" },
-  { id: "VL-8820", customer: "David Mensah", product: "Organic Coffee Beans", status: "PAID", amount: 4550, date: "2023-10-24" },
-  { id: "VL-8819", customer: "Sarah Johnson", product: "Hand-woven Basket", status: "PENDING", amount: 8900, date: "2023-10-23" },
-  { id: "VL-8818", customer: "Kwame Boateng", product: "Shea Butter Gold", status: "SHIPPED", amount: 21000, date: "2023-10-23" },
-];
 
-const FALLBACK_TOP_SELLERS = [
-  { name: "Wild Forest Honey", meta: "PANTRY", amount: 2480, bg: "bg-amber-100", img: "/images/honey.png" },
-  { name: "Shea Butter Gold", meta: "BEAUTY", amount: 1960, bg: "bg-orange-100", img: "/images/shea.png" },
-  { name: "Ceramic Earth Vase", meta: "DECOR", amount: 1520, bg: "bg-stone-200", img: "/images/vase.png" },
-  { name: "Premium Mangoes", meta: "FRUIT", amount: 1280, bg: "bg-yellow-100", img: "/images/mangoes.png" },
-];
 
 const statusPill = (status: string) => {
   switch (status) {
@@ -132,7 +120,7 @@ export default function DashboardHome() {
           amount: order.totalAmount,
           date: order.createdAt,
         }))
-      : FALLBACK_ORDERS;
+      : [];
 
   const sellerRows =
     topProducts.length > 0
@@ -143,7 +131,7 @@ export default function DashboardHome() {
           bg: "bg-green-50",
           img: p.images?.[0]?.url || "/images/honey.png",
         }))
-      : FALLBACK_TOP_SELLERS;
+      : [];
 
   return (
     <div className="space-y-6 relative pb-20">

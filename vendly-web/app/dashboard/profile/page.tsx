@@ -1,6 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import useSWR from "swr";
+import { swrFetcher } from "@/lib/swr";
+import { apiForm, apiJson } from "@/lib/api";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   UploadCloud,
@@ -13,9 +17,9 @@ import {
   Eye,
   EyeOff,
   Check,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 // ─── Change Password Modal ────────────────────────────────────────────────────
 function ChangePasswordModal({ onClose }: { onClose: () => void }) {
@@ -31,11 +35,8 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
 
   const handleSave = () => {
     if (!current || !next || next !== confirm) return;
-    setSaved(true);
-    setTimeout(() => {
-      setSaved(false);
-      onClose();
-    }, 1200);
+    toast.error("Password update is not currently supported in the API.");
+    onClose();
   };
 
   return (
@@ -135,31 +136,63 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ProfilePage() {
+  const { data: vendorData, mutate } = useSWR("/vendors/me", swrFetcher);
+
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [storeName, setStoreName] = useState("Vendly Store");
-  const [storeDesc, setStoreDesc] = useState(
-    "Curated fashion and artisan crafts from the heart of West Africa. Specialising in authentic textiles and contemporary designs."
-  );
-  const [fullName, setFullName] = useState("Sarah Jenkins");
-  const [email, setEmail] = useState("sarah.j@vendlystore.com");
-  const [phone, setPhone] = useState("+234 801 234 5678");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [storeName, setStoreName] = useState("");
+  const [storeDesc, setStoreDesc] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [twoFA, setTwoFA] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (vendorData?.data) {
+      const v = vendorData.data;
+      setStoreName(v.storeName || "");
+      setStoreDesc(v.description || "");
+      setEmail(v.email || "");
+      setPhone(v.phoneNumber || "");
+      if (v.logoUrl) setLogoPreview(v.logoUrl);
+    }
+  }, [vendorData]);
+
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setLogoFile(file);
     const reader = new FileReader();
     reader.onload = (ev) => setLogoPreview(ev.target?.result as string);
     reader.readAsDataURL(file);
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      if (storeName) formData.append("storeName", storeName);
+      if (storeDesc) formData.append("description", storeDesc);
+      if (phone) formData.append("phoneNumber", phone);
+      if (logoFile) {
+        formData.append("logo", logoFile);
+      }
+      
+      await apiForm("/vendors/me", "PATCH", formData);
+      await mutate();
+      setSaved(true);
+      toast.success("Profile updated successfully!");
+      setTimeout(() => setSaved(false), 2500);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to save profile");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const charCount = storeDesc.length;
@@ -414,28 +447,35 @@ export default function ProfilePage() {
               <div className="pointer-events-auto border-t border-border/50 bg-background/90 backdrop-blur-md px-6 py-4 flex items-center justify-end gap-3 shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
                 <button
                   onClick={() => {
-                    setStoreName("Vendly Store");
-                    setFullName("Sarah Jenkins");
-                    setEmail("sarah.j@vendlystore.com");
-                    setPhone("+234 801 234 5678");
-                    setStoreDesc(
-                      "Curated fashion and artisan crafts from the heart of West Africa. Specialising in authentic textiles and contemporary designs."
-                    );
-                    setLogoPreview(null);
+                    if (vendorData?.data) {
+                      const v = vendorData.data;
+                      setStoreName(v.storeName || "");
+                      setStoreDesc(v.description || "");
+                      setEmail(v.email || "");
+                      setPhone(v.phoneNumber || "");
+                      setLogoPreview(v.logoUrl || null);
+                      setLogoFile(null);
+                    }
                   }}
-                  className="px-6 py-2.5 rounded-[4px] border border-border/60 text-[14px] font-bold text-foreground hover:bg-muted transition-colors"
+                  disabled={isSaving}
+                  className="px-6 py-2.5 rounded-[4px] border border-border/60 text-[14px] font-bold text-foreground hover:bg-muted transition-colors disabled:opacity-50"
                 >
                   Discard
                 </button>
                 <button
                   onClick={handleSave}
-                  className={`inline-flex items-center gap-2 px-7 py-2.5 rounded-[4px] text-[14px] font-bold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] ${
+                  disabled={isSaving}
+                  className={`inline-flex items-center gap-2 px-7 py-2.5 rounded-[4px] text-[14px] font-bold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none ${
                     saved
                       ? "bg-green-100 text-green-700 border border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
                       : "bg-green-700 hover:bg-green-800 text-white"
                   }`}
                 >
-                  {saved ? (
+                  {isSaving ? (
+                    <>
+                      <Loader2 size={15} className="animate-spin" /> Saving...
+                    </>
+                  ) : saved ? (
                     <>
                       <Check size={15} /> Saved!
                     </>

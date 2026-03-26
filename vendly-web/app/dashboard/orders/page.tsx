@@ -53,63 +53,14 @@ const STATUS_STYLES: Record<string, string> = {
   CANCELLED: "bg-muted text-muted-foreground",
 };
 
-const FALLBACK_ORDERS: NormalizedOrder[] = [
-  {
-    id: "ORD-8821",
-    customer: "Elena Aris",
-    email: "elena@example.com",
-    avatar: "EA",
-    product: "Organic Coffee Beans",
-    qty: "2x 500g Packs",
-    status: "DELIVERED",
-    statusColor: STATUS_STYLES.DELIVERED,
-    amountValue: 4500,
-    amountLabel: formatCurrency(4500),
-    dateValue: "2023-10-24",
-    dateLabel: "Oct 24, 2023",
-    shippingAddress: "42 Innovation Dr. Osu, Accra, Ghana",
-    customerPhone: "+233 24 555 0192",
-  },
-  {
-    id: "ORD-8820",
-    customer: "Kofi Osei",
-    email: "kofi.o@provider.gh",
-    avatar: "KO",
-    product: "Premium Shea Butter",
-    qty: "1x 1kg Tub",
-    status: "SHIPPED",
-    statusColor: STATUS_STYLES.SHIPPED,
-    amountValue: 2850,
-    amountLabel: formatCurrency(2850),
-    dateValue: "2023-10-24",
-    dateLabel: "Oct 24, 2023",
-    shippingAddress: "27 Gamel Abdul Nasser Ave, Accra",
-    customerPhone: "+233 24 555 0192",
-  },
-  {
-    id: "ORD-8819",
-    customer: "Mariam Ade",
-    email: "m.ade@web.ng",
-    avatar: "MA",
-    product: "Artisan Spice Kit",
-    qty: "3x Starter Sets",
-    status: "PAID",
-    statusColor: STATUS_STYLES.PAID,
-    amountValue: 11200,
-    amountLabel: formatCurrency(11200),
-    dateValue: "2023-10-23",
-    dateLabel: "Oct 23, 2023",
-    shippingAddress: "Ikoyi, Lagos, Nigeria",
-    customerPhone: "+234 801 234 5678",
-  },
-];
+
 
 const tabs = ["All Orders", "Pending", "Paid", "Shipped", "Delivered"];
 
 export default function OrdersPage() {
   const router = useRouter();
   const [activeTab, setActiveTab ] = useState("All Orders");
-  const [activeOrder, setActiveOrder] = useState<NormalizedOrder>(FALLBACK_ORDERS[0]); // For bottom preview
+  const [activeOrder, setActiveOrder] = useState<NormalizedOrder | null>(null); // For bottom preview
   
   // Interactive States
   const [currentPage, setCurrentPage] = useState(1);
@@ -123,7 +74,7 @@ export default function OrdersPage() {
   );
 
   const normalizedOrders = useMemo<NormalizedOrder[]>(() => {
-    if (!orders || orders.length === 0) return FALLBACK_ORDERS;
+    if (!orders || orders.length === 0) return [];
     return orders.map((order) => {
       const productName = order.items?.[0]?.product?.title || order.items?.[0]?.productId || "Order items";
       const qty = order.items?.[0]?.quantity ? `${order.items[0].quantity}x` : "--";
@@ -149,10 +100,10 @@ export default function OrdersPage() {
   }, [orders]);
 
   useEffect(() => {
-    if (normalizedOrders.length && activeOrder.id !== normalizedOrders[0].id) {
+    if (normalizedOrders.length && (!activeOrder || activeOrder.id !== normalizedOrders[0].id)) {
       setActiveOrder(normalizedOrders[0]);
     }
-  }, [normalizedOrders, activeOrder.id]);
+  }, [normalizedOrders, activeOrder]);
 
   const stats = useMemo(() => {
     const totalOrders = normalizedOrders.length;
@@ -357,7 +308,7 @@ export default function OrdersPage() {
                   key={order.id} 
                   onClick={() => router.push(`/dashboard/orders/${order.id.replace('#', '')}`)}
                   onMouseEnter={() => setActiveOrder(order)} // Updates the preview lightly on hover if needed, or we can just leave it as router push
-                  className={`hover:bg-muted/20 transition-colors cursor-pointer group ${activeOrder.id === order.id ? "bg-muted/10" : ""}`}
+                  className={`hover:bg-muted/20 transition-colors cursor-pointer group ${activeOrder?.id === order.id ? "bg-muted/10" : ""}`}
                 >
                   <td className="py-5 px-6 lg:px-8 text-sm font-extrabold text-foreground">{order.id}</td>
                   
@@ -459,6 +410,7 @@ export default function OrdersPage() {
       </div>
 
       {/* Order Details Preview (Bottom Section) */}
+      {activeOrder && (
       <div className="pt-4">
         <div className="flex items-center justify-between mb-5 px-2">
           <h2 className="text-xl font-extrabold text-foreground">Order Details Preview</h2>
@@ -565,6 +517,7 @@ export default function OrdersPage() {
 
         </div>
       </div>
+      )}
 
     </div>
   );

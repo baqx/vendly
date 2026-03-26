@@ -65,23 +65,7 @@ type OrderResponse = {
   paymentLink?: string;
 };
 
-const FALLBACK_PRODUCTS: Product[] = [
-  { id: "p1", name: "Emerald Trail Runners", sku: "VLD-4421-G", price: 45000, stock: 12, image: "/images/shoes.png" },
-  { id: "p2", name: "Velocity X1 Sneakers", sku: "VL-RUN-42", price: 38000, stock: 8, image: "/images/shoes.png" },
-  { id: "p3", name: "Heritage Leather Watch", sku: "WR-LTH-01", price: 120000, stock: 5, image: "/images/shoes.png" },
-  { id: "p4", name: "Verdant Pro Headphones", sku: "VD-PRO-90", price: 55000, stock: 15, image: "/images/shoes.png" },
-  { id: "p5", name: "Organic Coffee Beans (500g)", sku: "CB-ORG-500", price: 8500, stock: 40, image: "/images/shoes.png" },
-  { id: "p6", name: "Premium Shea Butter (1kg)", sku: "SB-PRM-1KG", price: 14000, stock: 20, image: "/images/shoes.png" },
-  { id: "p7", name: "Artisan Spice Kit", sku: "SK-ART-01", price: 22000, stock: 30, image: "/images/shoes.png" },
-];
 
-const FALLBACK_CUSTOMERS: Customer[] = [
-  { id: "c1", name: "Adebola Johnson", email: "ade.johnson@example.com", phone: "+234 812 345 6789" },
-  { id: "c2", name: "Elena Aris", email: "elena@example.com", phone: "+234 801 234 5678" },
-  { id: "c3", name: "Kofi Osei", email: "kofi.o@provider.gh", phone: "+233 24 555 0192" },
-  { id: "c4", name: "Mariam Ade", email: "m.ade@web.ng", phone: "+234 703 456 7890" },
-  { id: "c5", name: "Chidi Laolu", email: "chidi@corp.com", phone: "+234 905 678 9012" },
-];
 
 type CartItem = { id: string; name: string; sku: string; price: number; qty: number; image: string; variant?: string };
 
@@ -103,7 +87,7 @@ export default function CreateManualOrderPage() {
   );
 
   const productCatalog = useMemo<Product[]>(() => {
-    if (!products || products.length === 0) return FALLBACK_PRODUCTS;
+    if (!products || products.length === 0) return [];
     return products.map((product) => ({
       id: product.id,
       name: product.title,
@@ -115,7 +99,7 @@ export default function CreateManualOrderPage() {
   }, [products]);
 
   const customerCatalog = useMemo<Customer[]>(() => {
-    if (!customers || customers.length === 0) return FALLBACK_CUSTOMERS;
+    if (!customers || customers.length === 0) return [];
     return customers.map((customer) => ({
       id: customer.identifier || customer.id,
       name: customer.name || customer.identifier,
@@ -162,7 +146,7 @@ export default function CreateManualOrderPage() {
     if (!customerSearch.trim()) return customerCatalog;
     const q = customerSearch.toLowerCase();
     return customerCatalog.filter(
-      (c) => c.name.toLowerCase().includes(q) || (c.email || \"\").toLowerCase().includes(q)
+      (c) => c.name.toLowerCase().includes(q) || (c.email || "").toLowerCase().includes(q)
     );
   }, [customerSearch, customerCatalog]);
 

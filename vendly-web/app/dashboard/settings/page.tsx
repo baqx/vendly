@@ -1,6 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import useSWR from "swr";
+import { swrFetcher } from "@/lib/swr";
+import { apiForm } from "@/lib/api";
+import { toast } from "sonner";
 import { 
   UploadCloud, 
   X, 
@@ -20,14 +24,44 @@ import {
 } from "lucide-react";
 
 export default function SettingsPage() {
+  const { data: vendorData, mutate } = useSWR("/vendors/me", swrFetcher);
+
   const [activeSection, setActiveSection] = useState("profile");
   const [tone, setTone] = useState("professional");
   const [behavior, setBehavior] = useState("helpful");
   const [discountRules, setDiscountRules] = useState(true);
-  const [categories, setCategories] = useState(["Sustainable Fashion", "Organic Textiles"]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [storeName, setStoreName] = useState("");
+  const [description, setDescription] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (vendorData?.data) {
+      const v = vendorData.data;
+      setStoreName(v.storeName || "");
+      setDescription(v.description || "");
+      if (v.category) {
+        setCategories(v.category.split(",").map((c: string) => c.trim()).filter(Boolean));
+      }
+      if (v.logoUrl) setLogoPreview(v.logoUrl);
+      
+      if (v.botPersonality) {
+        const p = v.botPersonality.toLowerCase();
+        if (p.includes("professional")) setTone("professional");
+        else if (p.includes("friendly")) setTone("friendly");
+        else if (p.includes("casual")) setTone("casual");
+        
+        if (p.includes("aggressive")) setBehavior("aggressive");
+        else if (p.includes("helpful")) setBehavior("helpful");
+        else if (p.includes("passive")) setBehavior("passive");
+      }
+      setDiscountRules(v.hagglingLimit > 0);
+    }
+  }, [vendorData]);
 
   const sections = [
     { id: "profile", label: "Store Profile" },
@@ -52,14 +86,38 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      if (storeName) formData.append("storeName", storeName);
+      if (description) formData.append("description", description);
+      if (categories.length > 0) formData.append("category", categories.join(", "));
+      
+      const combinedPersonality = `${tone} and ${behavior}`;
+      formData.append("botPersonality", combinedPersonality);
+      formData.append("hagglingLimit", discountRules ? "10.0" : "0.0");
+      
+      if (logoFile) {
+        formData.append("logo", logoFile);
+      }
+      
+      await apiForm("/vendors/me", "PATCH", formData);
+      await mutate();
+      setSaved(true);
+      toast.success("Settings updated successfully!");
+      setTimeout(() => setSaved(false), 2500);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update settings");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setLogoFile(file);
     const reader = new FileReader();
     reader.onload = (ev) => setLogoPreview(ev.target?.result as string);
     reader.readAsDataURL(file);
@@ -77,13 +135,14 @@ export default function SettingsPage() {
         </div>
         <button 
           onClick={handleSave}
-          className={`px-8 py-3.5 rounded-[4px] font-bold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap ${
+          disabled={isSaving}
+          className={`px-8 py-3.5 rounded-[4px] font-bold transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap disabled:opacity-70 disabled:pointer-events-none ${
             saved 
               ? "bg-green-100 text-green-700 border border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800" 
               : "bg-green-700 hover:bg-green-800 text-white"
           }`}
         >
-          {saved ? "✓ Saved!" : "Save All Changes"}
+          {isSaving ? "Saving..." : saved ? "✓ Saved!" : "Save All Changes"}
         </button>
       </div>
 
@@ -163,7 +222,8 @@ export default function SettingsPage() {
                   <label className="block text-[12px] font-extrabold text-foreground mb-2">Store Name</label>
                   <input 
                     type="text" 
-                    defaultValue="Verdant Boutique"
+                    value={storeName}
+                    onChange={(e) => setStoreName(e.target.value)}
                     className="w-full border border-border/60 rounded-[4px] px-4 py-2.5 text-sm font-bold text-foreground bg-transparent focus:outline-none focus:ring-2 focus:ring-green-500/20"
                   />
                 </div>
@@ -187,7 +247,8 @@ export default function SettingsPage() {
                 <div>
                   <label className="block text-[12px] font-extrabold text-foreground mb-2">Description</label>
                   <textarea 
-                    defaultValue="Curating the finest ethically sourced apparel from across West Africa. Every stitch tells a story of heritage and sustainability."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                     className="w-full border border-border/60 rounded-[4px] px-4 py-3 text-[13px] font-medium text-foreground bg-transparent focus:outline-none focus:ring-2 focus:ring-green-500/20 min-h-[100px] resize-y leading-relaxed"
                   />
                 </div>

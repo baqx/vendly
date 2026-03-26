@@ -17,40 +17,7 @@ type Product = {
   images?: { id: string; url: string }[];
 };
 
-const FALLBACK_PRODUCTS = [
-  { 
-    id: "p1", 
-    title: "Nordic Minimalist Watch", 
-    basePrice: 12400, 
-    stockLevel: 42, 
-    tags: "ELECTRONICS", 
-    images: [{ id: "img1", url: "/images/watch.png" }],
-  },
-  { 
-    id: "p2", 
-    title: "Crimson Aero Runners", 
-    basePrice: 8950, 
-    stockLevel: 3, 
-    tags: "FASHION", 
-    images: [{ id: "img2", url: "/images/shoes.png" }],
-  },
-  { 
-    id: "p3", 
-    title: "Sonic Pods G2", 
-    basePrice: 5500, 
-    stockLevel: 0, 
-    tags: "ELECTRONICS", 
-    images: [{ id: "img3", url: "/images/earbuds.png" }],
-  },
-  { 
-    id: "p4", 
-    title: "Vintage Shot Z-10", 
-    basePrice: 41000, 
-    stockLevel: 12, 
-    tags: "ELECTRONICS", 
-    images: [{ id: "img4", url: "/images/camera.png" }],
-  },
-];
+
 
 const bgOptions = ["bg-slate-50 dark:bg-slate-900", "bg-[#A29E8D] dark:bg-[#726E5D]", "bg-[#A0C3B5] dark:bg-[#608375]"];
 
@@ -67,7 +34,7 @@ export default function InventoryPage() {
     `/products${buildQuery({ skip: (currentPage - 1) * PAGE_SIZE, limit: PAGE_SIZE })}`
   );
 
-  const products = (apiProducts && apiProducts.length > 0 ? apiProducts : FALLBACK_PRODUCTS).map((product, index) => {
+  const products = (apiProducts || []).map((product, index) => {
     const status =
       product.stockLevel <= 0 ? "Out of Stock" : product.stockLevel < 5 ? "Low Stock" : "In Stock";
     const statusColor =
