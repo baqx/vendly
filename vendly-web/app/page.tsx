@@ -31,8 +31,7 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-8 text-[13px] font-bold uppercase tracking-widest text-muted-foreground font-nunito">
             <Link href="#features" className="hover:text-primary transition-colors">Platform</Link>
             <Link href="#solutions" className="hover:text-primary transition-colors">Solutions</Link>
-            <Link href="#pricing" className="hover:text-primary transition-colors">Pricing</Link>
-          </div>
+            </div>
           <div className="h-4 w-px bg-border hidden md:block" />
           <div className="flex items-center gap-3 sm:gap-4">
             <ThemeToggle />
@@ -72,18 +71,7 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            <div className="flex flex-col items-center gap-6 pt-12">
-              <div className="flex -space-x-3">
-                {[1,2,3,4].map(i => (
-                  <div key={i} className="w-10 h-10 rounded-[8px] border-2 border-background bg-muted flex items-center justify-center overflow-hidden">
-                    <img src={`https://i.pravatar.cc/40?u=${i}`} alt="user" />
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-                Trusted by <span className="text-foreground">500+</span> Merchants
-              </p>
-            </div>
+            
           </div>
         </div>
 
@@ -100,7 +88,7 @@ export default function LandingPage() {
                   negotiates like an expert, and scales with your demand.
                 </p>
               </div>
-              <Link href="/onboarding" className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2 hover:gap-3 transition-all border-b-2 border-primary/20 pb-1">
+              <Link href="/signup" className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2 hover:gap-3 transition-all border-b-2 border-primary/20 pb-1">
                 Explore the platform <ArrowRight size={16} />
               </Link>
             </div>
@@ -152,14 +140,12 @@ export default function LandingPage() {
             <p className="text-xl text-muted-foreground font-medium">Join 500+ merchants who have automated their sales funnel with Vendly.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link 
-                href="/onboarding" 
+                href="/signup" 
                 className="bg-primary textbg-white dark:bg-card p-8 rounded-[8px] border border-border/50 shadow-minimal flex flex-col items-start text-left transition-all hover:bg-muted/5 groupll sm:w-auto text-center"
               >
                 Launch your Bot
               </Link>
-              <button className="px-10 py-5 rounded-[8px] text-lg font-bold border border-border hover:bg-muted transition-all w-full sm:w-auto">
-                Talk to Sales
-              </button>
+              
             </div>
           </div>
         </section>
