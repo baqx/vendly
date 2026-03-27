@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/banner.png" alt="Vendly Banner" width="100%">
+  <img src="vendly-web/public/images/logo-text.png" alt="Vendly Logo" width="300">
 </p>
 
-<h1 align="center">Vendly: AI-Powered Social Commerce Ecosystem</h1>
+# Vendly: AI-Powered Social Commerce Ecosystem
 
 <p align="center">
   <strong>Vendly is an AI-powered social commerce platform designed to transform everyday chat conversations into structured, trackable, and scalable business transactions.</strong>
@@ -18,11 +18,11 @@
 
 ---
 
-## 🚀 Overview
+## Overview
 
 We help vendors who sell through platforms like WhatsApp and Telegram move from “Are you available?” to “Payment received” automatically — eliminating manual processes, delays, and missed opportunities.
 
-### 🔴 Problem
+### Problem
 Social media vendors face several operational challenges:
 - Constant back-and-forth communication with customers
 - High risk of missed or untracked orders
@@ -30,7 +30,7 @@ Social media vendors face several operational challenges:
 - Manual and unreliable payment confirmation processes
 - Limited ability to scale beyond one-on-one conversations
 
-### ✅ Solution
+### Solution
 Vendly provides an integrated system that:
 - Automates customer interactions using AI
 - Converts conversations into structured orders
@@ -40,38 +40,38 @@ Vendly provides an integrated system that:
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🤖 AI Sales Assistant
+### AI Sales Assistant
 - Handles real-time customer interactions
 - Responds to inquiries and negotiates pricing based on vendor-defined context
 - Guides customers through the purchase process
 - Automatically captures and structures order data
 
-### 📊 Vendor Dashboard
+### Vendor Dashboard
 - Product and inventory management
 - Order tracking and fulfillment monitoring
 - Revenue and transaction history tracking
 - Business insights through analytics
 
-### 💬 Chat Integration
+### Chat Integration
 - Direct integration with WhatsApp and Telegram
 - Enables seamless communication without redirecting users
 - Maintains conversational flow while capturing structured data
 
-### 🔒 Payment System
+### Payment System
 - Integration with Interswitch for secure transactions
 - Ensures payment verification before order confirmation
 - Reduces fraud and failed transactions
 
-### 📈 Business Analytics
+### Business Analytics
 - Tracks sales performance
 - Monitors customer behavior
 - Provides actionable insights for growth
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 Vendly is built as a scalable full-stack system consisting of:
 - **AI interaction layer** for conversational automation
@@ -81,7 +81,7 @@ Vendly is built as a scalable full-stack system consisting of:
 
 ---
 
-## 📐 Interaction Flow
+## Interaction Flow
 ```mermaid
 sequenceDiagram
     participant Customer
@@ -102,7 +102,7 @@ sequenceDiagram
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: Next.js 14, TypeScript, Tailwind CSS
 - **Backend**: Python 3.12, FastAPI, Prisma ORM
@@ -113,13 +113,13 @@ sequenceDiagram
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 - `backend/`        → FastAPI backend (AI services, APIs, integrations)
 - `vendly-web/`     → Next.js frontend dashboard
 
 ---
 
-## 👥 Team & Contributions
+## Team & Contributions
 
 This project was developed collaboratively, with each team member taking ownership of critical system components:
 
@@ -147,7 +147,7 @@ This project was developed collaboratively, with each team member taking ownersh
 
 ---
 
-## 📖 Documentation
+## Documentation
 - **Project Overview**: System vision and business context
 - **API Documentation**: Endpoint definitions and request/response structures
 - **Frontend Design**: UI architecture and component breakdown
@@ -155,7 +155,7 @@ This project was developed collaboratively, with each team member taking ownersh
 
 ---
 
-## 🌟 Why Vendly Stands Out
+## Why Vendly Stands Out
 - Designed specifically for chat-based commerce environments
 - Combines AI automation, payments, and analytics in a single platform
 - Reduces operational overhead for vendors
@@ -163,7 +163,7 @@ This project was developed collaboratively, with each team member taking ownersh
 
 ---
 
-## 📝 Implementation Notes
+## Implementation Notes
 
 During development, we encountered onboarding limitations with the Meta Developer Console, which prevented full integration of WhatsApp within the project timeline.
 
@@ -176,12 +176,12 @@ The system architecture has been designed to support WhatsApp integration, and t
 
 ---
 
-## 🔭 Vision
+## Vision
 To enable businesses to operate, sell, and scale directly from conversations by providing intelligent, automated, and secure commerce infrastructure.
 
 ---
 
-## 📋 Submission Notes
+## Submission Notes
 - This is a team-based submission with clearly defined roles and contributions
 - All contributors listed above actively participated in the development process
 - The system is fully functional and represents the final submission version
