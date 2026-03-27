@@ -1,44 +1,193 @@
-# Vendly: AI-Powered Social Commerce Ecosystem
+<p align="center">
+  <img src="assets/banner.png" alt="Vendly Banner" width="100%">
+</p>
 
-Vendly is an AI-powered social commerce ecosystem that automates the transition from chat-based inquiries to confirmed sales for small and medium-sized enterprises (SMEs). We offer an integrated suite of services including a consultative AI sales assistant that handles real-time negotiations and automated order capture on platforms like Telegram and WhatsApp, alongside a professional vendor dashboard for unified inventory management, financial tracking through a digital wallet, and deep business analytics. Our platform is specifically targeted at social media vendors and modern retailers who rely on consultative, chat-based selling and require a scalable infrastructure to manage high-volume customer interactions and secure payment processing without increasing operational overhead.
+<h1 align="center">Vendly: AI-Powered Social Commerce Ecosystem</h1>
+
+<p align="center">
+  <strong>Vendly is an AI-powered social commerce platform designed to transform everyday chat conversations into structured, trackable, and scalable business transactions.</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js">
+  <img src="https://img.shields.io/badge/FastAPI-0.109-05998b?style=for-the-badge&logo=fastapi" alt="FastAPI">
+  <img src="https://img.shields.io/badge/Python-3.12-3776ab?style=for-the-badge&logo=python" alt="Python">
+  <img src="https://img.shields.io/badge/PostgreSQL-latest-336791?style=for-the-badge&logo=postgresql" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/AI-Llama--3-blueviolet?style=for-the-badge" alt="Llama-3">
+</p>
 
 ---
 
-## 👥 Team & Contributions
+## 🚀 Overview
 
- Below are the core contributors and their respective roles in bringing Vendly to life:
+We help vendors who sell through platforms like WhatsApp and Telegram move from “Are you available?” to “Payment received” automatically — eliminating manual processes, delays, and missed opportunities.
 
-*   **abdulbaqeee** (Backend & Bot Infrastructure): Architected the FastAPI backend, integrated the Groq AI service for consultative selling, and built the Telegram/WhatsApp webhook infrastructure.
-*   **Ubaidah** (Frontend): Designed and implemented the comprehensive Vendor Dashboard using Next.js and Tailwind CSS, focusing on a premium user experience and clear business analytics.
-*   **aleem** (Integration & Deployment): Managed the end-to-end integration between the AI agents and the dashboard, and handled the production deployment on Render, ensuring database and binary stability.
+### 🔴 Problem
+Social media vendors face several operational challenges:
+- Constant back-and-forth communication with customers
+- High risk of missed or untracked orders
+- Lack of centralized inventory and business management tools
+- Manual and unreliable payment confirmation processes
+- Limited ability to scale beyond one-on-one conversations
+
+### ✅ Solution
+Vendly provides an integrated system that:
+- Automates customer interactions using AI
+- Converts conversations into structured orders
+- Centralizes inventory, orders, and financial tracking
+- Enables secure and verifiable payments
+- Provides analytics for data-driven decision-making
 
 ---
 
-## 🏗️ Project Structure
+## ✨ Key Features
 
-- `backend/`: High-concurrency FastAPI implementation (Python) with Prisma ORM.
-- `vendly-web/`: Premium Next.js frontend for vendor management and real-time analytics.
+### 🤖 AI Sales Assistant
+- Handles real-time customer interactions
+- Responds to inquiries and negotiates pricing based on vendor-defined context
+- Guides customers through the purchase process
+- Automatically captures and structures order data
+
+### 📊 Vendor Dashboard
+- Product and inventory management
+- Order tracking and fulfillment monitoring
+- Revenue and transaction history tracking
+- Business insights through analytics
+
+### 💬 Chat Integration
+- Direct integration with WhatsApp and Telegram
+- Enables seamless communication without redirecting users
+- Maintains conversational flow while capturing structured data
+
+### 🔒 Payment System
+- Integration with Interswitch for secure transactions
+- Ensures payment verification before order confirmation
+- Reduces fraud and failed transactions
+
+### 📈 Business Analytics
+- Tracks sales performance
+- Monitors customer behavior
+- Provides actionable insights for growth
+
+---
+
+## 🏗️ Architecture Overview
+
+Vendly is built as a scalable full-stack system consisting of:
+- **AI interaction layer** for conversational automation
+- **Backend services** for business logic, data processing, and integrations
+- **Frontend dashboard** for vendor operations and monitoring
+- **Payment infrastructure** for secure transaction handling
+
+---
+
+## 📐 Interaction Flow
+```mermaid
+sequenceDiagram
+    participant Customer
+    participant TelegramBot
+    participant FastAPI_Backend
+    participant LLM_Service
+    participant Database
+
+    Customer->>TelegramBot: Inquiry about product
+    TelegramBot->>FastAPI_Backend: Forward message
+    FastAPI_Backend->>LLM_Service: Process with context
+    LLM_Service-->>FastAPI_Backend: Structured response/order intent
+    FastAPI_Backend-->>TelegramBot: AI Response / Payment Link
+    TelegramBot-->>Customer: Interaction
+    Note over Customer,Database: Once payment confirmed
+    FastAPI_Backend->>Database: Finalize Order
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Next.js 14, TypeScript, Tailwind CSS, Lucide Icons.
-- **Backend:** Python 3.12, FastAPI, Pydantic V2, Prisma (Python).
-- **AI/LLM:** Groq (Llama-3 model) with custom vendor-context injection.
-- **Database:** PostgreSQL (managed via Prisma).
-- **Payments:** Interswitch Integration for secure localized transactions.
-- **Deployment:** Render (Web Services & PostgreSQL).
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Backend**: Python 3.12, FastAPI, Prisma ORM
+- **AI**: Groq (LLaMA 3 model) with custom vendor-context injection
+- **Database**: PostgreSQL
+- **Payments**: Interswitch
+- **Deployment**: Render
 
 ---
 
-## 📖 Key Documentation
-
-- [Project Overview](project_overview.md) - High-level vision and business description.
-- [API Documentation](api_documentation.md) - Exhaustive endpoint and payload specification.
-- [Frontend Design](frontend_pages.md) - Deep dive into vendor dashboard UI components.
-- [Database Schema](prisma/schema.prisma) - Full Prisma data model and relationships.
+## 📂 Project Structure
+- `backend/`        → FastAPI backend (AI services, APIs, integrations)
+- `vendly-web/`     → Next.js frontend dashboard
 
 ---
 
-*Vendly: Transforming business chats into business ecosystems.*
+## 👥 Team & Contributions
+
+This project was developed collaboratively, with each team member taking ownership of critical system components:
+
+### **abdulbaqeee** — Backend & AI Infrastructure
+- Designed and implemented the FastAPI backend architecture for high-concurrency request handling
+- Developed core API endpoints for order processing, vendor management, and system communication
+- Integrated Groq (LLaMA 3) for AI-driven conversational selling, including vendor-specific context injection
+- Built and configured webhook systems for Telegram integrations and prepared architecture for WhatsApp support
+- Implemented data validation and schema management using Pydantic and Prisma
+- Ensured efficient communication between AI services and backend logic
+
+### **Ubaidah** — Frontend Engineering & User Experience
+- Designed and developed the vendor dashboard using Next.js and Tailwind CSS
+- Implemented responsive and accessible UI components for seamless cross-device usage
+- Built key dashboard features including inventory management, order tracking, and analytics views
+- Structured frontend state management and API integration with backend services
+- Focused on user experience, ensuring clarity in data visualization and workflow navigation
+
+### **Haleem** — System Integration & Deployment
+- Managed integration between backend services, AI systems, and frontend dashboard
+- Configured and deployed the application on Render, including backend services and PostgreSQL database
+- Ensured system stability, uptime, and environment configuration across production
+- Handled database provisioning and optimization for performance
+- Conducted end-to-end testing to validate system workflows from chat interaction to order completion
+
+---
+
+## 📖 Documentation
+- **Project Overview**: System vision and business context
+- **API Documentation**: Endpoint definitions and request/response structures
+- **Frontend Design**: UI architecture and component breakdown
+- **Database Schema**: Data models and relationships
+
+---
+
+## 🌟 Why Vendly Stands Out
+- Designed specifically for chat-based commerce environments
+- Combines AI automation, payments, and analytics in a single platform
+- Reduces operational overhead for vendors
+- Enables scalable selling without increasing manual workload
+
+---
+
+## 📝 Implementation Notes
+
+During development, we encountered onboarding limitations with the Meta Developer Console, which prevented full integration of WhatsApp within the project timeline.
+
+**As a result:**
+- WhatsApp integration is not included in the current build
+- Telegram integration is fully implemented and functional
+- All core system features, including AI interaction, order processing, and dashboard synchronization, are actively working through Telegram
+
+The system architecture has been designed to support WhatsApp integration, and this can be completed seamlessly once access to the Meta Developer platform is fully established.
+
+---
+
+## 🔭 Vision
+To enable businesses to operate, sell, and scale directly from conversations by providing intelligent, automated, and secure commerce infrastructure.
+
+---
+
+## 📋 Submission Notes
+- This is a team-based submission with clearly defined roles and contributions
+- All contributors listed above actively participated in the development process
+- The system is fully functional and represents the final submission version
+
+---
+
+<p align="center">
+  <i>Vendly — Turning conversations into commerce.</i>
+</p>
