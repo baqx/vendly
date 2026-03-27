@@ -119,6 +119,71 @@ sequenceDiagram
 
 ---
 
+## Getting Started
+
+### Prerequisites
+- **Python**: 3.12 or higher
+- **Node.js**: v18 or higher (LTS recommended)
+- **PostgreSQL**: A running instance (local or hosted)
+
+### Backend Setup (FastAPI)
+1. Navigate to the `backend` directory:
+   ```bash
+   cd backend
+   ```
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Configure environment variables:
+   - Copy `.env.example` to `.env`
+   - Update `DATABASE_URL` with your PostgreSQL connection string
+   - Add your `GROQ_API_KEY` for AI features
+5. Initialize the database (Prisma):
+   ```bash
+   prisma db push
+   prisma generate
+   ```
+6. Run the server:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+
+### Frontend Setup (Next.js)
+1. Navigate to the `vendly-web` directory:
+   ```bash
+   cd ../vendly-web
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Configure environment variables:
+   - Copy `.env.example` to `.env.local`
+   - Ensure `NEXT_PUBLIC_API_URL` points to your running backend (default: `http://localhost:8000/api/v1`)
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## Test Credentials
+
+You can use the following credentials to explore the vendor dashboard:
+- **Email**: `boutique@vendly.app`
+- **Password**: `boutique-pass`
+
+> [!TIP]
+> You can also go through the **signup process** to create your own store from scratch and test the full onboarding flow.
+
+---
+
 ## Team & Contributions
 
 This project was developed collaboratively, with each team member taking ownership of critical system components:

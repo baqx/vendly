@@ -54,12 +54,12 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-8 w-full text-center space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <div className="flex flex-col items-center space-y-10">
             <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-[0.9] text-foreground">
-              Hire an <span className="text-primary italic relative">AI Employee<span className="absolute bottom-2 left-0 w-full h-2 bg-primary/10 -z-10" /></span> for your business.
+              Transform <span className="text-primary italic relative">Conversations<span className="absolute bottom-2 left-0 w-full h-2 bg-primary/10 -z-10" /></span> into Commerce.
             </h1>
             
             <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium">
-              Vendly automates your sales on WhatsApp and Telegram. Smart negotiation, 
-              frictionless payments, and real-time inventory management.
+              Turn your WhatsApp and Telegram chats into structured, trackable orders. 
+              Vendly scales your business beyond manual replies with AI-driven negotiations and secure payments.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-5 justify-center">
@@ -93,11 +93,11 @@ export default function LandingPage() {
             <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20">
               <div className="max-w-2xl space-y-4">
                 <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
-                  The workforce of the <span className="text-primary italic">next decade</span>.
+                  The ecosystem for <span className="text-primary italic">modern social selling</span>.
                 </h2>
                 <p className="text-lg text-muted-foreground font-medium leading-relaxed">
-                  Stop managing chats manually. Deploy an AI employee that understands your products, 
-                  negotiates like an expert, and never takes a day off.
+                  Stop managing chats manually. Deploy an automated sales system that understands your products, 
+                  negotiates like an expert, and scales with your demand.
                 </p>
               </div>
               <Link href="/onboarding" className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2 hover:gap-3 transition-all border-b-2 border-primary/20 pb-1">
@@ -174,7 +174,7 @@ export default function LandingPage() {
               <span className="text-xl font-black tracking-tight">Vendly</span>
             </div>
             <p className="text-muted-foreground font-medium max-w-sm">
-              We're building the infrastructure for the next generation of social commerce. Digital employees for everyone.
+              We're building the infrastructure for the next generation of social commerce. Scaling businesses through automated conversations.
             </p>
           </div>
           <div className="space-y-4">

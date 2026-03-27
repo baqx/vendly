@@ -70,7 +70,7 @@ export default function SignupPage() {
             <Image src="/images/logo.png" alt="Vendly" width={48} height={48} className="mb-4" />
           </Link>
           <h1 className="text-3xl font-extrabold tracking-tight">Scale with AI</h1>
-          <p className="text-muted-foreground mt-2 font-medium">Start your 14-day free trial today</p>
+          <p className="text-muted-foreground mt-2 font-medium">Join the ecosystem for modern social sellers.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -86,7 +86,7 @@ export default function SignupPage() {
                   required
                   value={formData.fullName}
                   onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
                 />
               </div>
             </div>
@@ -101,7 +101,7 @@ export default function SignupPage() {
                   required
                   value={formData.storeName}
                   onChange={(e) => setFormData((prev) => ({ ...prev, storeName: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
                 />
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function SignupPage() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+                className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ export default function SignupPage() {
                 required
                 value={formData.phoneNumber}
                 onChange={(e) => setFormData((prev) => ({ ...prev, phoneNumber: e.target.value }))}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+                className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
               />
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function SignupPage() {
                 required
                 value={formData.password}
                 onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
+                className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium"
               />
             </div>
           </div>
