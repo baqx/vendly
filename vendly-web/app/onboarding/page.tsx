@@ -209,6 +209,30 @@ export default function OnboardingPage() {
                       placeholder="Enter token from @BotFather"
                     />
                   </div>
+
+                  {/* Tutorial Section */}
+                  <div className="mt-4 pt-4 border-t border-border/50 space-y-3">
+                    <p className="text-[11px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-1.5">
+                      <Sparkles size={12} />
+                      How to get your token
+                    </p>
+                    <ol className="space-y-2">
+                      {[
+                        { step: "1", text: "Open Telegram and search for @BotFather" },
+                        { step: "2", text: "Send /newbot and follow the instructions to name your bot" },
+                        { step: "3", text: "Copy the long API Token provided (e.g. 123456:ABC-DEF...)" },
+                        { step: "4", text: "Paste it into the field above!" }
+                      ].map((item, i) => (
+                        <li key={i} className="flex gap-3 items-start">
+                          <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 text-[9px] font-black flex items-center justify-center shrink-0 mt-0.5">{item.step}</span>
+                          <span className="text-xs font-medium text-muted-foreground leading-snug">{item.text}</span>
+                        </li>
+                      ))}
+                    </ol>
+                    <div className="mt-2 text-[10px] bg-blue-50/50 p-2 rounded-lg border border-blue-100 text-blue-700 font-medium">
+                      💡 Tip: Your bot can be renamed later. @BotFather is the official Telegram tool for creating bots.
+                    </div>
+                  </div>
                 </div>
 
                 <div className="p-6 rounded-[8px] border border-border bg-card space-y-4 opacity-70 group cursor-not-allowed grayscale">

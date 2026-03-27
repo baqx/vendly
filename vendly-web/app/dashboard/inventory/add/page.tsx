@@ -29,271 +29,188 @@ function AddProductForm() {
   const [variants, setVariants] = useState<{ name: string; value: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: product } = useSWR(
+  const { data: productResp } = useSWR<any>(
     isEditing ? `/products/${productId}` : null
   );
+  const product = productResp;
 
   useEffect(() => {
     if (!product) return;
     setForm({
-      title: product.title ?? "",
-      description: product.description ?? "",
-      basePrice: product.basePrice?.toString?.() ?? "",
-      mapPrice: product.mapPrice?.toString?.() ?? "",
-      stockLevel: product.stockLevel?.toString?.() ?? "",
-      category: "",
-      tags: product.tags ?? "",
+      title: product.title || "",
+      description: product.description || "",
+      basePrice: String(product.basePrice || ""),
+      mapPrice: String(product.mapPrice || ""),
+      stockLevel: String(product.stockLevel || ""),
+      category: product.category || (product.tags?.[0] || ""),
+      tags: product.tags?.join(", ") || "",
     });
-    setVariants(product.variants ?? []);
+    if (product.variants) {
+      setVariants(product.variants);
+    }
   }, [product]);
 
-  const previews = useMemo(
-    () => images.map((file) => URL.createObjectURL(file)),
-    [images]
-  );
+  const addVariant = () => setVariants([...variants, { name: "", value: "" }]);
+  const removeVariant = (idx: number) => setVariants(variants.filter((_, i) => i !== idx));
+  const updateVariant = (idx: number, field: "name" | "value", val: string) => {
+    const newVariants = [...variants];
+    newVariants[idx][field] = val;
+    setVariants(newVariants);
+  };
 
-  useEffect(() => {
-    return () => {
-      previews.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [previews]);
-
-  const handleImageChange = (files: FileList | null) => {
-    if (!files) return;
-    setImages(Array.from(files));
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setImages(Array.from(e.target.files));
+    }
   };
 
   const handleSubmit = async () => {
-    if (!form.title.trim()) {
-      toast.error("Product name is required.");
-      return;
-    }
-    if (!form.basePrice.trim()) {
-      toast.error("Base price is required.");
-      return;
-    }
     setIsSubmitting(true);
-    const formData = new FormData();
-    formData.append("title", form.title);
-    if (form.description) formData.append("description", form.description);
-    formData.append("basePrice", form.basePrice);
-    if (form.mapPrice) formData.append("mapPrice", form.mapPrice);
-    if (form.stockLevel) formData.append("stockLevel", form.stockLevel);
-    if (variants.length > 0) {
-      formData.append("variants", JSON.stringify(variants));
-    }
-    images.forEach((file) => formData.append("images", file));
-
     try {
-      if (isEditing) {
-        await apiForm(`/products/${productId}`, "PATCH", formData);
-        toast.success("Product updated successfully.");
-      } else {
-        await apiForm("/products", "POST", formData);
-        toast.success("Product created successfully.");
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("basePrice", form.basePrice);
+      formData.append("stockLevel", form.stockLevel);
+      formData.append("tags", form.tags);
+      
+      if (variants.length > 0) {
+        formData.append("variants", JSON.stringify(variants));
       }
+      
+      images.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      const endpoint = isEditing ? `/products/${productId}` : "/products";
+      const method = isEditing ? "PATCH" : "POST";
+
+      await apiForm(endpoint, method, formData);
+      toast.success(isEditing ? "Product updated!" : "Product published!");
       router.push("/dashboard/inventory");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to save product.";
-      toast.error(message);
+      toast.error(error instanceof Error ? error.message : "Failed to save product");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const addVariant = () => setVariants((prev) => [...prev, { name: "", value: "" }]);
-  const updateVariant = (index: number, field: "name" | "value", value: string) => {
-    setVariants((prev) =>
-      prev.map((variant, idx) => (idx === index ? { ...variant, [field]: value } : variant))
-    );
-  };
-  const removeVariant = (index: number) => {
-    setVariants((prev) => prev.filter((_, idx) => idx !== index));
-  };
-
   return (
-    <div className="relative flex flex-col pt-2 pb-16">
-      <div className="space-y-8 flex-1">
-        {/* Breadcrumb Header */}
+    <div className="space-y-10 pb-20 max-w-7xl mx-auto">
+      {/* Header Area */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/40 pb-8">
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground">
-            <Link href="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>
+          <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground mb-4">
+            <Link href="/dashboard/inventory" className="hover:text-green-700 transition-colors">Inventory</Link>
             <span>›</span>
-            <Link href="/dashboard/inventory" className="hover:text-foreground transition-colors">Products</Link>
-            <span>›</span>
-            <span className="text-green-700 dark:text-green-500">{isEditing ? "Edit" : "Add New"}</span>
+            <span className="text-foreground">{isEditing ? "Edit Product" : "Add New Product"}</span>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
-            {isEditing ? "Edit Product" : "Add New Product"}
+          <h1 className="text-4xl font-black tracking-tight text-foreground">
+            {isEditing ? "Edit Product" : "Create New Product"}
           </h1>
+          <p className="text-sm font-medium text-muted-foreground">Fill in the details to list your item across the ecosystem.</p>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT COLUMN: MAIN CONTENT */}
-          <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        
+        {/* Left Col: Main Details */}
+        <div className="lg:col-span-2 space-y-8">
+          
+          {/* General Information */}
+          <div className="bg-white dark:bg-card rounded-[4px] p-8 border border-border/50 shadow-none space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <FileText className="text-green-700 dark:text-green-500" size={24} />
+              <h2 className="text-xl font-extrabold tracking-tight text-foreground">General Information</h2>
+            </div>
             
-            {/* Basic Information Card */}
-            <div className="bg-white dark:bg-card rounded-[4px] p-8 border border-border/50 shadow-none space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <FileText className="text-green-700 dark:text-green-500" size={24} />
-                <h2 className="text-xl font-extrabold tracking-tight text-foreground">Basic Information</h2>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block">Product Title</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Premium Shea Butter Gold" 
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className="w-full px-4 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-bold text-foreground transition-all"
+                />
               </div>
 
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground block">Product Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Organic Arabica Coffee Beans" 
-                    value={form.title}
-                    onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-5 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-medium text-foreground transition-all placeholder:text-muted-foreground/60"
+              <div className="space-y-2">
+                <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block">Description</label>
+                <div className="rounded-[4px] border border-border/40 overflow-hidden bg-[#F4F6F9] dark:bg-muted/40 transition-all focus-within:ring-2 focus-within:ring-green-600/20">
+                  <div className="flex items-center gap-1 p-2 border-b border-border/40 bg-muted/20">
+                    <button className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all"><Bold size={14} /></button>
+                    <button className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all"><Italic size={14} /></button>
+                    <button className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all"><ListIcon size={14} /></button>
+                    <button className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all"><LinkIcon size={14} /></button>
+                  </div>
+                  <textarea 
+                    rows={6} 
+                    placeholder="Describe your product in detail..." 
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    className="w-full px-4 py-3 bg-transparent outline-none font-medium text-foreground resize-none"
                   />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-foreground block">Category</label>
-                    <select 
-                      value={form.category}
-                      onChange={(e) => setForm((prev) => ({ ...prev, category: e.target.value }))}
-                      className="w-full px-5 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-medium text-foreground transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209L12%2015L18%209%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:24px_24px] bg-[right_1rem_center] bg-no-repeat"
-                    >
-                      <option value="">Select a category</option>
-                      <option value="clothing">Clothing</option>
-                      <option value="electronics">Electronics</option>
-                      <option value="food">Food & Beverage</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-foreground block">Product Tags</label>
-                    <input 
-                      type="text" 
-                      placeholder="Organic, Fair Trade" 
-                      value={form.tags}
-                      onChange={(e) => setForm((prev) => ({ ...prev, tags: e.target.value }))}
-                      className="w-full px-5 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-medium text-foreground transition-all placeholder:text-muted-foreground/60"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground block">Description</label>
-                  <div className="w-full rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 overflow-hidden flex flex-col focus-within:ring-2 focus-within:ring-green-600/20 focus-within:border-green-600/30 transition-all">
-                    {/* Rich text toolbar */}
-                    <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-white/50 dark:bg-muted/30">
-                      <button className="p-1.5 rounded hover:bg-muted text-muted-foreground transition-colors"><Bold size={16} /></button>
-                      <button className="p-1.5 rounded hover:bg-muted text-muted-foreground transition-colors"><Italic size={16} /></button>
-                      <button className="p-1.5 rounded hover:bg-muted text-muted-foreground transition-colors"><ListIcon size={16} /></button>
-                      <button className="p-1.5 rounded hover:bg-muted text-muted-foreground transition-colors"><LinkIcon size={16} /></button>
-                    </div>
-                    <textarea 
-                      rows={6} 
-                      placeholder="Describe the product details, origins, and unique selling points..." 
-                      value={form.description}
-                      onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                      className="w-full px-5 py-4 bg-transparent outline-none font-medium text-sm text-foreground resize-none placeholder:text-muted-foreground/60"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Product Media Card */}
-            <div className="bg-white dark:bg-card rounded-[4px] p-8 border border-border/50 shadow-none space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <ImageIcon className="text-green-700 dark:text-green-500" size={24} />
-                <h2 className="text-xl font-extrabold tracking-tight text-foreground">Product Media</h2>
               </div>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                multiple
-                className="hidden"
-                onChange={(e) => handleImageChange(e.target.files)}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Main Dropzone */}
-                <div
+              <div className="space-y-2">
+                <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block">Media Assets</label>
+                <div 
                   onClick={() => fileInputRef.current?.click()}
-                  className="relative h-64 border-2 border-dashed border-green-300 dark:border-green-900/50 bg-green-50/50 dark:bg-green-950/20 rounded-[4px] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors group"
+                  className="border-2 border-dashed border-border/60 rounded-[4px] p-10 flex flex-col items-center justify-center gap-3 hover:bg-muted/30 transition-all cursor-pointer group"
                 >
-                  <div className="w-16 h-16 mb-4 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center text-green-700 dark:text-green-500 group-hover:scale-110 transition-transform duration-300">
-                    <UploadCloud size={32} />
+                  <div className="w-12 h-12 rounded-[4px] bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <UploadCloud size={24} />
                   </div>
-                  <h3 className="font-bold text-foreground text-sm">Main Image</h3>
-                  <p className="text-xs font-medium text-muted-foreground mt-1">Drag and drop or click to upload</p>
+                  <div className="text-center">
+                    <p className="text-sm font-bold text-foreground">Click to upload or drag and drop</p>
+                    <p className="text-xs text-muted-foreground mt-1">PNG, JPG or WebP (max. 5MB)</p>
+                  </div>
+                  <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleImageChange} accept="image/*" />
                 </div>
-
-                {/* Sub grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  {previews.slice(0, 4).map((src, idx) => (
-                    <div key={src} className="aspect-square rounded-[4px] bg-[#F4F6F9] dark:bg-muted/30 border border-border/40 overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                  {Array.from({ length: Math.max(0, 4 - previews.length) }).map((_, i) => (
-                    <div
-                      key={`placeholder-${i}`}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="aspect-square rounded-[4px] bg-[#F4F6F9] dark:bg-muted/30 border border-border/40 flex items-center justify-center cursor-pointer hover:bg-muted transition-colors"
-                    >
-                       <div className="w-8 h-8 rounded-full bg-white/50 dark:bg-muted/50 flex items-center justify-center text-muted-foreground/60">
-                         <Plus size={16} />
-                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="text-center pt-2">
-                <p className="text-[11px] font-bold text-muted-foreground">Recommended size: 1080×1080px. Max file size: 5MB.</p>
+                {images.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {images.map((file, i) => (
+                      <div key={i} className="px-3 py-1.5 bg-muted rounded-[4px] text-xs font-bold text-foreground flex items-center gap-2">
+                        {file.name}
+                        <button onClick={() => setImages(images.filter((_, idx) => idx !== i))}><X size={12} /></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-
           </div>
 
-          {/* RIGHT COLUMN: SIDEBAR CONTENT */}
-          <div className="space-y-8">
-            
-            {/* Pricing Card */}
-            <div className="bg-white dark:bg-card rounded-[4px] p-8 border border-border/50 shadow-none space-y-6">
+          {/* Pricing & Logistics Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white dark:bg-card rounded-[4px] p-8 border border-border/50 shadow-none space-y-6 flex flex-col">
               <div className="flex items-center gap-3 mb-2">
                 <Banknote className="text-green-700 dark:text-green-500" size={24} />
                 <h2 className="text-xl font-extrabold tracking-tight text-foreground">Pricing</h2>
               </div>
-
-              <div className="space-y-5">
+              <div className="space-y-5 flex-1">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block">Base Price (USD)</label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-extrabold">$</span>
-                    <input 
-                      type="text" 
-                      placeholder="0.00" 
-                      value={form.basePrice}
-                      onChange={(e) => setForm((prev) => ({ ...prev, basePrice: e.target.value }))}
-                      className="w-full pl-8 pr-5 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-bold text-foreground transition-all"
-                    />
-                  </div>
+                  <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block">Base Price (₦)</label>
+                  <input 
+                    type="number" 
+                    placeholder="0.00" 
+                    value={form.basePrice}
+                    onChange={(e) => setForm({ ...form, basePrice: e.target.value })}
+                    className="w-full px-4 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-black text-foreground text-lg transition-all"
+                  />
                 </div>
-
                 <div className="space-y-2">
-                  <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block">Sale Price (Optional)</label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-extrabold">$</span>
-                    <input 
-                      type="text" 
-                      placeholder="0.00" 
-                      value={form.mapPrice}
-                      onChange={(e) => setForm((prev) => ({ ...prev, mapPrice: e.target.value }))}
-                      className="w-full pl-8 pr-5 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-bold text-foreground transition-all"
-                    />
-                  </div>
+                  <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block text-muted-foreground/60">Compare at Price (₦)</label>
+                  <input 
+                    type="number" 
+                    placeholder="0.00" 
+                    value={form.mapPrice}
+                    onChange={(e) => setForm({ ...form, mapPrice: e.target.value })}
+                    className="w-full px-4 py-3 rounded-[4px] border border-border/20 bg-muted/10 focus:ring-2 focus:ring-green-600/10 outline-none font-bold text-muted-foreground opacity-60 transition-all"
+                  />
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-[#F4F6F9] dark:bg-muted/30 rounded-[4px]">
@@ -308,13 +225,11 @@ function AddProductForm() {
               </div>
             </div>
 
-            {/* Inventory Card */}
             <div className="bg-white dark:bg-card rounded-[4px] p-8 border border-border/50 shadow-none space-y-6">
               <div className="flex items-center gap-3 mb-2">
                 <Truck className="text-green-700 dark:text-green-500" size={24} />
                 <h2 className="text-xl font-extrabold tracking-tight text-foreground">Inventory</h2>
               </div>
-
               <div className="space-y-5">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -322,119 +237,109 @@ function AddProductForm() {
                     <input 
                       type="text" 
                       placeholder="COF-001" 
-                      className="w-full px-4 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-bold text-foreground transition-all"
+                      className="w-full px-4 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 outline-none font-bold text-foreground transition-all"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block">Stock</label>
                     <input 
-                      type="text" 
+                      type="number" 
                       placeholder="100" 
                       value={form.stockLevel}
-                      onChange={(e) => setForm((prev) => ({ ...prev, stockLevel: e.target.value }))}
-                      className="w-full px-4 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-bold text-foreground transition-all"
+                      onChange={(e) => setForm({ ...form, stockLevel: e.target.value })}
+                      className="w-full px-4 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 outline-none font-bold text-foreground transition-all"
                     />
                   </div>
                 </div>
-
                 <div className="space-y-2">
-                  <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block">Shipping Weight (kg)</label>
+                  <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block text-muted-foreground/60">Category / Tags</label>
                   <input 
                     type="text" 
-                    placeholder="0.5" 
-                    className="w-full px-4 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-bold text-foreground transition-all"
+                    placeholder="Skincare, Organic, Gold" 
+                    value={form.tags}
+                    onChange={(e) => setForm({ ...form, tags: e.target.value })}
+                    className="w-full px-4 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 outline-none font-bold text-foreground transition-all"
                   />
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                <div className="space-y-2">
-                  <label className="text-[11px] font-extrabold text-muted-foreground uppercase tracking-wider block">Dimensions (cm)</label>
-                  <div className="grid grid-cols-3 gap-3">
-                    <input type="text" placeholder="L" className="w-full px-4 py-3 text-center rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 outline-none font-bold text-foreground transition-all" />
-                    <input type="text" placeholder="W" className="w-full px-4 py-3 text-center rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 outline-none font-bold text-foreground transition-all" />
-                    <input type="text" placeholder="H" className="w-full px-4 py-3 text-center rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 outline-none font-bold text-foreground transition-all" />
-                  </div>
+        {/* Right Col: Secondary Info */}
+        <div className="space-y-8">
+          
+          {/* Variants Card */}
+          <div className="bg-white dark:bg-card rounded-[4px] p-8 border border-border/50 shadow-none space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <Box className="text-green-700 dark:text-green-500" size={24} />
+              <h2 className="text-xl font-extrabold tracking-tight text-foreground">Variants</h2>
+            </div>
+            
+            <div className="space-y-4">
+              {variants.length === 0 && (
+                <p className="text-xs font-medium text-muted-foreground leading-relaxed">
+                  Add options like size or color for your customers to choose.
+                </p>
+              )}
+              {variants.map((v, i) => (
+                <div key={i} className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Size" 
+                    value={v.name} 
+                    onChange={(e) => updateVariant(i, "name", e.target.value)}
+                    className="flex-1 px-3 py-2 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 text-xs font-bold text-foreground"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Large" 
+                    value={v.value} 
+                    onChange={(e) => updateVariant(i, "value", e.target.value)}
+                    className="flex-1 px-3 py-2 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 text-xs font-bold text-foreground"
+                  />
+                  <button onClick={() => removeVariant(i)} className="text-muted-foreground hover:text-red-500 transition-colors">
+                    <X size={16} />
+                  </button>
                 </div>
-              </div>
+              ))}
+              <button 
+                onClick={addVariant}
+                className="flex items-center gap-2 text-[11px] font-black text-green-700 uppercase tracking-widest hover:underline pt-2"
+              >
+                <Plus size={14} /> Add Variant Option
+              </button>
             </div>
+          </div>
 
-            {/* Variants Card */}
-            <div className="bg-white dark:bg-card rounded-[4px] p-8 border border-border/50 shadow-none space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <Box className="text-green-700 dark:text-green-500" size={24} />
-                <h2 className="text-xl font-extrabold tracking-tight text-foreground">Variants</h2>
-              </div>
-
-              <div className="space-y-4">
-                {variants.length === 0 && (
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Add size, color, or other options customers can select.
-                  </p>
-                )}
-                {variants.map((variant, idx) => (
-                  <div key={`${variant.name}-${idx}`} className="grid grid-cols-2 gap-3 items-center">
-                    <input
-                      type="text"
-                      placeholder="Name (e.g., Size)"
-                      value={variant.name}
-                      onChange={(e) => updateVariant(idx, "name", e.target.value)}
-                      className="w-full px-4 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-bold text-foreground transition-all"
-                    />
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        placeholder="Value (e.g., Medium)"
-                        value={variant.value}
-                        onChange={(e) => updateVariant(idx, "value", e.target.value)}
-                        className="w-full px-4 py-3 rounded-[4px] border border-border/40 bg-[#F4F6F9] dark:bg-muted/40 focus:ring-2 focus:ring-green-600/20 focus:border-green-600/30 outline-none font-bold text-foreground transition-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeVariant(idx)}
-                        className="p-2 rounded-[4px] border border-border/40 text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={addVariant}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-[4px] border border-border/60 bg-muted/30 text-sm font-bold text-foreground hover:bg-muted transition-colors w-fit"
-                >
-                  <Plus size={16} />
-                  Add Variant
-                </button>
-              </div>
+          {/* Visibility Info */}
+          <div className="bg-[#f0fdf4] dark:bg-green-950/20 rounded-[4px] border border-green-100 dark:border-green-900/30 p-8 space-y-4">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="text-green-700 dark:text-green-500" size={20} />
+              <h3 className="text-base font-extrabold text-foreground">Visibility</h3>
             </div>
-
+            <p className="text-xs font-medium text-muted-foreground leading-relaxed">
+              New products are published immediately and becomes available for your AI assistant to sell on Telegram.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Bottom Action Footer */}
-      <div className="mt-8">
-        <div className="bg-white dark:bg-card border border-border/50 shadow-none rounded-[4px] p-4 flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
-          <div className="flex items-center gap-2 text-muted-foreground font-medium text-sm">
-            <AlertCircle size={16} className="text-muted-foreground" />
-            Unsaved changes detected.
-          </div>
-          
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <button className="flex-1 sm:flex-none px-6 py-3 font-bold text-foreground hover:bg-muted rounded-[4px] transition-colors">
-              Discard
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="flex-1 sm:flex-none bg-green-700 hover:bg-green-800 text-white px-8 py-3 rounded-[4px] font-extrabold flex items-center justify-center gap-2 transition-all shadow-none hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              <UploadCloud size={18} />
-              <span>{isEditing ? "Update Product" : "Publish Product"}</span>
-            </button>
-          </div>
-        </div>
+      {/* Footer Actions */}
+      <div className="flex items-center justify-between p-6 bg-white dark:bg-card border border-border/50 rounded-[4px] shadow-sm">
+        <button 
+          onClick={() => router.back()}
+          className="px-6 py-2.5 rounded-[4px] font-bold text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Cancel
+        </button>
+        <button 
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="bg-green-700 hover:bg-green-800 text-white px-10 py-3 rounded-[4px] font-black flex items-center gap-2 shadow-minimal transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+        >
+          {isSubmitting ? "Saving..." : isEditing ? "Save Changes" : "Publish Product"}
+        </button>
       </div>
     </div>
   );

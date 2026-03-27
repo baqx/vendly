@@ -87,7 +87,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
             </div>
             <h2 className="text-2xl font-extrabold text-foreground mb-2">Delete Product?</h2>
             <p className="text-muted-foreground font-medium mb-8 leading-relaxed">
-              Are you sure you want to delete <strong className="text-foreground">Premium Shea Butter Gold</strong>? This action cannot be undone.
+              Are you sure you want to delete <strong className="text-foreground">{product?.title || "this product"}</strong>? This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-3 rounded-[4px] border border-border font-bold text-foreground hover:bg-muted transition-colors">
@@ -173,31 +173,33 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
         <div className="space-y-4">
           <div className="relative aspect-square w-full rounded-[2rem] bg-[#a06830] overflow-hidden flex items-center justify-center shadow-lg">
             <Image
-              src={product?.images?.[activeThumb]?.url || "/images/shea_butter.png"}
+              src={product?.images?.[activeThumb]?.url || ""}
               fill
               alt={product?.title || "Product"}
               className="object-cover mix-blend-normal transition-opacity duration-300"
             />
           </div>
           <div className="grid grid-cols-4 gap-4">
-            {(product?.images?.length ? product.images : THUMBS).slice(0, 3).map((t: any, i: number) => (
+            {(product?.images?.length ? product.images : []).slice(0, 3).map((t: any, i: number) => (
               <button
                 key={i}
                 onClick={() => setActiveThumb(i)}
                 className={`aspect-square rounded-[1.2rem] ${t.bg || "bg-muted"} relative overflow-hidden flex items-center justify-center p-3 cursor-pointer transition-all ${activeThumb === i ? "border-[3px] border-green-700 shadow-md" : "border border-border/70 hover:opacity-80"}`}
               >
-                <Image src={t.url || "/images/shea_butter.png"} fill alt={`Thumb ${i + 1}`} className="object-cover mix-blend-multiply dark:mix-blend-normal" />
+                <Image src={t.url || ""} fill alt={`Thumb ${i + 1}`} className="object-cover mix-blend-multiply dark:mix-blend-normal" />
               </button>
             ))}
-            <button
-              onClick={() => setActiveThumb(3)}
-              className={`aspect-square rounded-[1.2rem] bg-[#A1866F] relative overflow-hidden flex items-center justify-center cursor-pointer transition-all ${activeThumb === 3 ? "border-[3px] border-green-700" : "hover:opacity-90"}`}
-            >
-              <Image src="/images/shea_butter.png" fill alt="More" className="object-cover opacity-60 blur-[3px]" />
-              <div className="absolute inset-0 bg-black/20 flex items-center justify-center text-white font-extrabold text-xl">
-                +2
-              </div>
-            </button>
+            {product?.images && product.images.length > 3 && (
+              <button
+                onClick={() => setActiveThumb(3)}
+                className={`aspect-square rounded-[1.2rem] bg-muted relative overflow-hidden flex items-center justify-center cursor-pointer transition-all ${activeThumb === 3 ? "border-[3px] border-green-700" : "hover:opacity-90"}`}
+              >
+                <Image src={product.images[3].url} fill alt="More" className="object-cover opacity-60 blur-[3px]" />
+                <div className="absolute inset-0 bg-black/20 flex items-center justify-center text-white font-extrabold text-xl">
+                  +{product.images.length - 3}
+                </div>
+              </button>
+            )}
           </div>
         </div>
 
@@ -205,15 +207,15 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
         <div className="flex flex-col space-y-6 pt-2">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase">
-              ORGANIC SKINCARE
+              {product?.tags?.split(",")[0]?.toUpperCase() || "GENERAL"}
             </span>
-            <span className="bg-green-500 text-white px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1 shadow-none">
-              ✓ In Stock
+            <span className={`${(product?.stockLevel ?? 0) > 0 ? "bg-green-500" : "bg-red-500"} text-white px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1 shadow-none`}>
+              {(product?.stockLevel ?? 0) > 0 ? "✓ In Stock" : "× Out of Stock"}
             </span>
           </div>
 
           <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight leading-tight">
-            {product?.title || "Premium Shea Butter Gold"}
+            {product?.title || "Product Details"}
           </h1>
 
           <div className="flex items-center gap-4 flex-wrap">
@@ -221,14 +223,14 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
             {product?.mapPrice ? (
               <span className="text-xl font-extrabold text-muted-foreground line-through">{formatCurrency(product.mapPrice)}</span>
             ) : null}
-            <span className="text-sm font-bold text-muted-foreground">SKU: V-PSB-GOLD-500</span>
+            <span className="text-sm font-bold text-muted-foreground">SKU: V-{product?.id?.slice(0, 8).toUpperCase() || "PENDING"}</span>
           </div>
 
           {/* Size Selector — interactive */}
           <div className="space-y-4 pt-4">
             <h3 className="text-xs font-extrabold text-muted-foreground uppercase tracking-wider">Select Size</h3>
             <div className="flex items-center gap-3 flex-wrap">
-              {(product?.variants?.length ? product.variants.map((v) => v.value) : SIZES).map((size) => (
+              {(product?.variants?.length ? product.variants.map((v) => v.value) : []).map((size) => (
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}

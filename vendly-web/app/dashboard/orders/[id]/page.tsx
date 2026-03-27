@@ -16,7 +16,10 @@ type OrderItem = {
   quantity: number;
   price: number;
   variant?: string | null;
-  product?: { title?: string | null };
+  product?: { 
+    title?: string | null;
+    images?: { url: string }[];
+  };
 };
 
 type Order = {
@@ -210,7 +213,7 @@ export default function OrderDetailsPage() {
                 </div>
                 <div className="text-center absolute top-14 w-full">
                   <p className={`text-[13px] font-extrabold ${isShipped ? "text-green-700 dark:text-green-500" : "text-foreground"}`}>Shipped</p>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{isShipped ? placedDate : "PENDING"}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{isShipped ? "DISPATCHED" : "PENDING"}</p>
                 </div>
               </div>
 
@@ -221,7 +224,7 @@ export default function OrderDetailsPage() {
                 </div>
                 <div className="text-center absolute top-14 w-full">
                   <p className={`text-[13px] font-extrabold ${isDelivered ? "text-green-700 dark:text-green-500" : "text-foreground"}`}>Delivered</p>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{isDelivered ? placedDate : "PENDING"}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">{isDelivered ? "ARRIVED" : "PENDING"}</p>
                 </div>
               </div>
             </div>
@@ -249,8 +252,12 @@ export default function OrderDetailsPage() {
                         index < order.items.length - 1 ? "pb-6 border-b border-border/40" : ""
                       }`}
                     >
-                      <div className="w-20 h-20 rounded-[4px] flex items-center justify-center overflow-hidden shrink-0 bg-slate-50 dark:bg-slate-900/50 border border-border/40">
-                        <Image src="/images/shoes.png" width={80} height={80} alt={title} className="object-cover group-hover:scale-110 transition-transform duration-500 mix-blend-normal" />
+                      <div className="w-20 h-20 rounded-[4px] flex items-center justify-center overflow-hidden shrink-0 bg-slate-50 dark:bg-slate-900/50 border border-border/40 relative">
+                        {item.product?.images?.[0]?.url ? (
+                          <Image src={item.product.images[0].url} fill alt={title} className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                        ) : (
+                          <Package className="text-muted-foreground/30" size={32} />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-extrabold text-foreground truncate">{title}</h4>
@@ -300,7 +307,7 @@ export default function OrderDetailsPage() {
               <div>
                 <h4 className="text-sm font-extrabold text-foreground">Latest Update: Logistics not available</h4>
                 <p className="text-[11px] font-bold text-muted-foreground mt-1">Tracking data will appear once logistics are connected.</p>
-                <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mt-2">OCT 25, 2023 • 11:20 PM</p>
+                <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mt-2">{placedDate} • {placedTime}</p>
               </div>
             </div>
           </div>

@@ -22,6 +22,33 @@ async def read_orders(
     )
     return Response(data=orders)
 
+@router.get("/summary", response_model=Response[dict])
+async def read_orders_summary(
+    current_vendor: Any = Depends(deps.get_current_active_vendor),
+):
+    total_orders = await prisma.order.count(where={"vendorId": current_vendor.id})
+    pending_orders = await prisma.order.count(where={"vendorId": current_vendor.id, "status": "PENDING"})
+    delivered_orders = await prisma.order.count(where={"vendorId": current_vendor.id, "status": "DELIVERED"})
+    
+    # Sum of all paid orders
+    paid_sum = await prisma.order.aggregate(
+        where={"vendorId": current_vendor.id, "status": {"in": ["PAID", "DELIVERED", "SHIPPED"]}},
+        _sum={"totalAmount": True}
+    )
+    
+    total_amount = float(paid_sum.get("_sum", {}).get("totalAmount") or 0)
+    avg_order_value = total_amount / total_orders if total_orders > 0 else 0
+    delivery_rate = (delivered_orders / total_orders * 100) if total_orders > 0 else 0
+    
+    return Response(data={
+        "totalOrders": total_orders,
+        "pendingOrders": pending_orders,
+        "deliveredOrders": delivered_orders,
+        "totalRevenue": total_amount,
+        "avgOrderValue": avg_order_value,
+        "deliveryRate": delivery_rate
+    })
+
 from ....services.payment_service import payment_service
 
 @router.post("/", response_model=Response[dict])

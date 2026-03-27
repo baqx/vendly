@@ -48,6 +48,15 @@ async def get_dashboard_metrics(
         }
     )
 
+    # Setup Status Checklist
+    setup_status = {
+        "profileCompleted": bool(current_vendor.storeName and current_vendor.category and current_vendor.location),
+        "productsAdded": product_count > 0,
+        "botConfigured": bool(current_vendor.telegramToken),
+        "isFullyOnboarded": False # Will be calculated in frontend or here
+    }
+    setup_status["isFullyOnboarded"] = all(setup_status.values())
+
     data = {
         "todayRevenue": today_revenue,
         "monthRevenue": month_revenue,
@@ -55,7 +64,8 @@ async def get_dashboard_metrics(
         "activeChats": active_chats,
         "takeoverAlerts": takeover_alerts,
         "productCount": product_count,
-        "pendingOrders": pending_orders
+        "pendingOrders": pending_orders,
+        "setupStatus": setup_status
     }
 
     return Response(data=data)

@@ -28,15 +28,15 @@ import { NotificationCenter } from "@/components/dashboard/NotificationCenter";
 
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutGrid },
-  { name: "Live Activity", href: "/dashboard/analytics/live", icon: Activity },
+ // { name: "Live Activity", href: "/dashboard/analytics/live", icon: Activity },
   { name: "Products", href: "/dashboard/inventory", icon: Package },
   { name: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
   { name: "Messages", href: "/dashboard/messages", icon: MessageSquare },
   { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
   { name: "Wallet", href: "/dashboard/transactions", icon: WalletIcon },
-  { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+ // { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
+  //{ name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 // ─── Sidebar (extracted outside layout to prevent remounting) ───────────────
@@ -157,11 +157,11 @@ function Sidebar({
       </nav>
 
       {/* User card */}
-      <div className="p-4 mt-auto">
+      {/* <div className="p-4 mt-auto">
         <div className="bg-background dark:bg-muted/50 rounded-[4px] p-3 border border-border/50 flex items-center gap-3 cursor-pointer hover:bg-muted/50 transition-colors">
           <div className="w-10 h-10 rounded-[4px] bg-green-700 flex items-center justify-center text-white font-bold text-sm shrink-0 overflow-hidden">
             {logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
+            
               <img src={logoUrl} alt={storeName || "Store logo"} className="w-full h-full object-cover" />
             ) : (
               "VS"
@@ -172,13 +172,11 @@ function Sidebar({
               <p className="font-bold text-sm text-foreground truncate">
                 {storeName || "Vendly Store"}
               </p>
-              <p className="text-[11px] text-muted-foreground font-medium truncate">
-                Premium Merchant
-              </p>
+              
             </div>
           )}
         </div>
-      </div>
+      </div> */}
     </>
   );
 }
@@ -308,7 +306,7 @@ export default function DashboardLayout({
             >
               <div className="w-full h-full bg-muted flex items-center justify-center">
                 <Image
-                  src="/images/avatar1.png"
+                  src="/images/shop.png"
                   width={36}
                   height={36}
                   alt="User"

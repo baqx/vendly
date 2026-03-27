@@ -5,6 +5,7 @@ import { Download, Plus, Filter, Calendar, ChevronLeft, ChevronRight, ChevronRig
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
+import { swrFetcher } from "@/lib/swr";
 import { buildQuery } from "@/lib/api";
 import { formatCurrency, formatDate } from "@/lib/format";
 
@@ -14,7 +15,10 @@ type OrderItem = {
   quantity: number;
   price: number;
   variant?: string | null;
-  product?: { title?: string | null };
+  product?: { 
+    title?: string | null;
+    images?: { url: string }[];
+  };
 };
 
 type Order = {
@@ -73,6 +77,14 @@ export default function OrdersPage() {
     `/orders${buildQuery({ skip: (currentPage - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE })}`
   );
 
+  const { data: summaryData } = useSWR<any>("/orders/summary", swrFetcher);
+  const stats = summaryData || {
+    totalOrders: 0,
+    pendingOrders: 0,
+    avgOrderValue: 0,
+    deliveryRate: 0,
+  };
+
   const normalizedOrders = useMemo<NormalizedOrder[]>(() => {
     if (!orders || orders.length === 0) return [];
     return orders.map((order) => {
@@ -105,20 +117,6 @@ export default function OrdersPage() {
     }
   }, [normalizedOrders, activeOrder]);
 
-  const stats = useMemo(() => {
-    const totalOrders = normalizedOrders.length;
-    const pending = normalizedOrders.filter((order) => order.status === "PENDING").length;
-    const delivered = normalizedOrders.filter((order) => order.status === "DELIVERED").length;
-    const totalAmount = normalizedOrders.reduce((sum, order) => sum + (order.amountValue || 0), 0);
-    const avg = totalOrders ? totalAmount / totalOrders : 0;
-    const deliveryRate = totalOrders ? (delivered / totalOrders) * 100 : 0;
-    return {
-      totalOrders,
-      pending,
-      avg,
-      deliveryRate,
-    };
-  }, [normalizedOrders]);
 
   const todayLabel = formatDate(new Date().toISOString());
   const yesterdayLabel = formatDate(new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
@@ -176,16 +174,15 @@ export default function OrdersPage() {
         <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">TOTAL ORDERS</p>
           <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.totalOrders.toLocaleString()}</h3>
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-green-600 dark:text-green-400 mt-auto pt-4">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-45"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-            <span>+12.5% this month</span>
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
+            <span>Tracking all shop activity</span>
           </div>
         </div>
 
         {/* Pending Fulfillment */}
         <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">PENDING FULFILLMENT</p>
-          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.pending.toLocaleString()}</h3>
+          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.pendingOrders.toLocaleString()}</h3>
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
             <span>Requires Action</span>
           </div>
@@ -194,10 +191,9 @@ export default function OrdersPage() {
         {/* Average Order Value */}
         <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">AVERAGE ORDER VALUE</p>
-          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{formatCurrency(stats.avg)}</h3>
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-green-600 dark:text-green-400 mt-auto pt-4">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-45"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-            <span>+$4.10 growth</span>
+          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{formatCurrency(stats.avgOrderValue)}</h3>
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
+            <span>Current average across records</span>
           </div>
         </div>
 
@@ -437,35 +433,15 @@ export default function OrdersPage() {
               </div>
             </div>
 
-            <div className="relative pl-3 flex-1">
-              <div className="absolute top-1 bottom-6 left-5 border-l-2 border-dashed border-border/60" />
-              
-              <div className="relative flex gap-4 mb-6">
-                <div className="w-4 h-4 rounded-[4px] bg-green-600 dark:bg-green-500 shrink-0 z-10 flex items-center justify-center mt-0.5 ring-4 ring-white dark:ring-card">
-                  <CheckCircle2 size={10} className="text-white relative top-[0.5px]" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-extrabold text-foreground">Delivered to Recipient</h4>
-                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mt-1">TODAY, 2:14 PM</p>
-                </div>
+            <div className="bg-muted/30 p-4 rounded-[4px] border border-border/40 flex items-start gap-4">
+              <div className="w-10 h-10 rounded-[4px] bg-white dark:bg-card border border-border/50 text-muted-foreground flex items-center justify-center shrink-0 mt-0.5">
+                <Clock size={18} />
               </div>
-
-              <div className="relative flex gap-4 mb-6">
-                <div className="w-4 h-4 rounded-[4px] bg-green-600 dark:bg-green-500 shrink-0 z-10 flex items-center justify-center mt-0.5 ring-4 ring-white dark:ring-card">
-                  <CheckCircle2 size={10} className="text-white relative top-[0.5px]" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-extrabold text-foreground">Out for Delivery</h4>
-                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mt-1">OCT 24, 09:30 AM</p>
-                </div>
-              </div>
-
-              <div className="relative flex gap-4 opacity-50">
-                <div className="w-4 h-4 rounded-[4px] bg-muted-foreground/30 shrink-0 z-10 mt-0.5 ring-4 ring-white dark:ring-card" />
-                <div>
-                  <h4 className="text-sm font-bold text-muted-foreground">Arrived at Distribution Hub</h4>
-                  <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mt-1">OCT 23, 11:15 PM</p>
-                </div>
+              <div>
+                <h4 className="text-sm font-extrabold text-foreground">Logistics Pending</h4>
+                <p className="text-xs font-medium text-muted-foreground mt-1 leading-relaxed">
+                  Real-time tracking updates will appear here once the order is dispatched with a shipping partner.
+                </p>
               </div>
             </div>
           </div>

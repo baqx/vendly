@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, ChevronDown, Star, Plus, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Plus, X, CheckCircle2, Circle, ArrowRight, Bot, Store, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -48,27 +48,7 @@ type Product = {
   images?: { id: string; url: string }[];
 };
 
-const allData: Record<string, { name: string; revenue: number }[]> = {
-  "Last 6 Months": [
-    { name: "Jan", revenue: 5200 },
-    { name: "Feb", revenue: 6100 },
-    { name: "Mar", revenue: 7800 },
-    { name: "Apr", revenue: 8900 },
-    { name: "May", revenue: 10500 },
-    { name: "Jun", revenue: 12450 },
-  ],
-  "Last 3 Months": [
-    { name: "Apr", revenue: 8900 },
-    { name: "May", revenue: 10500 },
-    { name: "Jun", revenue: 12450 },
-  ],
-  "Last Month": [
-    { name: "Week 1", revenue: 2800 },
-    { name: "Week 2", revenue: 3100 },
-    { name: "Week 3", revenue: 3500 },
-    { name: "Week 4", revenue: 3050 },
-  ],
-};
+
 
 const PERIODS = ["Last 6 Months", "Last 3 Months", "Last Month"];
 
@@ -115,7 +95,7 @@ export default function DashboardHome() {
     name: entry.date,
     revenue: entry.amount,
   }));
-  const revenueData = apiChart && apiChart.length > 0 ? apiChart : allData[period];
+  const revenueData = apiChart && apiChart.length > 0 ? apiChart : [];
 
   const topProducts = productsList.slice(0, 4);
   const recentRows =
@@ -140,7 +120,7 @@ export default function DashboardHome() {
           meta: "PRODUCT",
           amount: p.basePrice,
           bg: "bg-green-50",
-          img: p.images?.[0]?.url || "/images/honey.png",
+          img: p.images?.[0]?.url || "",
         }))
       : [];
 
@@ -182,6 +162,122 @@ export default function DashboardHome() {
         </div>
       )}
 
+      {/* Onboarding Checklist */}
+      {dashboard?.setupStatus && !dashboard.setupStatus.isFullyOnboarded && (
+        <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 shadow-minimal overflow-hidden transition-all duration-500 animate-in fade-in slide-in-from-top-4">
+          <div className="p-6 border-b border-border/50 bg-muted/20 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-extrabold text-foreground flex items-center gap-2">
+                <span className="w-8 h-8 rounded-[4px] bg-green-700 text-white flex items-center justify-center text-xs font-black">!</span>
+                Getting Started
+              </h2>
+              <p className="text-sm text-muted-foreground font-medium mt-1">
+                Complete these steps to unlock the full potential of your AI employee.
+              </p>
+            </div>
+            <div className="text-right hidden sm:block">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Progress</p>
+              <div className="flex items-center gap-3">
+                <div className="w-32 h-1.5 bg-muted rounded-[4px] overflow-hidden">
+                  <div 
+                    className="h-full bg-green-700 transition-all duration-1000 ease-out"
+                    style={{ 
+                      width: `${
+                        ((dashboard.setupStatus.profileCompleted ? 1 : 0) + 
+                        (dashboard.setupStatus.productsAdded ? 1 : 0) + 
+                        (dashboard.setupStatus.botConfigured ? 1 : 0)) / 3 * 100
+                      }%` 
+                    }}
+                  />
+                </div>
+                <span className="text-sm font-black text-green-700">
+                  {Math.round(((dashboard.setupStatus.profileCompleted ? 1 : 0) + 
+                    (dashboard.setupStatus.productsAdded ? 1 : 0) + 
+                    (dashboard.setupStatus.botConfigured ? 1 : 0)) / 3 * 100)}%
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border/50">
+            {/* Step 1: Profile */}
+            <div className={`p-6 space-y-4 hover:bg-muted/10 transition-colors relative group ${dashboard.setupStatus.profileCompleted ? 'opacity-60' : ''}`}>
+              <div className="flex items-start justify-between">
+                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.profileCompleted ? 'bg-green-50 border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                  <Store size={20} />
+                </div>
+                {dashboard.setupStatus.profileCompleted ? (
+                  <CheckCircle2 size={24} className="text-green-600" />
+                ) : (
+                  <Circle size={24} className="text-muted-foreground/30" />
+                )}
+              </div>
+              <div>
+                <h4 className="font-bold text-foreground">Complete Profile</h4>
+                <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">
+                  Provide your store details and business location.
+                </p>
+              </div>
+              {!dashboard.setupStatus.profileCompleted && (
+                <Link href="/dashboard/settings" className="flex items-center gap-1.5 text-xs font-black text-green-700 uppercase tracking-widest group-hover:gap-2 transition-all">
+                  Go to Settings <ArrowRight size={14} />
+                </Link>
+              )}
+            </div>
+
+            {/* Step 2: Products */}
+            <div className={`p-6 space-y-4 hover:bg-muted/10 transition-colors relative group ${dashboard.setupStatus.productsAdded ? 'opacity-60' : ''}`}>
+              <div className="flex items-start justify-between">
+                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.productsAdded ? 'bg-green-50 border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                  <ShoppingBag size={20} />
+                </div>
+                {dashboard.setupStatus.productsAdded ? (
+                  <CheckCircle2 size={24} className="text-green-600" />
+                ) : (
+                  <Circle size={24} className="text-muted-foreground/30" />
+                )}
+              </div>
+              <div>
+                <h4 className="font-bold text-foreground">Add Products</h4>
+                <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">
+                  List items for your AI assistant to sell to customers.
+                </p>
+              </div>
+              {!dashboard.setupStatus.productsAdded && (
+                <Link href="/dashboard/inventory/add" className="flex items-center gap-1.5 text-xs font-black text-green-700 uppercase tracking-widest group-hover:gap-2 transition-all">
+                  Add Item <ArrowRight size={14} />
+                </Link>
+              )}
+            </div>
+
+            {/* Step 3: Bot */}
+            <div className={`p-6 space-y-4 hover:bg-muted/10 transition-colors relative group ${dashboard.setupStatus.botConfigured ? 'opacity-60' : ''}`}>
+              <div className="flex items-start justify-between">
+                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.botConfigured ? 'bg-green-50 border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                  <Bot size={20} />
+                </div>
+                {dashboard.setupStatus.botConfigured ? (
+                  <CheckCircle2 size={24} className="text-green-600" />
+                ) : (
+                  <Circle size={24} className="text-muted-foreground/30" />
+                )}
+              </div>
+              <div>
+                <h4 className="font-bold text-foreground">Setup Channels</h4>
+                <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">
+                  Connect Telegram to launch your AI store.
+                </p>
+              </div>
+              {!dashboard.setupStatus.botConfigured && (
+                <Link href="/dashboard/settings" className="flex items-center gap-1.5 text-xs font-black text-green-700 uppercase tracking-widest group-hover:gap-2 transition-all">
+                  Link Telegram <ArrowRight size={14} />
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
@@ -203,11 +299,6 @@ export default function DashboardHome() {
         <Link href="/dashboard/orders" className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col h-full hover:bg-muted/5 transition-all">
           <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">PENDING ORDERS</p>
           <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.pendingOrders ?? 0}</h3>
-          <div className="mt-auto pt-6">
-            <div className="h-1.5 w-full bg-muted rounded-[4px] overflow-hidden">
-              <div className="h-full bg-green-700 dark:bg-green-500 w-2/3 rounded-[4px]" />
-            </div>
-          </div>
         </Link>
 
         {/* Active Chats */}
@@ -215,16 +306,9 @@ export default function DashboardHome() {
           <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ACTIVE CHATS</p>
           <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.activeChats ?? 0}</h3>
           <div className="mt-auto pt-6 flex items-center">
-            <div className="flex -space-x-3">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="w-8 h-8 rounded-[4px] border-2 border-white dark:border-card bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                  <Image src={`/images/avatar${i}.png`} width={32} height={32} alt={`User ${i}`} className="w-full h-full object-cover" />
-                </div>
-              ))}
-              <div className="w-8 h-8 rounded-[4px] border-2 border-white dark:border-card bg-muted flex items-center justify-center z-10 text-[10px] font-bold text-muted-foreground shrink-0">
-                +211
-              </div>
-            </div>
+            <span className="text-xs font-bold text-muted-foreground group-hover:text-green-700 transition-colors">
+              View all customers
+            </span>
           </div>
         </Link>
 
@@ -243,9 +327,9 @@ export default function DashboardHome() {
       </div>
 
       {/* Middle Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* Revenue Growth Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-card rounded-[4px] border border-border/50 p-6 flex flex-col">
+        <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-6 flex flex-col">
           <div className="flex items-start justify-between mb-8">
             <div>
               <h3 className="text-xl font-bold text-foreground">Revenue Growth</h3>
@@ -316,43 +400,7 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        {/* Orders by Category */}
-        <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-6 flex flex-col">
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-foreground">Orders by Category</h3>
-            <p className="text-sm text-muted-foreground font-medium mt-1">Sales volume by department</p>
-          </div>
-          <div className="space-y-5 flex-1">
-            {[
-              { name: "Organic Produce", val: "45%", w: "w-[45%]", color: "bg-green-700 dark:bg-green-500" },
-              { name: "Dairy & Eggs", val: "28%", w: "w-[28%]", color: "bg-green-400 dark:bg-green-600" },
-              { name: "Handmade Crafts", val: "15%", w: "w-[15%]", color: "bg-green-200 dark:bg-green-800" },
-              { name: "Others", val: "12%", w: "w-[12%]", color: "bg-indigo-100 dark:bg-indigo-900/50" },
-            ].map((cat, i) => (
-              <div key={i}>
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-sm font-bold text-foreground">{cat.name}</span>
-                  <span className="text-xs font-bold text-muted-foreground">{cat.val}</span>
-                </div>
-                <div className="h-2 w-full bg-muted rounded-[4px] overflow-hidden">
-                  <div className={`h-full rounded-[4px] ${cat.w} ${cat.color}`} />
-                </div>
-              </div>
-            ))}
-          </div>
 
-          <div className="mt-6 bg-green-50 dark:bg-green-950/30 rounded-[4px] p-4 border border-green-100 dark:border-green-900/50 flex gap-3">
-            <div className="mt-0.5 text-green-600 dark:text-green-500 shrink-0">
-              <Star size={18} className="fill-current" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-green-900 dark:text-green-400">Insight</p>
-              <p className="text-xs font-medium text-green-800/80 dark:text-green-500/80 mt-0.5 leading-relaxed">
-                Organic Produce is up 20% this week.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Bottom Section */}

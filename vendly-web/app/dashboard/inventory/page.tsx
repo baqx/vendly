@@ -54,7 +54,7 @@ export default function InventoryPage() {
       statusColor,
       textColor,
       category: categoryLabel,
-      img: product.images?.[0]?.url || "/images/watch.png",
+      img: product.images?.[0]?.url || "",
       bg: bgOptions[index % bgOptions.length],
       padding: "p-4",
     };
@@ -86,7 +86,7 @@ export default function InventoryPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Inventory Ledger</h1>
-          <p className="text-muted-foreground font-medium mt-2">Manage your product catalog and stock levels.</p>
+          {/* <p className="text-muted-foreground font-medium mt-2">Manage your product catalog and stock levels.</p> */}
         </div>
         <Link href="/dashboard/inventory/add" className="bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-[4px] font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95">
           <Plus size={20} />
@@ -230,6 +230,12 @@ export default function InventoryPage() {
                     <Link href={`/dashboard/inventory/${product.id}`} className="bg-green-50 text-green-950 font-extrabold text-[13px] py-2.5 px-6 rounded-[4px] transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105 active:scale-95 border border-green-200">
                       Inventory Details
                     </Link>
+                    {/* Inventory Cleanup
+                      - [x] Remove Non-Dynamic Inventory Elements
+                      - [x] Remove hardcoded "Featured Top Seller" from `InventoryPage`
+                      - [x] Clean up images and static text in `InventoryDetailsPage`
+                      - [x] Fix SKU and Category labels to be fully dynamic
+                    */}
                   </div>
                 </div>
 
@@ -246,7 +252,7 @@ export default function InventoryPage() {
                   </div>
                   <div className="mt-auto pt-5 flex w-full items-center gap-2">
                     {/* Edit → routes to add/edit form */}
-                    <Link href={`/dashboard/inventory/add`} className="flex-1 py-2.5 text-center bg-muted/40 hover:bg-muted dark:bg-muted/20 dark:hover:bg-muted/40 text-foreground font-bold text-[13px] rounded-[4px] transition-colors hover:scale-[1.02] active:scale-[0.98]">
+                    <Link href={`/dashboard/inventory/add?id=${product.id}`} className="flex-1 py-2.5 text-center bg-muted/40 hover:bg-muted dark:bg-muted/20 dark:hover:bg-muted/40 text-foreground font-bold text-[13px] rounded-[4px] transition-colors hover:scale-[1.02] active:scale-[0.98]">
                       Edit
                     </Link>
                     <Link href={`/dashboard/inventory/${product.id}`} className="p-2.5 bg-muted/40 hover:bg-muted dark:bg-muted/20 dark:hover:bg-muted/40 text-foreground rounded-[4px] transition-colors flex items-center justify-center hover:scale-110 active:scale-95">
@@ -256,36 +262,6 @@ export default function InventoryPage() {
                 </div>
               </div>
             ))}
-
-            {/* Featured Top Seller */}
-            <div className="sm:col-span-2 lg:col-span-2 lg:row-span-2 bg-green-800 dark:bg-[#0f4a26] rounded-[4px] overflow-hidden flex flex-col relative transition-all duration-300 transform hover:-translate-y-1 hover:z-20 origin-bottom group/feature border border-green-700">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-green-500/30 blur-[80px] rounded-[4px] pointer-events-none" />
-              <div className="relative w-full h-64 lg:h-80 flex items-center justify-center p-4 z-10 overflow-hidden">
-                <div className="absolute top-6 left-6 bg-green-300 text-green-950 px-3 py-1 rounded-[4px] text-[10px] font-extrabold tracking-wider uppercase z-20">
-                  TOP SELLER
-                </div>
-                <div className="w-full h-full relative group-hover/feature:scale-110 transition-transform duration-700">
-                  <Image src="/images/headphones.png" fill alt="Elite Headphones" className="object-contain mix-blend-normal drop-shadow-2xl" />
-                </div>
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/feature:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-sm">
-                  <Link href={`/dashboard/inventory/elite-pro`} className="bg-white text-green-950 font-extrabold text-[14px] py-3.5 px-8 rounded-[4px] transform translate-y-4 group-hover/feature:translate-y-0 transition-all duration-500 hover:scale-105 active:scale-95">
-                    View Inventory Details
-                  </Link>
-                </div>
-              </div>
-              <div className="p-8 pt-0 flex flex-col flex-1 justify-end z-10 relative bg-gradient-to-t from-green-900 via-green-800/80 to-transparent">
-                <h2 className="text-3xl font-extrabold text-white tracking-tight leading-none mb-3">Elite Sound-Cancel Pro</h2>
-                <p className="text-green-100/80 font-medium text-sm leading-relaxed mb-6">
-                  Our highest performing audio product this month with 240+ sales.
-                </p>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-auto">
-                  <span className="text-4xl font-extrabold text-white">$299.00</span>
-                  <Link href={`/dashboard/inventory/elite-pro`} className="bg-white text-green-900 px-6 py-3 rounded-[4px] font-bold text-sm hover:bg-green-50 transition-colors hover:scale-105 active:scale-95">
-                    Inventory Details
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
 
         ) : view === "list" && filteredProducts.length > 0 ? (
@@ -315,7 +291,7 @@ export default function InventoryPage() {
                 <div className="flex items-center justify-between sm:justify-end gap-6 sm:w-1/3 shrink-0">
                   <span className="text-xl font-extrabold text-green-700 dark:text-green-500">{product.price}</span>
                   <div className="flex items-center gap-2">
-                    <Link href={`/dashboard/inventory/add`} className="px-5 py-2.5 bg-muted/40 hover:bg-muted text-foreground font-bold text-xs rounded-[4px] transition-colors hover:scale-[1.02] active:scale-[0.98]">
+                    <Link href={`/dashboard/inventory/add?id=${product.id}`} className="px-5 py-2.5 bg-muted/40 hover:bg-muted text-foreground font-bold text-xs rounded-[4px] transition-colors hover:scale-[1.02] active:scale-[0.98]">
                       Edit
                     </Link>
                     <Link href={`/dashboard/inventory/${product.id}`} className="p-2.5 bg-muted/40 hover:bg-muted text-foreground rounded-[4px] transition-colors hover:scale-110 active:scale-95">
@@ -326,34 +302,7 @@ export default function InventoryPage() {
               </div>
             ))}
 
-            {/* Elite Sound-Cancel Pro — List Item */}
-            <div className="bg-green-800 dark:bg-[#0f4a26] rounded-[4px] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-6 transition-all duration-300 transform hover:-translate-x-1 hover:z-20 relative group/list border border-green-700">
-              <div className="flex items-center gap-6 flex-1 min-w-0">
-                <div className="relative w-28 h-28 rounded-[4px] shrink-0 overflow-hidden flex items-center justify-center bg-white/10 p-2">
-                  <Image src="/images/headphones.png" fill alt="Headphones" className="object-contain transform group-hover/list:scale-110 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/list:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-[2px]">
-                    <Link href={`/dashboard/inventory/elite-pro`} className="bg-white text-green-950 font-extrabold text-[10px] py-2 px-3 rounded-[4px] transform translate-y-2 group-hover/list:translate-y-0 transition-all duration-300 hover:scale-110 active:scale-95">
-                      Details
-                    </Link>
-                  </div>
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-green-200 uppercase tracking-widest bg-green-900/50 px-2 py-0.5 rounded-[4px]">TOP SELLER</span>
-                  <h3 className="text-lg font-bold text-white truncate mt-2">Elite Sound-Cancel Pro</h3>
-                  <div className="mt-1">
-                    <span className="text-xs font-medium text-green-100/80">Highest performing item - 240+ sales</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between sm:justify-end gap-6 sm:w-1/3 shrink-0">
-                <span className="text-xl font-extrabold text-white">$299.00</span>
-                <div className="flex items-center gap-2">
-                  <Link href={`/dashboard/inventory/elite-pro`} className="flex items-center justify-center px-5 py-2.5 bg-white text-green-900 font-bold text-xs rounded-[4px] transition-colors hover:scale-[1.02] active:scale-[0.98]">
-                    Inventory Details
-                  </Link>
-                </div>
-              </div>
-            </div>
+
           </div>
         ) : null}
       </div>

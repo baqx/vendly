@@ -34,8 +34,11 @@ interface Customer {
 
 export default function CustomersPage() {
   const router = useRouter();
-  const { data, isLoading } = useSWR<any>("/customers", swrFetcher);
-  const customers: Customer[] = data || [];
+  const { data: listData, isLoading: isListLoading } = useSWR<any>("/customers", swrFetcher);
+  const customers: Customer[] = listData || [];
+  
+  const { data: summaryData } = useSWR<any>("/customers/summary", swrFetcher);
+  const summary = summaryData || { total: 0, telegram: 0, whatsapp: 0, active30d: 0 };
 
   const [activeTab, setActiveTab] = useState<TabType>("All Customers");
   const [currentPage, setCurrentPage] = useState(1);
@@ -76,9 +79,9 @@ export default function CustomersPage() {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Customer Directory</h1>
-          <p className="text-muted-foreground mt-2 font-medium">
+          {/* <p className="text-muted-foreground mt-2 font-medium">
             Manage relationships and track customer lifetime value.
-          </p>
+          </p> */}
         </div>
         
         {/* Total Customers Metric Card */}
@@ -86,10 +89,8 @@ export default function CustomersPage() {
           <div>
             <p className="text-[10px] uppercase tracking-widest font-extrabold text-muted-foreground mb-1">Total Customers</p>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-black text-foreground tracking-tight">{isLoading ? "..." : customers.length}</span>
-              <span className="flex items-center text-xs font-bold text-green-600">
-                <TrendingUp size={12} className="mr-0.5" /> 12%
-              </span>
+              <span className="text-3xl font-black text-foreground tracking-tight">{summary.total.toLocaleString()}</span>
+              
             </div>
           </div>
           <div className="w-12 h-12 rounded-[4px] bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-700 dark:text-green-500 shrink-0">
@@ -149,14 +150,14 @@ export default function CustomersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/20">
-              {isLoading && (
+              {isListLoading && (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-muted-foreground">
                     <div className="flex justify-center"><Loader2 size={24} className="animate-spin text-green-700" /></div>
                   </td>
                 </tr>
               )}
-              {!isLoading && paginatedCustomers.map((customer) => (
+              {!isListLoading && paginatedCustomers.map((customer) => (
                 <tr 
                   key={customer.identifier} 
                   onClick={() => router.push(`/dashboard/customers/${encodeURIComponent(customer.identifier)}`)}
@@ -187,7 +188,7 @@ export default function CustomersPage() {
                   </td>
                 </tr>
               ))}
-              {!isLoading && paginatedCustomers.length === 0 && (
+              {!isListLoading && paginatedCustomers.length === 0 && (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-muted-foreground text-sm font-medium">
                     No customers found.
@@ -238,43 +239,43 @@ export default function CustomersPage() {
       {/* ── Bottom Insights Row ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
         
-        {/* Engagement Split */}
+        {/* Channel Split */}
         <div className="bg-muted/30 border border-border/50 rounded-[4px] p-6 lg:p-8">
-          <h3 className="text-sm font-extrabold text-foreground mb-6">Engagement Split</h3>
+          <h3 className="text-sm font-extrabold text-foreground mb-6">Channel Distribution</h3>
           <div className="space-y-5">
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-bold text-muted-foreground">Returning Customers</span>
-                <span className="text-xs font-extrabold text-green-700 dark:text-green-500">64%</span>
+                <span className="text-xs font-bold text-muted-foreground">Telegram</span>
+                <span className="text-xs font-extrabold text-blue-600">{Math.round((summary.telegram / (summary.total || 1)) * 100)}%</span>
               </div>
               <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-[4px] overflow-hidden">
-                <div className="bg-green-700 h-full rounded-[4px] w-[64%]" />
+                <div className="bg-blue-500 h-full rounded-[4px]" style={{ width: `${(summary.telegram / (summary.total || 1)) * 100}%` }} />
               </div>
             </div>
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-bold text-muted-foreground">First-time Buyers</span>
-                <span className="text-xs font-extrabold text-slate-700 dark:text-slate-300">36%</span>
+                <span className="text-xs font-bold text-muted-foreground">WhatsApp</span>
+                <span className="text-xs font-extrabold text-emerald-600">{Math.round((summary.whatsapp / (summary.total || 1)) * 100)}%</span>
               </div>
               <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-[4px] overflow-hidden">
-                <div className="bg-slate-400 dark:bg-slate-500 h-full rounded-[4px] w-[36%]" />
+                <div className="bg-emerald-500 h-full rounded-[4px]" style={{ width: `${(summary.whatsapp / (summary.total || 1)) * 100}%` }} />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Automated Retention */}
-        <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 rounded-[4px] p-6 lg:p-8 flex items-center justify-between gap-6 relative overflow-hidden">
+        {/* 30-Day Activity */}
+        <div className="bg-white dark:bg-card border border-border/50 rounded-[4px] p-6 lg:p-8 flex items-center justify-between gap-6 relative overflow-hidden">
           <div className="relative z-10 flex-1">
-             <h3 className="text-sm font-extrabold text-foreground mb-2">Automated Retention</h3>
+             <h3 className="text-sm font-extrabold text-foreground mb-2">Active Audience</h3>
              <p className="text-xs font-medium text-muted-foreground leading-relaxed max-w-[280px]">
-               Send specialized coupons to customers who haven&apos;t ordered in the last 30 days. Currently targeting <strong className="text-foreground">112 customers</strong>.
+               You have <strong className="text-foreground">{summary.active30d} customers</strong> active in the last 30 days. Consider sending a broadcast update to re-engage others.
              </p>
              <button className="mt-4 flex items-center gap-1.5 text-xs font-extrabold text-green-700 dark:text-green-500 hover:text-green-800 dark:hover:text-green-400 group transition-colors">
-               Enable Workflow <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+               Create Broadcast <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
              </button>
           </div>
-          <div className="w-20 h-20 rounded-[4px] bg-[#e3ecf8] dark:bg-blue-900/40 flex items-center justify-center shrink-0 shadow-inner relative z-10">
+          <div className="w-20 h-20 rounded-[4px] bg-green-50 dark:bg-green-900/20 flex items-center justify-center shrink-0 shadow-inner relative z-10">
             <Megaphone size={28} className="text-green-700 dark:text-green-500" />
           </div>
         </div>

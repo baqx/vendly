@@ -1,10 +1,38 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime, timedelta
 from ....core.db import prisma
 from ....schemas.responses import Response
 from ....api import deps
 
 router = APIRouter()
+
+@router.get("/summary", response_model=Response[dict])
+async def read_customers_summary(
+    current_vendor: Any = Depends(deps.get_current_active_vendor),
+):
+    # 1. Total Customers (unique identifiers in ChatSessions)
+    total_customers = await prisma.chatsession.count(where={"vendorId": current_vendor.id})
+    
+    # 2. Channel Split
+    telegram_customers = await prisma.chatsession.count(where={"vendorId": current_vendor.id, "channel": "TELEGRAM"})
+    whatsapp_customers = await prisma.chatsession.count(where={"vendorId": current_vendor.id, "channel": "WHATSAPP"})
+    
+    # 3. Last 30 days active
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    active_30d = await prisma.chatsession.count(
+        where={
+            "vendorId": current_vendor.id,
+            "updatedAt": {"gte": thirty_days_ago}
+        }
+    )
+    
+    return Response(data={
+        "total": total_customers,
+        "telegram": telegram_customers,
+        "whatsapp": whatsapp_customers,
+        "active30d": active_30d
+    })
 
 @router.get("/", response_model=Response[List[dict]])
 async def read_customers(
