@@ -24,6 +24,7 @@ import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 import useSWR from "swr";
 import { useAuthToken } from "@/hooks/use-auth-token";
+import { NotificationCenter } from "@/components/dashboard/NotificationCenter";
 
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutGrid },
@@ -292,10 +293,7 @@ export default function DashboardLayout({
 
           <div className="flex items-center gap-4 ml-4">
             <ThemeToggle />
-            <Link href="/dashboard/notifications" className="relative p-2 text-muted-foreground hover:bg-muted rounded-[4px] transition-colors hidden sm:block">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
-            </Link>
+            <NotificationCenter />
             <Link 
               href="/dashboard/messages"
               className="p-2 text-muted-foreground hover:bg-muted rounded-[4px] transition-colors hidden sm:block"

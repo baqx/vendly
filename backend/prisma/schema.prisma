@@ -44,6 +44,7 @@ model Vendor {
   coupons           Coupon[]
   transactions      Transaction[]
   chatSessions      ChatSession[]
+  notifications     Notification[]
   
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -213,4 +214,17 @@ enum MessageRole {
   BOT
   CUSTOMER
   VENDOR
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  vendorId  String
+  vendor    Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  
+  type      String   // "ORDER", "CHAT", "SYSTEM"
+  title     String
+  message   String   @db.Text
+  link      String?  // Optional link to redirect
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

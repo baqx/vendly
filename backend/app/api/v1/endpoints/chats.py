@@ -2,6 +2,7 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from ....core.db import prisma
 from ....schemas.chat import ChatSession, ChatMessage
+from ....schemas.responses import Response
 from ....api import deps
 
 router = APIRouter()

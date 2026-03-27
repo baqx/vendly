@@ -24,7 +24,7 @@ async def read_orders(
 
 from ....services.payment_service import payment_service
 
-@router.post("/", response_model=Order)
+@router.post("/", response_model=Response[dict])
 async def create_order(
     *,
     current_vendor: Any = Depends(deps.get_current_active_vendor),
@@ -61,9 +61,9 @@ async def create_order(
     )
     
     # We can return this in a custom response or just give the order + link
-    return {**order.__dict__, "paymentLink": payment_link}
+    return Response(data={**order.__dict__, "paymentLink": payment_link}, message="Order created successfully")
 
-@router.get("/{id}", response_model=Order)
+@router.get("/{id}", response_model=Response[Order])
 async def read_order(
     id: str,
     current_vendor: Any = Depends(deps.get_current_active_vendor),
@@ -74,9 +74,9 @@ async def read_order(
     )
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    return order
+    return Response(data=order)
 
-@router.patch("/{id}", response_model=Order)
+@router.patch("/{id}", response_model=Response[Order])
 async def update_order_status(
     id: str,
     status: str,
@@ -86,4 +86,4 @@ async def update_order_status(
         where={"id": id},
         data={"status": status}
     )
-    return order
+    return Response(data=order, message=f"Order status updated to {status}")

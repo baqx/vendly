@@ -24,7 +24,7 @@ async def read_products(
     )
     return Response(data=products)
 
-@router.post("/", response_model=Product)
+@router.post("/", response_model=Response[Product])
 async def create_product(
     *,
     current_vendor: Any = Depends(deps.get_current_active_vendor),
@@ -66,10 +66,10 @@ async def create_product(
         data=data,
         include={"images": True, "variants": True}
     )
-    return product
+    return Response(data=product, message="Product created successfully")
 # Sync with Prisma's output structure.
 
-@router.get("/{id}", response_model=Product)
+@router.get("/{id}", response_model=Response[Product])
 async def read_product(
     id: str,
     current_vendor: Any = Depends(deps.get_current_active_vendor),
@@ -80,9 +80,9 @@ async def read_product(
     )
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    return product
+    return Response(data=product)
 
-@router.patch("/{id}", response_model=Product)
+@router.patch("/{id}", response_model=Response[Product])
 async def update_product(
     id: str,
     current_vendor: Any = Depends(deps.get_current_active_vendor),
@@ -133,7 +133,7 @@ async def update_product(
         data=update_data,
         include={"images": True, "variants": True}
     )
-    return updated_product
+    return Response(data=updated_product, message="Product updated successfully")
 
 @router.get("/{id}/analytics")
 async def get_product_analytics(
