@@ -33,6 +33,7 @@ async def create_product(
     basePrice: float = Form(...),
     mapPrice: float = Form(...),
     stockLevel: int = Form(0),
+    tags: str = Form(None),
     images: List[UploadFile] = File(None),
     variants: str = Form(None), # JSON string for variants
 ):
@@ -52,6 +53,7 @@ async def create_product(
         "basePrice": basePrice,
         "mapPrice": mapPrice,
         "stockLevel": stockLevel,
+        "tags": tags,
         "images": {"create": image_urls}
     }
     
@@ -91,6 +93,7 @@ async def update_product(
     basePrice: float = Form(None),
     mapPrice: float = Form(None),
     stockLevel: int = Form(None),
+    tags: str = Form(None),
     images: List[UploadFile] = File(None),
     variants: str = Form(None),
 ):
@@ -107,6 +110,7 @@ async def update_product(
     if basePrice is not None: update_data["basePrice"] = basePrice
     if mapPrice is not None: update_data["mapPrice"] = mapPrice
     if stockLevel is not None: update_data["stockLevel"] = stockLevel
+    if tags is not None: update_data["tags"] = tags
     
     if images:
         image_urls = []
@@ -174,7 +178,7 @@ async def get_product_analytics(
 
     data = {
         "totalRevenue": total_revenue,
-        "revenueGrowth": 12.5, # Placeholder for frontend MVP
+        "revenueGrowth": 0.0, # Will be calculated when historical data is sufficient
         "salesHistory": history_list
     }
     return Response(data=data)
@@ -213,9 +217,9 @@ async def get_product_reviews(
         "averageRating": round(avg_rating, 1),
         "totalReviews": total_reviews,
         "ratingAttributes": {
-            "Texture & Quality": 98 if total_reviews > 0 else 0,
-            "Value for Money": 85 if total_reviews > 0 else 0,
-            "Packaging": 92 if total_reviews > 0 else 0
+            "Product Quality": 100 if total_reviews > 0 else 0,
+            "Accuracy": 100 if total_reviews > 0 else 0,
+            "Response Time": 100 if total_reviews > 0 else 0
         },
         "recentReviews": recent_reviews
     }

@@ -58,7 +58,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
         
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-[4px] bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0 border border-border">
+            <div className="w-16 h-16 rounded-[4px] bg-success-bg dark:bg-green-900/40 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0 border border-border">
               <UserCircle2 size={36} />
             </div>
             <div>
@@ -70,7 +70,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                   <Phone size={14} /> {identifier}
                 </p>
                 {session?.channel && (
-                  <span className="px-2 py-0.5 rounded-[4px] bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 text-[10px] font-extrabold uppercase tracking-widest">
+                  <span className="px-2 py-0.5 rounded-[4px] bg-info-bg text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 text-[10px] font-extrabold uppercase tracking-widest">
                     {session.channel}
                   </span>
                 )}
@@ -91,7 +91,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
         <div className="bg-card border border-border/50 rounded-[4px] p-6 shadow-none">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Lifetime Value</p>
-            <div className="w-8 h-8 rounded-[4px] bg-green-50 text-green-700 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-[4px] bg-success-bg text-green-700 flex items-center justify-center">
               <TrendingUp size={16} />
             </div>
           </div>
@@ -151,9 +151,9 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                       </td>
                       <td className="py-4 px-6">
                         <span className={`px-2.5 py-1 rounded-[4px] text-[10px] font-extrabold tracking-widest uppercase ${
-                          order.status === "PAID" ? "bg-green-100 text-green-700 border border-green-200" :
-                          order.status === "DELIVERED" ? "bg-emerald-50 text-emerald-600 border border-emerald-100/50" :
-                          "bg-amber-50 text-amber-700 border border-amber-200/50"
+                          order.status === "PAID" ? "bg-success-bg text-green-900 border border-green-200" :
+                          order.status === "DELIVERED" ? "bg-success-bg text-emerald-900 border border-emerald-100/50" :
+                          "bg-amber-50 text-amber-900 border border-amber-200/50"
                         }`}>
                           {order.status}
                         </span>
@@ -227,3 +227,4 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
     </div>
   );
 }
+

@@ -61,18 +61,41 @@ class PaymentService:
     async def verify_transaction(self, ref: str, amount: float) -> bool:
         amount_kobo = int(amount * 100)
         terminal_id = settings.INTERSWITCH_TERMINAL_ID
+        # V2 Purchases query uses terminalid, amount, and transactionreference
         url = f"https://qa.interswitchng.com/api/v2/purchases?terminalid={terminal_id}&amount={amount_kobo}&transactionreference={ref}"
         
         headers = self.get_auth_headers("GET", url)
         
         async with httpx.AsyncClient() as client:
             try:
+                print(f"DEBUG: Verifying transaction {ref} at {url}")
                 response = await client.get(url, headers=headers)
+                print(f"DEBUG: Interswitch response ({response.status_code}): {response.text}")
                 if response.status_code == 200:
                     data = response.json()
-                    return data.get("ResponseCode") == "00"
+                    return data.get("ResponseCode") in ["00", "0"]
                 return False
-            except Exception:
+            except Exception as e:
+                print(f"DEBUG: Interswitch verification error: {e}")
                 return False
+
+    def verify_webhook_signature(self, raw_payload: bytes, received_signature: str) -> bool:
+        """
+        Verify the X-Interswitch-Signature header.
+        Interswitch uses HMAC-SHA512 of the entire raw JSON body with the secret key.
+        """
+        if not received_signature:
+            return False
+            
+        # Create expected signature
+        import hmac
+        expected_signature = hmac.new(
+            self.secret_key.encode(),
+            raw_payload,
+            hashlib.sha512
+        ).hexdigest()
+        
+        # Security: Consistent time comparison
+        return hmac.compare_digest(expected_signature.lower(), received_signature.lower())
 
 payment_service = PaymentService()

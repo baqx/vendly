@@ -105,7 +105,7 @@ export default function AIBotPage() {
               <div>
                 <h3 className="text-sm font-extrabold text-foreground">Verdant AI Simulator</h3>
                 <p className="text-[10px] uppercase tracking-widest text-green-600 dark:text-green-500 font-extrabold flex items-center gap-1.5 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-[4px] bg-green-500 animate-pulse" /> Live Testing
+                  <span className="w-1.5 h-1.5 rounded-[4px] bg-emerald-500 animate-pulse" /> Live Testing
                 </p>
               </div>
             </div>
@@ -182,7 +182,7 @@ export default function AIBotPage() {
           <div className="bg-card p-6 rounded-[4px] border border-border/50 shadow-none space-y-5 border-l-4 border-l-green-500">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[4px] bg-green-50 text-green-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-[4px] bg-success-bg text-green-600 flex items-center justify-center">
                   <Smartphone size={20} />
                 </div>
                 <div>
@@ -206,7 +206,7 @@ export default function AIBotPage() {
           <div className="bg-card p-6 rounded-[4px] border border-border/50 shadow-none space-y-5 border-l-4 border-l-blue-400">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[4px] bg-blue-50 text-blue-500 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-[4px] bg-info-bg text-blue-500 flex items-center justify-center">
                   <Send size={20} />
                 </div>
                 <div>
@@ -257,3 +257,4 @@ export default function AIBotPage() {
     </div>
   );
 }
+

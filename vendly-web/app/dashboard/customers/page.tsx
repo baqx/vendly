@@ -60,14 +60,14 @@ export default function CustomersPage() {
   const ChannelBadge = ({ channel }: { channel: string }) => {
     if (channel === "TELEGRAM") {
       return (
-        <span className="px-3 py-1 rounded-[4px] bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 text-[11px] font-extrabold tracking-widest uppercase">
-          TELEGRAM
+        <span className="px-3 py-1 rounded-[4px] bg-info-bg text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 text-[11px] font-extrabold tracking-widest uppercase">
+          Telegram
         </span>
       );
     }
     return (
       <span className="px-3 py-1 rounded-[4px] bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 text-[11px] font-extrabold tracking-widest uppercase border border-emerald-100 dark:border-emerald-800/30">
-        WHATSAPP
+        Whatsapp
       </span>
     );
   };
@@ -93,7 +93,7 @@ export default function CustomersPage() {
               
             </div>
           </div>
-          <div className="w-12 h-12 rounded-[4px] bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-700 dark:text-green-500 shrink-0">
+          <div className="w-12 h-12 rounded-[4px] bg-success-bg dark:bg-green-900/20 flex items-center justify-center text-green-700 dark:text-green-500 shrink-0">
             <Users size={24} />
           </div>
         </div>
@@ -165,7 +165,7 @@ export default function CustomersPage() {
                 >
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-[4px] bg-green-50 dark:bg-green-900/40 text-green-700 dark:text-green-500 overflow-hidden shrink-0 border border-border flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-[4px] bg-success-bg dark:bg-green-900/40 text-green-700 dark:text-green-500 overflow-hidden shrink-0 border border-border flex items-center justify-center">
                          <UserCircle2 size={24} />
                       </div>
                       <div className="min-w-0">
@@ -275,7 +275,7 @@ export default function CustomersPage() {
                Create Broadcast <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
              </button>
           </div>
-          <div className="w-20 h-20 rounded-[4px] bg-green-50 dark:bg-green-900/20 flex items-center justify-center shrink-0 shadow-inner relative z-10">
+          <div className="w-20 h-20 rounded-[4px] bg-success-bg dark:bg-green-900/20 flex items-center justify-center shrink-0 shadow-inner relative z-10">
             <Megaphone size={28} className="text-green-700 dark:text-green-500" />
           </div>
         </div>
@@ -285,3 +285,4 @@ export default function CustomersPage() {
     </div>
   );
 }
+

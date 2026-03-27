@@ -11,6 +11,9 @@
   --border: #e2e8f0;
   --card: #ffffff;
   --card-foreground: #111827;
+  --success-bg: #f0fdf4;
+  --info-bg: #f0f9ff;
+  --warning-bg: #fffbeb;
 }
 
 .dark {
@@ -21,6 +24,9 @@
   --border: #262626;
   --card: #111111;
   --card-foreground: #fcfcfc;
+  --success-bg: #064e3b20;
+  --info-bg: #0c4a6e20;
+  --warning-bg: #451a0320;
 }
 
 * {
@@ -39,6 +45,9 @@
   --color-border: var(--border);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-success-bg: var(--success-bg);
+  --color-info-bg: var(--info-bg);
+  --color-warning-bg: var(--warning-bg);
   
   --radius-sm: 8px;
   --radius-md: 8px;

@@ -20,6 +20,7 @@ import {
   Info
 } from "lucide-react";
 
+import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { swrFetcher } from "@/lib/swr";
 import { apiJson } from "@/lib/api";
@@ -27,8 +28,8 @@ import { apiJson } from "@/lib/api";
 type MessageStatus = "AI Active" | "Human Needed" | "Resolved";
 
 const STATUS_STYLES: Record<MessageStatus, { pill: string; dot: string; label: string }> = {
-  "AI Active":     { pill: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400", dot: "bg-green-500", label: "AI Active" },
-  "Human Needed":  { pill: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400", dot: "bg-amber-500", label: "Human Needed" },
+  "AI Active":     { pill: "bg-success-bg dark:bg-green-900/40 text-green-900 dark:text-green-400 border border-green-100 dark:border-green-900/30", dot: "bg-emerald-500", label: "AI Active" },
+  "Human Needed":  { pill: "bg-warning-bg dark:bg-amber-900/30 text-amber-900 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30", dot: "bg-amber-500", label: "Human Needed" },
   "Resolved":      { pill: "bg-muted text-muted-foreground", dot: "bg-muted-foreground", label: "Resolved" },
 };
 
@@ -40,6 +41,7 @@ function getSessionStatus(session: any): MessageStatus {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 export default function MessagesPage() {
+  const router = useRouter();
   const { data: chats, mutate, isLoading } = useSWR<any>("/chats", swrFetcher, { refreshInterval: 5000 });
   const conversations = chats || [];
 
@@ -127,7 +129,7 @@ export default function MessagesPage() {
                   onClick={() => handleSelect(conv.id)}
                   className={`w-full text-left p-4 border-b border-border/20 transition-colors ${
                     isActive
-                      ? "bg-green-50 dark:bg-green-900/10 border-l-[3px] border-l-green-600"
+                      ? "bg-success-bg dark:bg-green-900/10 border-l-[3px] border-l-green-600"
                       : "hover:bg-muted/40"
                   }`}
                 >
@@ -161,7 +163,7 @@ export default function MessagesPage() {
               >
                 <ChevronLeft size={20} />
               </button>
-              <div className="w-10 h-10 rounded-[4px] bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-300 font-black text-sm flex items-center justify-center shrink-0 uppercase">
+              <div className="w-10 h-10 rounded-[4px] bg-success-bg dark:bg-green-900/40 text-green-700 dark:text-green-500 font-black text-sm flex items-center justify-center shrink-0 uppercase border border-border">
                 {(selected.customerName || selected.customerIdentifier || "A").substring(0, 2)}
               </div>
               <div>
@@ -277,33 +279,16 @@ export default function MessagesPage() {
       {/* ── Column 3: AI Performance & Customer Info ── */}
       <div className={`shrink-0 border-l border-border/40 bg-card flex-col overflow-y-auto lg:flex lg:w-[280px] ${mobileView === "info" ? "flex w-full" : "hidden"}`}>
         
-        {/* AI Performance */}
-        <div className="p-5 border-b border-border/30">
+        <div className="p-5 border-b border-border/30 opacity-40 grayscale">
           <div className="flex items-center gap-2 mb-4">
-            <button 
-              className="lg:hidden p-1 -ml-2 text-muted-foreground hover:text-foreground" 
-              onClick={() => setMobileView("chat")}
-            >
-              <ChevronLeft size={16} />
-            </button>
             <TrendingUp size={14} className="text-green-600 dark:text-green-500" />
-            <h3 className="text-xs font-extrabold uppercase tracking-widest text-foreground">AI Performance</h3>
+            <h3 className="text-xs font-extrabold uppercase tracking-widest text-foreground flex items-center gap-2">
+              Syncing...
+            </h3>
           </div>
-
-          <div className="space-y-4">
-            <PerfCard label="Avg. Response Time" value="1.2s" trend="↓ 40%" positive />
-            <PerfCard label="Conversion Rate" value="24.8%" trend="↑ 5.2%" positive />
-            <div className="bg-muted/20 border border-border/50 rounded-[4px] p-4">
-              <p className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-widest mb-2">AI Autonomy</p>
-              <p className="text-3xl font-black text-foreground mb-2">92%</p>
-              <div className="w-full h-1.5 bg-muted rounded-[4px] overflow-hidden mb-2">
-                <div className="h-full bg-green-600 rounded-[4px]" style={{ width: "92%" }} />
-              </div>
-              <p className="text-[10px] font-medium text-muted-foreground leading-snug">
-                92% of queries resolved without human intervention.
-              </p>
-            </div>
-          </div>
+          <p className="text-[10px] font-medium text-muted-foreground leading-snug">
+            Real-time conversation metrics will appear here once the session duration exceeds 5 messages.
+          </p>
         </div>
 
         {/* Customer Info */}
@@ -313,7 +298,7 @@ export default function MessagesPage() {
           </h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-[8pxipip] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-[4px] bg-success-bg dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
                 <MapPin size={14} />
               </div>
               <div>
@@ -327,18 +312,30 @@ export default function MessagesPage() {
         {/* Action Buttons */}
         <div className="p-5 space-y-3">
           <button
-            onClick={() => toast.info("Opening order history...")}
+            onClick={() => {
+              if (selected?.customerName || selected?.customerIdentifier) {
+                const search = selected.customerName || selected.customerIdentifier;
+                router.push(`/dashboard/orders?search=${encodeURIComponent(search)}`);
+              } else {
+                toast.info("Select a conversation to see order history.");
+              }
+            }}
             className="w-full py-3 rounded-[4px] bg-muted/40 hover:bg-muted border border-border/50 text-sm font-bold text-foreground transition-colors flex items-center justify-center gap-2"
           >
             <ShoppingBag size={15} />
             View Order History
           </button>
           <button
-            onClick={() => toast.info("Add Customer Tag")}
+            onClick={() => {
+              if (selected?.customerIdentifier) {
+                navigator.clipboard.writeText(selected.customerIdentifier);
+                toast.success("Customer ID copied to clipboard");
+              }
+            }}
             className="w-full py-3 rounded-[4px] bg-muted/40 hover:bg-muted border border-border/50 text-sm font-bold text-foreground transition-colors flex items-center justify-center gap-2"
           >
             <Tag size={15} />
-            Add Customer Tag
+            Copy Customer ID
           </button>
         </div>
       </div>
@@ -360,3 +357,4 @@ function PerfCard({ label, value, trend, positive }: { label: string; value: str
     </div>
   );
 }
+

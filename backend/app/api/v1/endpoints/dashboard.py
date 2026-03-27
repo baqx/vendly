@@ -49,13 +49,16 @@ async def get_dashboard_metrics(
     )
 
     # Setup Status Checklist
+    profile_completed = bool(current_vendor.storeName and current_vendor.category and current_vendor.location)
+    products_added = product_count > 0
+    bot_configured = bool(current_vendor.telegramToken)
+    
     setup_status = {
-        "profileCompleted": bool(current_vendor.storeName and current_vendor.category and current_vendor.location),
-        "productsAdded": product_count > 0,
-        "botConfigured": bool(current_vendor.telegramToken),
-        "isFullyOnboarded": False # Will be calculated in frontend or here
+        "profileCompleted": profile_completed,
+        "productsAdded": products_added,
+        "botConfigured": bot_configured,
+        "isFullyOnboarded": all([profile_completed, products_added, bot_configured])
     }
-    setup_status["isFullyOnboarded"] = all(setup_status.values())
 
     data = {
         "todayRevenue": today_revenue,
@@ -65,7 +68,17 @@ async def get_dashboard_metrics(
         "takeoverAlerts": takeover_alerts,
         "productCount": product_count,
         "pendingOrders": pending_orders,
-        "setupStatus": setup_status
+        "setupStatus": setup_status,
+        "botStatus": {
+            "telegram": {
+                "active": bool(current_vendor.telegramToken and current_vendor.botEnabled),
+                "configured": bool(current_vendor.telegramToken)
+            },
+            "whatsapp": {
+                "active": bool(current_vendor.whatsappMetaToken and current_vendor.botEnabled),
+                "configured": bool(current_vendor.whatsappMetaToken)
+            }
+        }
     }
 
     return Response(data=data)
@@ -164,3 +177,67 @@ async def get_dashboard_tasks(
         })
         
     return Response(data=tasks)
+
+@router.get("/analytics")
+async def get_detailed_analytics(
+    current_vendor: Any = Depends(deps.get_current_active_vendor),
+):
+    # Fetch all orders to calculate metrics
+    orders = await prisma.order.find_many(
+        where={
+            "vendorId": current_vendor.id,
+            "status": {"in": ["PAID", "DELIVERED", "SHIPPED"]}
+        }
+    )
+    
+    total_revenue = sum(float(o.totalAmount) for o in orders)
+    total_orders = len(orders)
+    avg_order_value = total_revenue / total_orders if total_orders > 0 else 0.0
+    
+    # Simple conversion: orders / chat sessions
+    chat_sessions = await prisma.chatsession.count(where={"vendorId": current_vendor.id})
+    conversion_rate = (total_orders / chat_sessions * 100) if chat_sessions > 0 else 0.0
+    
+    # Top Categories (derived from product tags)
+    products = await prisma.product.find_many(
+        where={"vendorId": current_vendor.id},
+        select={"tags": True}
+    )
+    
+    category_counts = {}
+    for p in products:
+        tag = (p.get("tags") or "General").split(",")[0].strip().title()
+        category_counts[tag] = category_counts.get(tag, 0) + 1
+        
+    total_products = len(products)
+    top_categories = []
+    colors = ["#16a34a", "#4ade80", "#bbf7d0", "#86efac"]
+    for i, (cat, count) in enumerate(sorted(category_counts.items(), key=lambda x: x[1], reverse=True)[:3]):
+        top_categories.append({
+            "label": cat,
+            "pct": round(count / total_products * 100) if total_products > 0 else 0,
+            "color": colors[i % len(colors)]
+        })
+
+    # AI Assisted Sales (Simplified: any order where the customer had a chat session)
+    # In a real app, we'd check if the chat happened within X hours of the order.
+    # For now, we'll check if the customerName/Identifier exists in chats.
+    customer_ids_in_chats = await prisma.chatsession.find_many(
+        where={"vendorId": current_vendor.id},
+        select={"customerIdentifier": True}
+    )
+    chat_id_set = {c["customerIdentifier"] for c in customer_ids_in_chats}
+    
+    ai_assisted_count = 0
+    for o in orders:
+        if o.customerPhone in chat_id_set:
+            ai_assisted_count += 1
+
+    return Response(data={
+        "conversionRate": f"{round(conversion_rate, 2)}%",
+        "avgOrderValue": avg_order_value,
+        "totalOrders": total_orders,
+        "topCategories": top_categories,
+        "sessionCount": chat_sessions,
+        "aiAssistedSales": ai_assisted_count
+    })

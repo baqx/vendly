@@ -48,6 +48,7 @@ async def update_vendor_me(
     hagglingLimit: Decimal = Form(None),
     telegramToken: str = Form(None),
     bankName: str = Form(None),
+    bankCode: str = Form(None),
     accountNumber: str = Form(None),
     accountName: str = Form(None),
     logo: UploadFile = File(None),
@@ -63,6 +64,7 @@ async def update_vendor_me(
     if hagglingLimit is not None: update_data["hagglingLimit"] = hagglingLimit
     if telegramToken is not None: update_data["telegramToken"] = telegramToken
     if bankName is not None: update_data["bankName"] = bankName
+    if bankCode is not None: update_data["bankCode"] = bankCode
     if accountNumber is not None: update_data["accountNumber"] = accountNumber
     if accountName is not None: update_data["accountName"] = accountName
     
@@ -77,6 +79,7 @@ async def update_vendor_me(
     )
 
     # Trigger Telegram Bot Name & Webhook Update if token is present
+    message = "Profile updated successfully"
     if updated_vendor.telegramToken and (telegramToken or storeName or botEnabled):
         try:
             # 1. Update Bot Name
@@ -84,10 +87,13 @@ async def update_vendor_me(
             
             # 2. Register Webhook
             webhook_url = f"{settings.API_BASE_URL}{settings.API_V1_STR}/webhooks/telegram/{updated_vendor.telegramToken}"
-            await telegram_service.set_webhook(updated_vendor.telegramToken, webhook_url)
-        except:
-            pass # Don't block profile update if TG fails
-    return Response(data=updated_vendor, message="Profile updated successfully")
+            success = await telegram_service.set_webhook(updated_vendor.telegramToken, webhook_url)
+            if not success:
+                message = "Profile updated, but Telegram webhook setup failed. Please check your token."
+        except Exception as e:
+            message = f"Profile updated. Telegram sync error: {str(e)}"
+            
+    return Response(data=updated_vendor, message=message)
 
 @router.get("/me", response_model=Response[Vendor])
 async def read_vendor_me(

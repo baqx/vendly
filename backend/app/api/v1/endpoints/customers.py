@@ -85,8 +85,12 @@ async def read_customer(
     # 1. Get Chat History
     session = await prisma.chatsession.find_first(
         where={"vendorId": current_vendor.id, "customerIdentifier": identifier},
-        include={"messages": {"order": {"timestamp": "asc"}}}
+        include={"messages": True}
     )
+    
+    # Sort messages manually since prisma-client-py doesn't support nested ordering in include
+    if session and session.messages:
+        session.messages.sort(key=lambda x: x.timestamp)
     
     # 2. Get Order History
     orders = await prisma.order.find_many(

@@ -173,7 +173,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
         <div className="space-y-4">
           <div className="relative aspect-square w-full rounded-[2rem] bg-[#a06830] overflow-hidden flex items-center justify-center shadow-lg">
             <Image
-              src={product?.images?.[activeThumb]?.url || ""}
+              src={product?.images?.[activeThumb]?.url || "/images/shop.png"}
               fill
               alt={product?.title || "Product"}
               className="object-cover mix-blend-normal transition-opacity duration-300"
@@ -186,7 +186,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
                 onClick={() => setActiveThumb(i)}
                 className={`aspect-square rounded-[1.2rem] ${t.bg || "bg-muted"} relative overflow-hidden flex items-center justify-center p-3 cursor-pointer transition-all ${activeThumb === i ? "border-[3px] border-green-700 shadow-md" : "border border-border/70 hover:opacity-80"}`}
               >
-                <Image src={t.url || ""} fill alt={`Thumb ${i + 1}`} className="object-cover mix-blend-multiply dark:mix-blend-normal" />
+                <Image src={t.url || "/images/shop.png"} fill alt={`Thumb ${i + 1}`} className="object-cover mix-blend-multiply dark:mix-blend-normal" />
               </button>
             ))}
             {product?.images && product.images.length > 3 && (
@@ -209,7 +209,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
             <span className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase">
               {product?.tags?.split(",")[0]?.toUpperCase() || "GENERAL"}
             </span>
-            <span className={`${(product?.stockLevel ?? 0) > 0 ? "bg-green-500" : "bg-red-500"} text-white px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1 shadow-none`}>
+            <span className={`${(product?.stockLevel ?? 0) > 0 ? "bg-emerald-500" : "bg-red-500"} text-white px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1 shadow-none`}>
               {(product?.stockLevel ?? 0) > 0 ? "✓ In Stock" : "× Out of Stock"}
             </span>
           </div>
@@ -236,7 +236,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
                   onClick={() => setSelectedSize(size)}
                   className={`px-6 py-3 rounded-[4px] text-sm font-extrabold transition-all active:scale-95 shadow-none ${
                     selectedSize === size
-                      ? "border-2 border-green-700 bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-400 shadow-green-700/10"
+                      ? "border-2 border-green-700 bg-success-bg dark:bg-green-950/40 text-green-800 dark:text-green-400 shadow-green-700/10"
                       : "border border-border bg-white dark:bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
@@ -317,7 +317,7 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
                return (
                 <div key={i} className="w-full relative group/bar flex flex-col justify-end h-full">
                   <div
-                    className="w-full bg-green-600/15 dark:bg-green-500/15 hover:bg-green-600/40 dark:hover:bg-green-500/40 rounded-t-[4px] transition-all duration-300 relative cursor-pointer"
+                    className="w-full bg-green-600/15 dark:bg-emerald-500/15 hover:bg-green-600/40 dark:hover:bg-emerald-500/40 rounded-t-[4px] transition-all duration-300 relative cursor-pointer"
                     style={{ height: `${height}%` }}
                   >
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-foreground text-background text-[11px] font-bold py-1.5 px-2.5 rounded-[4px] opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap shadow-xl z-10 pointer-events-none">
@@ -424,4 +424,5 @@ export default function InventoryDetailsPage({ params }: { params: { id: string 
     </div>
   );
 }
+
 

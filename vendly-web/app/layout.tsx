@@ -24,24 +24,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${nunito.variable} h-full antialiased`} suppressHydrationWarning>
-      <head>
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme');
-                  var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
-                  if (!theme && supportDarkMode) theme = 'dark';
-                  if (theme === 'dark') document.documentElement.classList.add('dark');
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
+      <head />
+      <Script
+        id="theme-init"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                var theme = localStorage.getItem('theme');
+                var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+                if (!theme && supportDarkMode) theme = 'dark';
+                if (theme === 'dark') document.documentElement.classList.add('dark');
+              } catch (e) {}
+            })();
+          `,
+        }}
+      />
       <body className="min-h-full flex flex-col bg-background text-foreground font-nunito transition-colors duration-300">
         <SwrProvider>
           <ThemeProvider>
