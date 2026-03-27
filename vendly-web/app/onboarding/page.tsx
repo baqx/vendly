@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useSWR from "swr";
+import { swrFetcher } from "@/lib/swr";
 import { useRouter } from "next/navigation";
 import { 
   Store, 
@@ -22,15 +24,31 @@ import { getToken } from "@/lib/auth-store";
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const { data: vendor } = useSWR<any>("/vendors/me", swrFetcher);
+
   const [formData, setFormData] = useState({
-    storeName: "My Awesome Store",
+    storeName: "",
     category: "Fashion",
-    location: "Lagos, Nigeria",
-    botPersonality: "Professional & Courteous",
+    location: "",
+    botPersonality: "Professional",
     systemPrompt: "",
     telegramToken: "",
     whatsappToken: ""
   });
+
+  useEffect(() => {
+    if (vendor) {
+      setFormData({
+        storeName: vendor.storeName || "",
+        category: vendor.category || "Fashion",
+        location: vendor.location || "",
+        botPersonality: vendor.botPersonality || "Professional",
+        systemPrompt: "", // System prompt not stored separately in this model yet
+        telegramToken: vendor.telegramToken || "",
+        whatsappToken: vendor.whatsappMetaToken || ""
+      });
+    }
+  }, [vendor]);
 
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);

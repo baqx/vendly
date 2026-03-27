@@ -34,10 +34,10 @@ type Order = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  PENDING: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200/60 dark:border-amber-900/50",
-  PAID: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  SHIPPED: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  DELIVERED: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  PENDING: "bg-amber-50 text-amber-900 border border-amber-200/60 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-900/50",
+  PAID: "bg-success-bg text-green-900 border border-green-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-green-900/30",
+  SHIPPED: "bg-info-bg text-blue-900 border border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/30",
+  DELIVERED: "bg-success-bg text-green-900 border border-green-100 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900/30",
 };
 
 const STATUS_FLOW = ["PENDING", "PAID", "SHIPPED", "DELIVERED"] as const;
@@ -181,12 +181,12 @@ export default function OrderDetailsPage() {
             <div className="relative flex items-center justify-between mx-auto max-w-4xl px-4 sm:px-10">
               {/* Progress Line */}
               <div className="absolute left-6 top-5 right-6 h-1.5 bg-muted rounded-[4px]">
-                <div className={`h-full bg-green-600 dark:bg-green-500 rounded-[4px] transition-all duration-1000`} style={{ width: progressWidth }} />
+                <div className={`h-full bg-green-600 dark:bg-emerald-500 rounded-[4px] transition-all duration-1000`} style={{ width: progressWidth }} />
               </div>
 
               {/* Step 1: Placed */}
               <div className="relative flex flex-col items-center gap-3 z-10 w-28">
-                <div className={`w-11 h-11 rounded-[4px] text-white flex items-center justify-center ring-4 ring-white dark:ring-card transition-colors ${"bg-green-600 dark:bg-green-500"}`}>
+                <div className={`w-11 h-11 rounded-[4px] text-white flex items-center justify-center ring-4 ring-white dark:ring-card transition-colors ${"bg-green-600 dark:bg-emerald-500"}`}>
                   <Check className="w-5 h-5 stroke-[3]" />
                 </div>
                 <div className="text-center absolute top-14 w-full">
@@ -197,7 +197,7 @@ export default function OrderDetailsPage() {
 
               {/* Step 2: Paid */}
               <div className={`relative flex flex-col items-center gap-3 z-10 w-28 ${isPaid ? "" : "opacity-50 grayscale"}`}>
-                <div className={`w-11 h-11 rounded-[4px] flex items-center justify-center ring-4 ring-white dark:ring-card ${isPaid ? "bg-green-600 dark:bg-green-500 text-white" : "bg-muted text-muted-foreground border border-border/50"}`}>
+                <div className={`w-11 h-11 rounded-[4px] flex items-center justify-center ring-4 ring-white dark:ring-card ${isPaid ? "bg-green-600 dark:bg-emerald-500 text-white" : "bg-muted text-muted-foreground border border-border/50"}`}>
                   <Check className="w-5 h-5 stroke-[3]" />
                 </div>
                 <div className="text-center absolute top-14 w-full">
@@ -208,7 +208,7 @@ export default function OrderDetailsPage() {
 
               {/* Step 3: Shipped */}
               <div className={`relative flex flex-col items-center gap-3 z-10 w-28 ${isShipped ? "" : "opacity-50 grayscale"}`}>
-                <div className={`w-11 h-11 rounded-[4px] flex items-center justify-center ring-4 ring-white dark:ring-card ${isShipped ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500" : "bg-muted text-muted-foreground border border-border/50"}`}>
+                <div className={`w-11 h-11 rounded-[4px] flex items-center justify-center ring-4 ring-white dark:ring-card ${isShipped ? "bg-success-bg dark:bg-green-900/30 text-green-700 dark:text-green-500 border border-green-100 dark:border-green-900/30" : "bg-muted text-muted-foreground border border-border/50"}`}>
                   <Truck className={`w-5 h-5 ${isShipped ? "stroke-[2.5]" : "stroke-[2]"}`} />
                 </div>
                 <div className="text-center absolute top-14 w-full">
@@ -219,7 +219,7 @@ export default function OrderDetailsPage() {
 
               {/* Step 4: Delivered */}
               <div className={`relative flex flex-col items-center gap-3 z-10 w-28 ${isDelivered ? "" : "opacity-50 grayscale"}`}>
-                <div className={`w-11 h-11 rounded-[4px] flex items-center justify-center ring-4 ring-white dark:ring-card ${isDelivered ? "bg-green-600 dark:bg-green-500 text-white" : "bg-muted text-muted-foreground border border-border/50"}`}>
+                <div className={`w-11 h-11 rounded-[4px] flex items-center justify-center ring-4 ring-white dark:ring-card ${isDelivered ? "bg-green-600 dark:bg-emerald-500 text-white" : "bg-muted text-muted-foreground border border-border/50"}`}>
                   <Package className={`w-5 h-5 ${isDelivered ? "stroke-[2.5]" : "stroke-[2]"}`} />
                 </div>
                 <div className="text-center absolute top-14 w-full">
@@ -322,7 +322,7 @@ export default function OrderDetailsPage() {
             <h3 className="text-lg font-extrabold text-foreground mb-6">Customer Details</h3>
             
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-[4px] bg-green-100 flex items-center justify-center font-black text-green-700 text-lg overflow-hidden shrink-0 ring-1 ring-border/50">
+              <div className="w-12 h-12 rounded-[4px] bg-success-bg dark:bg-green-900/30 flex items-center justify-center font-black text-green-700 text-lg overflow-hidden shrink-0 ring-1 ring-border/50">
                 {customerInitials}
               </div>
               <div>
@@ -378,7 +378,7 @@ export default function OrderDetailsPage() {
           </div>
           
           {/* Payment Summary */}
-          <div className="bg-[#f0fdf4] dark:bg-green-900/10 rounded-[4px] border border-green-100 dark:border-green-900/30 p-6 lg:p-8 flex flex-col transition-all">
+          <div className="bg-success-bg dark:bg-green-900/10 rounded-[4px] border border-green-100 dark:border-green-900/30 p-6 lg:p-8 flex flex-col transition-all">
             <h3 className="text-lg font-extrabold text-foreground mb-6">Payment Summary</h3>
             
             <div className="space-y-4 mb-6 pb-6 border-b border-green-200/50 dark:border-green-900/30">
@@ -407,7 +407,7 @@ export default function OrderDetailsPage() {
               </div>
             </div>
             
-            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-100/50 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded-[4px] border border-green-200/50 dark:border-green-900/30">
+            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-white/40 dark:bg-green-900/20 text-green-800 dark:text-green-400 rounded-[4px] border border-green-200/50 dark:border-green-900/30">
               <ShieldCheck size={16} />
               <span className="text-[10px] font-black uppercase tracking-widest">SECURED BY VENDLY</span>
             </div>
@@ -419,3 +419,4 @@ export default function OrderDetailsPage() {
     </div>
   );
 }
+

@@ -68,9 +68,10 @@ function AddProductForm() {
     setIsSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append("title", form.title);
+       formData.append("title", form.title);
       formData.append("description", form.description);
       formData.append("basePrice", form.basePrice);
+      formData.append("mapPrice", form.mapPrice);
       formData.append("stockLevel", form.stockLevel);
       formData.append("tags", form.tags);
       
@@ -161,7 +162,7 @@ function AddProductForm() {
                   onClick={() => fileInputRef.current?.click()}
                   className="border-2 border-dashed border-border/60 rounded-[4px] p-10 flex flex-col items-center justify-center gap-3 hover:bg-muted/30 transition-all cursor-pointer group"
                 >
-                  <div className="w-12 h-12 rounded-[4px] bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-[4px] bg-success-bg dark:bg-green-900/20 text-green-700 dark:text-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <UploadCloud size={24} />
                   </div>
                   <div className="text-center">
@@ -352,3 +353,4 @@ export default function AddProductPage() {
     </Suspense>
   );
 }
+

@@ -102,7 +102,7 @@ function LiveRevenueCard({ className }: { className?: string }) {
         </div>
 
         <div className="flex items-center gap-4 mt-auto pt-8">
-          <div className="flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-[4px] text-xs font-black tracking-wide">
+          <div className="flex items-center gap-1 px-3 py-1.5 bg-success-bg text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-[4px] text-xs font-black tracking-wide">
             <ArrowUpRight size={14} strokeWidth={3} />
             12.5% vs Yesterday
           </div>
@@ -187,7 +187,7 @@ function MapCard({ className }: { className?: string }) {
                       setView(r);
                       setDropdownOpen(false);
                     }}
-                    className={`block w-full text-left px-4 py-2 text-[10px] font-bold uppercase tracking-wider transition-colors hover:bg-green-50 dark:hover:bg-slate-700 ${view === r ? 'text-green-700 dark:text-green-400 bg-green-50/50 dark:bg-slate-700/50' : 'text-foreground dark:text-slate-300'}`}
+                    className={`block w-full text-left px-4 py-2 text-[10px] font-bold uppercase tracking-wider transition-colors hover:bg-success-bg dark:hover:bg-slate-700 ${view === r ? 'text-green-700 dark:text-green-400 bg-success-bg/50 dark:bg-slate-700/50' : 'text-foreground dark:text-slate-300'}`}
                   >
                     {r.replace("-", " ")}
                   </button>
@@ -249,7 +249,7 @@ function RecentFeedCard({ className }: { className?: string }) {
                   {item.type !== 'session' ? item.location : ''} {item.type !== 'session' && item.location ? '•' : ''} {item.time}
                 </span>
                 {item.badge && (
-                  <span className="px-2 py-0.5 bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-bold rounded">
+                  <span className="px-2 py-0.5 bg-success-bg text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-bold rounded">
                     {item.amount}
                   </span>
                 )}
@@ -341,7 +341,7 @@ function CriticalAlertsCard({ className }: { className?: string }) {
 
       <button 
         onClick={() => toast.info("Navigating to all alerts...")}
-        className="mt-6 w-full py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider rounded-[4px] hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors flex items-center justify-center gap-2"
+        className="mt-6 w-full py-3 bg-info-bg dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider rounded-[4px] hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors flex items-center justify-center gap-2"
       >
         View All Alerts
         <ChevronRight size={14} />
@@ -360,14 +360,14 @@ export default function LiveActivityPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground mb-2">Live Activity</h1>
           <div className="flex items-center gap-2">
-             <div className="w-2 h-2 bg-green-500 rounded-[4px]" />
+             <div className="w-2 h-2 bg-emerald-500 rounded-[4px]" />
              <p className="text-sm text-muted-foregroundfont-medium">Real-time system monitoring active</p>
           </div>
         </div>
         
         <div className="bg-card border border-border/40 px-4 py-2 rounded-[4px] flex items-center gap-3 shadow-sm">
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Status</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-green-700 dark:text-green-500 bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded">Operational</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-green-700 dark:text-green-500 bg-success-bg dark:bg-green-900/30 px-2 py-0.5 rounded">Operational</span>
         </div>
       </div>
 
@@ -410,3 +410,4 @@ export default function LiveActivityPage() {
     </div>
   );
 }
+

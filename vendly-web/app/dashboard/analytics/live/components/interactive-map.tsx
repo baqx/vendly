@@ -16,3 +16,4 @@ const Map = dynamic(() => import("./map"), {
 export default function InteractiveMap({ view }: { view: string }) {
   return <Map view={view} />;
 }
+

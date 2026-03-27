@@ -92,7 +92,7 @@ export default function CouponsPage() {
       {/* ── Metrics ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-card border border-border/50 rounded-[4px] p-6 shadow-none flex items-center gap-4">
-          <div className="w-12 h-12 rounded-[4px] bg-green-50 text-green-700 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-[4px] bg-success-bg text-green-700 flex items-center justify-center shrink-0">
             <Ticket size={24} />
           </div>
           <div>
@@ -112,7 +112,7 @@ export default function CouponsPage() {
         </div>
 
         <div className="bg-card border border-border/50 rounded-[4px] p-6 shadow-none flex items-center gap-4">
-          <div className="w-12 h-12 rounded-[4px] bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-100/50">
+          <div className="w-12 h-12 rounded-[4px] bg-info-bg text-blue-700 flex items-center justify-center shrink-0 border border-blue-100/50">
             <Tag size={24} />
           </div>
           <div>
@@ -242,3 +242,4 @@ export default function CouponsPage() {
     </div>
   );
 }
+

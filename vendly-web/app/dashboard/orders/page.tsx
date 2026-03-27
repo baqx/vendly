@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { Download, Plus, Filter, Calendar, ChevronLeft, ChevronRight, ChevronRight as ChevronRightSmall, CheckCircle2, Clock, MapPin, Phone, Mail } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { swrFetcher } from "@/lib/swr";
 import { buildQuery } from "@/lib/api";
@@ -50,10 +50,10 @@ type NormalizedOrder = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  PENDING: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200/60 dark:border-amber-900/50",
-  PAID: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  SHIPPED: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  DELIVERED: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  PENDING: "bg-amber-50 text-amber-900 border border-amber-200/60 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-900/50",
+  PAID: "bg-success-bg text-green-900 border border-green-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-green-900/30",
+  SHIPPED: "bg-info-bg text-blue-900 border border-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/30",
+  DELIVERED: "bg-success-bg text-green-900 border border-green-100 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900/30",
   CANCELLED: "bg-muted text-muted-foreground",
 };
 
@@ -61,8 +61,10 @@ const STATUS_STYLES: Record<string, string> = {
 
 const tabs = ["All Orders", "Pending", "Paid", "Shipped", "Delivered"];
 
-export default function OrdersPage() {
+function OrdersContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
   const [activeTab, setActiveTab ] = useState("All Orders");
   const [activeOrder, setActiveOrder] = useState<NormalizedOrder | null>(null); // For bottom preview
   
@@ -73,11 +75,11 @@ export default function OrdersPage() {
   const [selectedDateFilter, setSelectedDateFilter] = useState("Last 30 Days");
   
   const ITEMS_PER_PAGE = 5;
-  const { data: orders } = useSWR<Order[]>(
+  const { data: orders, isLoading: isOrdersLoading } = useSWR<Order[]>(
     `/orders${buildQuery({ skip: (currentPage - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE })}`
   );
 
-  const { data: summaryData } = useSWR<any>("/orders/summary", swrFetcher);
+  const { data: summaryData, isLoading: isSummaryLoading } = useSWR<any>("/orders/summary", swrFetcher as any);
   const stats = summaryData || {
     totalOrders: 0,
     pendingOrders: 0,
@@ -112,7 +114,8 @@ export default function OrdersPage() {
   }, [orders]);
 
   useEffect(() => {
-    if (normalizedOrders.length && (!activeOrder || activeOrder.id !== normalizedOrders[0].id)) {
+    // Only set initial active order if none is selected yet
+    if (normalizedOrders.length && !activeOrder) {
       setActiveOrder(normalizedOrders[0]);
     }
   }, [normalizedOrders, activeOrder]);
@@ -122,24 +125,33 @@ export default function OrdersPage() {
   const yesterdayLabel = formatDate(new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
   
   // Filter Data
-  const filteredOrders = normalizedOrders.filter(o => {
-    // Tab Filter
-    const matchesTab = activeTab === "All Orders" ? true : o.status === activeTab.toUpperCase();
-    
-    // Date Filter
-    let matchesDate = true;
-    if (selectedDateFilter === "Today") {
-      matchesDate = o.dateLabel === todayLabel;
-    } else if (selectedDateFilter === "Yesterday") {
-      matchesDate = o.dateLabel === yesterdayLabel;
-    } else if (selectedDateFilter === "Last 7 Days") {
-      const date = new Date(o.dateValue);
-      const diff = Date.now() - date.getTime();
-      matchesDate = diff <= 7 * 24 * 60 * 60 * 1000;
-    }
-    
-    return matchesTab && matchesDate;
-  });
+  const filteredOrders = useMemo(() => {
+    return normalizedOrders.filter(o => {
+      // Tab Filter
+      const matchesTab = activeTab === "All Orders" ? true : o.status === activeTab.toUpperCase();
+      
+      // Date Filter
+      let matchesDate = true;
+      if (selectedDateFilter === "Today") {
+        matchesDate = o.dateLabel === todayLabel;
+      } else if (selectedDateFilter === "Yesterday") {
+        matchesDate = o.dateLabel === yesterdayLabel;
+      } else if (selectedDateFilter === "Last 7 Days") {
+        const date = new Date(o.dateValue);
+        const diff = Date.now() - date.getTime();
+        matchesDate = diff <= 7 * 24 * 60 * 60 * 1000;
+      }
+      
+      // Search Filter
+      const matchesSearch = searchQuery 
+        ? o.customer.toLowerCase().includes(searchQuery.toLowerCase()) || 
+          o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          o.customerPhone?.toLowerCase().includes(searchQuery.toLowerCase())
+        : true;
+      
+      return matchesTab && matchesDate && matchesSearch;
+    });
+  }, [normalizedOrders, activeTab, selectedDateFilter, searchQuery, todayLabel, yesterdayLabel]);
   
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / ITEMS_PER_PAGE));
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -154,7 +166,14 @@ export default function OrdersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Order Management</h1>
-          <p className="text-muted-foreground font-medium mt-2">Track and fulfill your customer requests across the ecosystem.</p>
+          <p className="text-muted-foreground font-medium mt-2">
+            {searchQuery ? (
+              <span className="flex items-center gap-2">
+                Showing results for <span className="text-green-700 dark:text-green-500 font-bold">"{searchQuery}"</span>
+                <button onClick={() => router.push("/dashboard/orders")} className="text-[10px] bg-muted px-2 py-0.5 rounded hover:bg-muted-foreground hover:text-white transition-colors">Clear</button>
+              </span>
+            ) : "Track and fulfill your customer requests across the ecosystem."}
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={handleExport} className="flex items-center gap-2 px-5 py-3 rounded-[4px] bg-muted/50 hover:bg-muted text-foreground font-bold transition-all text-sm border border-border/50 active:scale-95">
@@ -170,46 +189,58 @@ export default function OrdersPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Orders */}
-        <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
-          <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">TOTAL ORDERS</p>
-          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.totalOrders.toLocaleString()}</h3>
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
-            <span>Tracking all shop activity</span>
-          </div>
-        </div>
-
-        {/* Pending Fulfillment */}
-        <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
-          <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">PENDING FULFILLMENT</p>
-          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.pendingOrders.toLocaleString()}</h3>
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
-            <span>Requires Action</span>
-          </div>
-        </div>
-
-        {/* Average Order Value */}
-        <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
-          <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">AVERAGE ORDER VALUE</p>
-          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{formatCurrency(stats.avgOrderValue)}</h3>
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
-            <span>Current average across records</span>
-          </div>
-        </div>
-
-        {/* Successful Delivery */}
-        <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
-          <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">SUCCESSFUL DELIVERY</p>
-          <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.deliveryRate.toFixed(1)}%</h3>
-          <div className="mt-auto pt-5">
-            <div className="h-1.5 w-full bg-muted rounded-[4px] overflow-hidden">
-              <div
-                className="h-full bg-green-700 dark:bg-green-500 rounded-[4px]"
-                style={{ width: `${Math.min(100, Math.max(0, stats.deliveryRate)).toFixed(1)}%` }}
-              />
+        {isSummaryLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={`stat-skeleton-${i}`} className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-32 animate-pulse">
+              <div className="h-2 w-20 bg-muted/60 rounded-[4px] mb-4" />
+              <div className="h-8 w-24 bg-muted rounded-[4px] mb-auto" />
+              <div className="h-2 w-32 bg-muted/40 rounded-[4px] mt-4" />
             </div>
-          </div>
-        </div>
+          ))
+        ) : (
+          <>
+            {/* Total Orders */}
+            <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
+              <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">TOTAL ORDERS</p>
+              <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.totalOrders.toLocaleString()}</h3>
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
+                <span>Tracking all shop activity</span>
+              </div>
+            </div>
+
+            {/* Pending Fulfillment */}
+            <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
+              <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">PENDING FULFILLMENT</p>
+              <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.pendingOrders.toLocaleString()}</h3>
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
+                <span>Requires Action</span>
+              </div>
+            </div>
+
+            {/* Average Order Value */}
+            <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
+              <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">AVERAGE ORDER VALUE</p>
+              <h3 className="text-4xl font-extrabold mt-2 text-foreground">{formatCurrency(stats.avgOrderValue)}</h3>
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground mt-auto pt-4">
+                <span>Current average across records</span>
+              </div>
+            </div>
+
+            {/* Successful Delivery */}
+            <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 flex flex-col h-full hover:bg-muted/5 transition-all">
+              <p className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest">SUCCESSFUL DELIVERY</p>
+              <h3 className="text-4xl font-extrabold mt-2 text-foreground">{stats.deliveryRate.toFixed(1)}%</h3>
+              <div className="mt-auto pt-5">
+                <div className="h-1.5 w-full bg-muted rounded-[4px] overflow-hidden">
+                  <div
+                    className="h-full bg-green-700 dark:bg-emerald-500 rounded-[4px]"
+                    style={{ width: `${Math.min(100, Math.max(0, stats.deliveryRate)).toFixed(1)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Main Orders Table Area */}
@@ -299,7 +330,27 @@ export default function OrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
-              {paginatedOrders.length > 0 ? paginatedOrders.map((order) => (
+              {isOrdersLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={`orders-skeleton-${i}`} className="animate-pulse">
+                    <td className="py-5 px-6 lg:px-8"><div className="h-4 w-20 bg-muted/60 rounded" /></td>
+                    <td className="py-5 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded bg-muted/60" />
+                        <div className="space-y-2">
+                          <div className="h-3 w-28 bg-muted/60 rounded" />
+                          <div className="h-2 w-20 bg-muted/30 rounded" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-5 px-6"><div className="h-4 w-32 bg-muted/60 rounded" /></td>
+                    <td className="py-5 px-6"><div className="h-6 w-16 bg-muted/40 rounded" /></td>
+                    <td className="py-5 px-6"><div className="h-4 w-20 bg-muted/60 rounded" /></td>
+                    <td className="py-5 px-6"><div className="h-4 w-24 bg-muted/40 rounded" /></td>
+                    <td className="py-5 px-4"></td>
+                  </tr>
+                ))
+              ) : paginatedOrders.length > 0 ? paginatedOrders.map((order) => (
                 <tr 
                   key={order.id} 
                   onClick={() => router.push(`/dashboard/orders/${order.id.replace('#', '')}`)}
@@ -310,7 +361,7 @@ export default function OrdersPage() {
                   
                   <td className="py-5 px-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-[4px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center font-extrabold text-[12px] shrink-0">
+                      <div className="w-9 h-9 rounded-[4px] bg-success-bg dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center font-extrabold text-[12px] shrink-0">
                         {order.avatar}
                       </div>
                       <div className="flex flex-col">
@@ -344,7 +395,7 @@ export default function OrdersPage() {
                   <td className="py-5 px-4 text-right">
                     <button 
                       onClick={() => router.push(`/dashboard/orders/${order.id.replace('#', '')}`)}
-                      className="p-2 mr-2 rounded-[4px] bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-500 opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 inline-flex items-center justify-center"
+                      className="p-2 mr-2 rounded-[4px] bg-success-bg dark:bg-green-900/20 text-green-700 dark:text-green-500 opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 inline-flex items-center justify-center"
                     >
                       <ChevronRightSmall size={16} />
                     </button>
@@ -424,7 +475,7 @@ export default function OrdersPage() {
           {/* Logistics Status */}
           <div className="bg-white dark:bg-card rounded-[2rem] border border-border/50 shadow-sm p-6 lg:p-8 flex flex-col h-full hover:shadow-md transition-all">
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-[4px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-[4px] bg-success-bg dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
               </div>
               <div>
@@ -451,7 +502,7 @@ export default function OrdersPage() {
             <h3 className="text-xs font-extrabold text-muted-foreground uppercase tracking-widest mb-6">CUSTOMER DETAILS</h3>
             
             <div className="flex items-center gap-4 mb-8 pb-8 border-b border-border/40">
-              <div className="w-14 h-14 rounded-[4px] bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-500 flex items-center justify-center font-extrabold text-xl shrink-0">
+              <div className="w-14 h-14 rounded-[4px] bg-success-bg dark:bg-green-900/40 text-green-700 dark:text-green-500 flex items-center justify-center font-extrabold text-xl shrink-0 border border-border">
                 {activeOrder.avatar}
               </div>
               <div>
@@ -498,3 +549,18 @@ export default function OrdersPage() {
     </div>
   );
 }
+
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse text-muted-foreground font-bold tracking-widest uppercase text-xs">
+          Loading orders...
+        </div>
+      </div>
+    }>
+      <OrdersContent />
+    </Suspense>
+  );
+}
+

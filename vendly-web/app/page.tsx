@@ -40,7 +40,7 @@ export default function LandingPage() {
               Sign In
             </Link>
             <Link 
-              href="/onboarding" 
+              href="/signup" 
               className="bg-primary text-white px-5 py-2.5 rounded-[8px] text-sm font-bold hover:bg-secondary transition-all active:scale-95"
             >
               Get Started
@@ -64,7 +64,7 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row gap-5 justify-center">
               <Link 
-                href="/onboarding" 
+                href="/signup" 
                 className="bg-primary text-white px-10 py-5 rounded-[8px] text-lg font-bold hover:bg-secondary transition-all flex items-center justify-center gap-3 group active:scale-95"
               >
                 Start Transacting 

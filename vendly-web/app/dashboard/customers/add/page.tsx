@@ -82,7 +82,7 @@ export default function AddCustomerPage() {
         {/* Section 1: Personal Information */}
         <section className="space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-[4px] bg-success-bg dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
               <User size={18} />
             </div>
             <h2 className="text-lg font-extrabold text-foreground">Personal Information</h2>
@@ -145,7 +145,7 @@ export default function AddCustomerPage() {
         {/* Section 2: Shipping Address */}
         <section className="space-y-6">
            <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-[4px] bg-success-bg dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
               <Truck size={18} />
             </div>
             <h2 className="text-lg font-extrabold text-foreground">Shipping Address</h2>
@@ -205,7 +205,7 @@ export default function AddCustomerPage() {
         {/* Section 3: Private Notes */}
         <section className="space-y-6">
            <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-[4px] bg-success-bg dark:bg-green-900/30 text-green-700 dark:text-green-500 flex items-center justify-center shrink-0">
               <FileText size={18} />
             </div>
             <h2 className="text-lg font-extrabold text-foreground">Private Notes</h2>
@@ -289,3 +289,4 @@ function StarGraphic() {
     </svg>
   );
 }
+

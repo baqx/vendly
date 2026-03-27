@@ -343,7 +343,7 @@ function NotifCard({
                 {n.title}
               </h3>
               {!n.read && (
-                <span className="w-2 h-2 rounded-full bg-green-500 shrink-0 mt-0.5" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-0.5" />
               )}
             </div>
             <div className="flex items-center gap-1 shrink-0">
@@ -416,3 +416,4 @@ function NotifCard({
     </div>
   );
 }
+

@@ -57,13 +57,13 @@ const PERIODS = ["Last 6 Months", "Last 3 Months", "Last Month"];
 const statusPill = (status: string) => {
   switch (status) {
     case "PAID":
-      return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
+      return "bg-success-bg text-green-900 dark:bg-emerald-900/30 dark:text-emerald-400 border border-green-100 dark:border-green-900/30";
     case "SHIPPED":
     case "DELIVERED":
-      return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+      return "bg-success-bg text-green-900 dark:bg-green-900/30 dark:text-green-400 border border-green-100 dark:border-green-900/30";
     case "PENDING":
     default:
-      return "bg-green-50 text-green-700 dark:bg-muted dark:text-muted-foreground border border-green-200 dark:border-border";
+      return "bg-success-bg text-green-700 dark:bg-muted dark:text-muted-foreground border border-green-200 dark:border-border";
   }
 };
 
@@ -119,8 +119,8 @@ export default function DashboardHome() {
           name: p.title,
           meta: "PRODUCT",
           amount: p.basePrice,
-          bg: "bg-green-50",
-          img: p.images?.[0]?.url || "",
+          bg: "bg-success-bg",
+          img: p.images?.[0]?.url || "/images/shop.png",
         }))
       : [];
 
@@ -203,7 +203,7 @@ export default function DashboardHome() {
             {/* Step 1: Profile */}
             <div className={`p-6 space-y-4 hover:bg-muted/10 transition-colors relative group ${dashboard.setupStatus.profileCompleted ? 'opacity-60' : ''}`}>
               <div className="flex items-start justify-between">
-                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.profileCompleted ? 'bg-green-50 border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.profileCompleted ? 'bg-success-bg border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
                   <Store size={20} />
                 </div>
                 {dashboard.setupStatus.profileCompleted ? (
@@ -228,7 +228,7 @@ export default function DashboardHome() {
             {/* Step 2: Products */}
             <div className={`p-6 space-y-4 hover:bg-muted/10 transition-colors relative group ${dashboard.setupStatus.productsAdded ? 'opacity-60' : ''}`}>
               <div className="flex items-start justify-between">
-                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.productsAdded ? 'bg-green-50 border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.productsAdded ? 'bg-success-bg border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
                   <ShoppingBag size={20} />
                 </div>
                 {dashboard.setupStatus.productsAdded ? (
@@ -253,7 +253,7 @@ export default function DashboardHome() {
             {/* Step 3: Bot */}
             <div className={`p-6 space-y-4 hover:bg-muted/10 transition-colors relative group ${dashboard.setupStatus.botConfigured ? 'opacity-60' : ''}`}>
               <div className="flex items-start justify-between">
-                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.botConfigured ? 'bg-green-50 border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.botConfigured ? 'bg-success-bg border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
                   <Bot size={20} />
                 </div>
                 {dashboard.setupStatus.botConfigured ? (
@@ -274,6 +274,26 @@ export default function DashboardHome() {
                 </Link>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* System Status Indicators */}
+      {dashboard?.botStatus && (
+        <div className="flex flex-wrap items-center gap-4 px-2">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-success-bg border border-green-100 dark:border-green-900/30">
+            <div className={`w-2 h-2 rounded-full ${dashboard.botStatus.telegram.active ? "bg-green-500 animate-pulse" : "bg-muted-foreground"}`} />
+            <span className="text-[11px] font-bold text-foreground">Telegram AI: {dashboard.botStatus.telegram.active ? "Active" : dashboard.botStatus.telegram.configured ? "Paused" : "Not Configured"}</span>
+          </div>
+          
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-info-bg border border-blue-100 dark:border-blue-900/30">
+            <div className={`w-2 h-2 rounded-full ${dashboard.botStatus.whatsapp.active ? "bg-blue-500 animate-pulse" : "bg-muted-foreground"}`} />
+            <span className="text-[11px] font-bold text-foreground">WhatsApp AI: {dashboard.botStatus.whatsapp.active ? "Active" : "Beta Coming Soon"}</span>
+          </div>
+
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="text-[11px] font-bold text-foreground">Settlement: {dashboard.walletBalance > 0 ? "Bank Linked" : "Ready"}</span>
           </div>
         </div>
       )}
@@ -352,7 +372,7 @@ export default function DashboardHome() {
                       <button
                         key={p}
                         onClick={() => { setPeriod(p); setPeriodOpen(false); }}
-                        className={`w-full px-4 py-3 text-left text-xs font-bold transition-colors ${period === p ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "text-foreground hover:bg-muted/50"}`}
+                        className={`w-full px-4 py-3 text-left text-xs font-bold transition-colors ${period === p ? "bg-success-bg text-green-700 dark:bg-green-900/30 dark:text-green-400" : "text-foreground hover:bg-muted/50"}`}
                       >
                         {p}
                       </button>
@@ -477,3 +497,4 @@ export default function DashboardHome() {
     </div>
   );
 }
+

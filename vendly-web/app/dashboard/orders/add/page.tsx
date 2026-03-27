@@ -590,7 +590,7 @@ export default function CreateManualOrderPage() {
         {/* ── Right Column (Sticky Summary) ── */}
         <div className="w-full xl:w-[400px] shrink-0 space-y-6 xl:sticky xl:top-8">
 
-          <div className="bg-green-50/50 dark:bg-green-950/10 rounded-[4px] border border-green-100 dark:border-green-900/30 p-6 lg:p-8 flex flex-col">
+          <div className="bg-success-bg/50 dark:bg-green-950/10 rounded-[4px] border border-green-100 dark:border-green-900/30 p-6 lg:p-8 flex flex-col">
             <h2 className="text-xl font-extrabold text-foreground mb-8">Order Summary</h2>
 
             {/* Cart preview */}
@@ -706,3 +706,4 @@ export default function CreateManualOrderPage() {
     </div>
   );
 }
+

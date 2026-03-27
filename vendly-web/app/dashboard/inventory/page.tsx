@@ -38,7 +38,7 @@ export default function InventoryPage() {
     const status =
       product.stockLevel <= 0 ? "Out of Stock" : product.stockLevel < 5 ? "Low Stock" : "In Stock";
     const statusColor =
-      product.stockLevel <= 0 ? "bg-red-500" : product.stockLevel < 5 ? "bg-orange-500" : "bg-green-600 dark:bg-green-500";
+      product.stockLevel <= 0 ? "bg-red-500" : product.stockLevel < 5 ? "bg-orange-500" : "bg-green-600 dark:bg-emerald-500";
     const textColor =
       product.stockLevel <= 0 ? "text-red-600 dark:text-red-500" : product.stockLevel < 5 ? "text-orange-600 dark:text-orange-500" : "text-green-700 dark:text-green-500";
     const tags = product.tags?.split(",").map((t) => t.trim()).filter(Boolean) ?? [];
@@ -54,7 +54,7 @@ export default function InventoryPage() {
       statusColor,
       textColor,
       category: categoryLabel,
-      img: product.images?.[0]?.url || "",
+      img: product.images?.[0]?.url || "/images/shop.png",
       bg: bgOptions[index % bgOptions.length],
       padding: "p-4",
     };
@@ -120,7 +120,7 @@ export default function InventoryPage() {
                   <button
                     key={item}
                     onClick={() => { setCategory(item); setOpenDropdown(null); }}
-                    className={`px-4 py-3 text-left text-sm font-bold transition-colors ${category === item ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-500" : "text-foreground hover:bg-muted/50"}`}
+                    className={`px-4 py-3 text-left text-sm font-bold transition-colors ${category === item ? "bg-success-bg text-green-700 dark:bg-green-900/30 dark:text-green-500" : "text-foreground hover:bg-muted/50"}`}
                   >
                     {item}
                   </button>
@@ -146,7 +146,7 @@ export default function InventoryPage() {
                   <button
                     key={item}
                     onClick={() => { setPrice(item); setOpenDropdown(null); }}
-                    className={`px-4 py-3 text-left text-sm font-bold transition-colors ${price === item ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-500" : "text-foreground hover:bg-muted/50"}`}
+                    className={`px-4 py-3 text-left text-sm font-bold transition-colors ${price === item ? "bg-success-bg text-green-700 dark:bg-green-900/30 dark:text-green-500" : "text-foreground hover:bg-muted/50"}`}
                   >
                     {item}
                   </button>
@@ -172,7 +172,7 @@ export default function InventoryPage() {
                   <button
                     key={item}
                     onClick={() => { setStock(item); setOpenDropdown(null); }}
-                    className={`px-4 py-3 text-left text-sm font-bold transition-colors ${stock === item ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-500" : "text-foreground hover:bg-muted/50"}`}
+                    className={`px-4 py-3 text-left text-sm font-bold transition-colors ${stock === item ? "bg-success-bg text-green-700 dark:bg-green-900/30 dark:text-green-500" : "text-foreground hover:bg-muted/50"}`}
                   >
                     {item}
                   </button>
@@ -227,7 +227,7 @@ export default function InventoryPage() {
                   </div>
                   {/* Hover Overlay */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-[2px]">
-                    <Link href={`/dashboard/inventory/${product.id}`} className="bg-green-50 text-green-950 font-extrabold text-[13px] py-2.5 px-6 rounded-[4px] transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105 active:scale-95 border border-green-200">
+                    <Link href={`/dashboard/inventory/${product.id}`} className="bg-success-bg text-green-950 font-extrabold text-[13px] py-2.5 px-6 rounded-[4px] transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105 active:scale-95 border border-green-200">
                       Inventory Details
                     </Link>
                     {/* Inventory Cleanup
@@ -348,3 +348,4 @@ export default function InventoryPage() {
     </div>
   );
 }
+

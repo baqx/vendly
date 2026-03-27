@@ -14,6 +14,7 @@ import {
   Building
 } from "lucide-react";
 import useSWR from "swr";
+import { swrFetcher } from "@/lib/swr";
 import { buildQuery } from "@/lib/api";
 import { formatCurrency, formatDate } from "@/lib/format";
 
@@ -46,11 +47,20 @@ export default function WalletPage() {
   const [txFilter, setTxFilter] = useState<string>("All Types");
   const [filterOpen, setFilterOpen] = useState(false);
 
-  const { data: summary } = useSWR<Summary>("/transactions/summary");
-  const { data: transactions } = useSWR<Transaction[]>(
-    `/transactions${buildQuery({ skip: 0, limit: 100 })}`
+  const { data: vendorResp } = useSWR<any>("/vendors/me", swrFetcher);
+  const { data: chartResp } = useSWR<any>("/dashboard/revenue-chart", swrFetcher);
+  const { data: summaryResp, isLoading: isSummaryLoading } = useSWR<any>("/transactions/summary", swrFetcher);
+  const { data: transactionsResp, isLoading: isTxLoading } = useSWR<any>(
+    `/transactions${buildQuery({ skip: 0, limit: 100 })}`,
+    swrFetcher
   );
-  const { data: payouts } = useSWR<Payout[]>("/payouts");
+  const { data: payoutsResp } = useSWR<any>("/payouts", swrFetcher);
+
+  const vendor = vendorResp || {};
+  const summary = summaryResp || { currentBalance: 0, pendingPayouts: 0, totalWithdrawn: 0 };
+  const transactions = transactionsResp || [];
+  const payouts = payoutsResp || [];
+  const chartData = chartResp || [];
 
   const transactionRows = useMemo(() => {
     const list: Transaction[] = transactions || [];
@@ -101,7 +111,7 @@ export default function WalletPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-[32px] sm:text-[40px] font-extrabold tracking-tight text-foreground leading-none">Wallet & Payouts</h1>
-          <p className="text-muted-foreground font-medium mt-2">Manage your revenue, withdrawals, and financial health.</p>
+         
         </div>
         <Link href="/dashboard/transactions/withdraw" className="bg-green-700 hover:bg-green-800 text-white px-6 py-3.5 rounded-[4px] font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-sm">
           <Building2 size={20} />
@@ -111,62 +121,79 @@ export default function WalletPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Available Balance */}
-        <div className="bg-white dark:bg-card rounded-[4px] p-6 shadow-minimal border border-border/50 flex flex-col justify-between relative overflow-hidden group">
-          <div className="flex items-start justify-between mb-8">
-            <div className="w-12 h-12 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center">
-              <Wallet size={24} className="opacity-90" />
+        {isSummaryLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={`summary-skeleton-${i}`} className="bg-white dark:bg-card rounded-[4px] p-6 shadow-minimal border border-border/50 h-44 animate-pulse flex flex-col justify-between">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-12 h-12 rounded-[4px] bg-muted/60" />
+                <div className="h-4 w-16 bg-muted/40 rounded-[4px]" />
+              </div>
+              <div>
+                <div className="h-3 w-28 bg-muted/30 rounded mb-2" />
+                <div className="h-10 w-44 bg-muted rounded" />
+              </div>
             </div>
-            <span className="text-[10px] font-extrabold tracking-widest text-green-600 dark:text-green-500 uppercase bg-green-50 dark:bg-green-900/30 px-2.5 py-1 rounded-[4px]">
-              AVAILABLE
-            </span>
-          </div>
-          <div>
-            <p className="text-sm font-bold text-muted-foreground mb-1">Available Balance</p>
-            <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">{formatCurrency(summary?.currentBalance ?? 0)}</h2>
-            <div className="flex items-center gap-1.5 text-green-600 dark:text-green-500 font-bold text-sm">
-              <ArrowUpRight size={16} strokeWidth={3} />
-              <span>+12.5% from last month</span>
+          ))
+        ) : (
+          <>
+            {/* Available Balance */}
+            <div className="bg-white dark:bg-card rounded-[4px] p-6 shadow-minimal border border-border/50 flex flex-col justify-between relative overflow-hidden group">
+              <div className="flex items-start justify-between mb-8">
+                <div className="w-12 h-12 rounded-[4px] bg-success-bg dark:bg-green-900/30 text-green-600 flex items-center justify-center">
+                  <Wallet size={24} className="opacity-90" />
+                </div>
+                <span className="text-[10px] font-extrabold tracking-widest text-green-600 dark:text-green-500 uppercase bg-success-bg dark:bg-green-900/30 px-2.5 py-1 rounded-[4px]">
+                  AVAILABLE
+                </span>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-muted-foreground mb-1">Available Balance</p>
+                <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">{formatCurrency(summary.currentBalance)}</h2>
+                <div className="flex items-center gap-1.5 text-green-600 dark:text-green-500 font-bold text-sm">
+                  <ArrowUpRight size={16} strokeWidth={3} />
+                  <span>Real-time Ledger</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Pending Balance */}
-        <div className="bg-white dark:bg-card rounded-[4px] p-6 shadow-minimal border border-border/50 flex flex-col justify-between relative overflow-hidden">
-          <div className="flex items-start justify-between mb-8">
-            <div className="w-12 h-12 rounded-[4px] bg-muted dark:bg-muted/50 text-foreground flex items-center justify-center">
-              <Clock size={24} className="opacity-80" />
+            {/* Pending Balance */}
+            <div className="bg-white dark:bg-card rounded-[4px] p-6 shadow-minimal border border-border/50 flex flex-col justify-between relative overflow-hidden">
+              <div className="flex items-start justify-between mb-8">
+                <div className="w-12 h-12 rounded-[4px] bg-muted dark:bg-muted/50 text-foreground flex items-center justify-center">
+                  <Clock size={24} className="opacity-80" />
+                </div>
+                <span className="text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase bg-muted px-2.5 py-1 rounded-[4px]">
+                  PROCESSING
+                </span>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-muted-foreground mb-1">Pending Balance</p>
+                <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">{formatCurrency(summary.pendingPayouts)}</h2>
+                <p className="text-muted-foreground font-medium text-sm italic opacity-80">Settles as orders are delivered</p>
+              </div>
             </div>
-            <span className="text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase bg-muted px-2.5 py-1 rounded-[4px]">
-              PROCESSING
-            </span>
-          </div>
-          <div>
-            <p className="text-sm font-bold text-muted-foreground mb-1">Pending Balance</p>
-            <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">{formatCurrency(summary?.pendingPayouts ?? 0)}</h2>
-            <p className="text-muted-foreground font-medium text-sm italic opacity-80">Expected settlement in 3 business days</p>
-          </div>
-        </div>
 
-        {/* Total Withdrawn */}
-        <div className="bg-white dark:bg-card rounded-[4px] p-6 shadow-minimal border border-border/50 flex flex-col justify-between relative overflow-hidden">
-          <div className="flex items-start justify-between mb-8">
-            <div className="w-12 h-12 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-700 flex items-center justify-center">
-              <Banknote size={24} className="opacity-90" />
+            {/* Total Withdrawn */}
+            <div className="bg-white dark:bg-card rounded-[4px] p-6 shadow-minimal border border-border/50 flex flex-col justify-between relative overflow-hidden">
+              <div className="flex items-start justify-between mb-8">
+                <div className="w-12 h-12 rounded-[4px] bg-success-bg dark:bg-green-900/30 text-green-700 flex items-center justify-center">
+                  <Banknote size={24} className="opacity-90" />
+                </div>
+                <span className="text-[10px] font-extrabold tracking-widest text-foreground uppercase px-2.5 py-1">
+                  LIFETIME
+                </span>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-muted-foreground mb-1">Total Withdrawn</p>
+                <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">{formatCurrency(summary.totalWithdrawn)}</h2>
+                <div className="flex items-center gap-2 text-foreground font-bold text-sm opacity-80">
+                  <ShieldCheck size={16} />
+                  <span>{payouts.length} successful payouts</span>
+                </div>
+              </div>
             </div>
-            <span className="text-[10px] font-extrabold tracking-widest text-foreground uppercase px-2.5 py-1">
-              LIFETIME
-            </span>
-          </div>
-          <div>
-            <p className="text-sm font-bold text-muted-foreground mb-1">Total Withdrawn</p>
-            <h2 className="text-4xl sm:text-[42px] font-black tracking-tighter text-foreground leading-none mb-3">{formatCurrency(summary?.totalWithdrawn ?? 0)}</h2>
-            <div className="flex items-center gap-2 text-foreground font-bold text-sm opacity-80">
-              <ShieldCheck size={16} />
-              <span>{payoutRows.length} successful payouts</span>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       {/* Middle Section: Chart & Bank Account */}
@@ -195,41 +222,23 @@ export default function WalletPage() {
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col justify-end mt-4 relative h-[250px] w-full items-center transition-all duration-500">
-            {chartFilter === "7days" ? (
-              <div className="w-full flex items-end justify-between gap-1 sm:gap-4 px-2 h-[200px] mb-4 animate-in fade-in duration-500">
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[35%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[45%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[35%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[45%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[40%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[65%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[30%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[40%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[58%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-600 dark:bg-green-500 rounded-t-[4px] h-[85%] relative group">
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[11px] font-bold px-3 py-1.5 rounded-[4px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-                    +$1,420.50
-                  </div>
-                </div>
+          <div className="flex-1 flex flex-col justify-end mt-4 relative h-[250px] w-full items-center">
+            {chartData.length > 0 ? (
+              <div className="w-full flex items-end justify-between gap-1 sm:gap-4 px-2 h-[200px] mb-4">
+                {chartData.slice(chartFilter === "7days" ? -10 : -30).map((d: any, i: number) => {
+                  const maxVal = Math.max(...chartData.map((x: any) => x.amount), 1);
+                  return (
+                    <div 
+                      key={i} 
+                      className={`w-full rounded-t-[4px] transition-all hover:bg-green-200 ${i === chartData.length - 1 ? 'bg-green-600 dark:bg-emerald-500' : 'bg-green-100 dark:bg-green-900/20'}`}
+                      style={{ height: `${(d.amount / maxVal) * 100}%` }}
+                    />
+                  );
+                })}
               </div>
             ) : (
-              <div className="w-full flex items-end justify-between gap-1 sm:gap-4 px-2 h-[200px] mb-4 animate-in fade-in zoom-in-95 duration-500">
-                {/* Simulated 30 days data (more bars, different heights) */}
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[20%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[25%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[40%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[60%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[55%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[75%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[40%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[85%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-100 dark:bg-green-900/20 rounded-t-[4px] h-[50%] transition-all hover:bg-green-200" />
-                <div className="w-full bg-green-600 dark:bg-green-500 rounded-t-[4px] h-[95%] relative group">
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[11px] font-bold px-3 py-1.5 rounded-[4px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-                    +$3,450.00
-                  </div>
-                </div>
+              <div className="flex-1 flex items-center justify-center text-muted-foreground font-bold italic">
+                No revenue data available yet.
               </div>
             )}
             {/* X-Axis labels */}
@@ -256,21 +265,21 @@ export default function WalletPage() {
             </div>
             
             <div className="space-y-1">
-              <p className="text-[12px] font-extrabold text-muted-foreground uppercase tracking-widest">BANK OF VERDANT</p>
+              <p className="text-[12px] font-extrabold text-muted-foreground uppercase tracking-widest">{vendor.bankName || "No Bank Linked"}</p>
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-black text-foreground tracking-widest">****</span>
-                <span className="text-xl font-black text-foreground">8291</span>
+                <span className="text-xl font-black text-foreground">{vendor.accountNumber?.slice(-4) || "----"}</span>
               </div>
             </div>
           </div>
 
-          <button className="mt-8 text-sm font-extrabold text-green-700 dark:text-green-500 hover:text-green-800 transition-colors w-full text-center py-2">
+          <Link 
+            href="/dashboard/settings#settlement" 
+            className="mt-8 text-sm font-extrabold text-green-700 dark:text-green-500 hover:text-green-800 transition-colors w-full text-center py-2"
+          >
             Update Bank Details
-          </button>
-          
-          <p className="text-[8px] font-extrabold text-muted-foreground/60 uppercase tracking-[0.2em] text-center mt-6">
-            SECURELY ENCRYPTED BY PAYOUT PROTOCOL V2.1
-          </p>
+          </Link>
+       
         </div>
       </div>
 
@@ -302,7 +311,7 @@ export default function WalletPage() {
                       key={item}
                       onClick={() => { setTxFilter(item); setFilterOpen(false); }}
                       className={`w-full px-4 py-2.5 text-left text-[13px] font-bold transition-colors ${
-                        txFilter === item ? "text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-900/20" : "text-foreground hover:bg-muted/50"
+                        txFilter === item ? "text-green-700 bg-success-bg dark:text-green-400 dark:bg-green-900/20" : "text-foreground hover:bg-muted/50"
                       }`}
                     >
                       {item}
@@ -318,55 +327,67 @@ export default function WalletPage() {
         </div>
 
         <div className="overflow-x-auto">
-          {filteredTransactions.length === 0 ? (
-            <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-border/60 rounded-[4px]">
-              <p className="text-muted-foreground font-bold">No transactions match the selected filter.</p>
-              <button onClick={() => setTxFilter("All Types")} className="mt-4 text-green-700 dark:text-green-500 font-bold hover:underline">Clear Filter</button>
-            </div>
-          ) : (
-            <table className="w-full text-left border-collapse min-w-[700px]">
-              <thead>
-                <tr className="border-b border-border/60">
-                  <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase">TRANSACTION ID</th>
-                  <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase">DATE</th>
-                  <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase">TYPE</th>
-                  <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase">STATUS</th>
-                  <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase text-right">AMOUNT</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/40">
-                {filteredTransactions.map((tx) => (
-                  <tr key={tx.id} className="group hover:bg-muted/20 transition-colors">
-                    <td className="py-5 font-bold text-[13px] text-foreground cursor-pointer group-hover:text-green-600 transition-colors">{tx.id}</td>
-                    <td className="py-5 font-medium text-[14px] text-muted-foreground">{tx.date}</td>
-                    <td className="py-5">
-                      <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-bold ${
-                        tx.typeKey === "SALE" ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" :
-                        tx.typeKey === "PAYOUT" ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" :
-                        "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                      }`}>
-                        {tx.type}
-                      </span>
-                    </td>
-                    <td className="py-5">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-1.5 h-1.5 rounded-full ${
-                          tx.status === "Completed" ? "bg-green-500" : "bg-muted-foreground"
-                        }`} />
-                        <span className="font-bold text-[13px] text-foreground">{tx.status}</span>
-                      </div>
-                    </td>
-                    <td className={`py-5 text-right font-black text-[15px] ${
-                      tx.isPositive ? "text-foreground" : "text-red-600 dark:text-red-400"
-                    }`}>
-                      {tx.amount}
+          <table className="w-full text-left border-collapse min-w-[700px]">
+            <thead>
+              <tr className="border-b border-border/60">
+                <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase">TRANSACTION ID</th>
+                <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase">DATE</th>
+                <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase">TYPE</th>
+                <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase">STATUS</th>
+                <th className="pb-4 text-[10px] font-extrabold tracking-widest text-muted-foreground uppercase text-right">AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/40">
+                {isTxLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={`tx-row-skeleton-${i}`} className="animate-pulse">
+                      <td className="py-5"><div className="h-4 w-24 bg-muted/60 rounded" /></td>
+                      <td className="py-5"><div className="h-4 w-20 bg-muted/40 rounded" /></td>
+                      <td className="py-5"><div className="h-6 w-16 bg-muted/40 rounded-full" /></td>
+                      <td className="py-5"><div className="h-4 w-20 bg-muted/40 rounded" /></td>
+                      <td className="py-5 text-right"><div className="h-4 w-16 bg-muted/60 rounded ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : filteredTransactions.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center">
+                      <p className="text-muted-foreground font-bold">No transactions match the selected filter.</p>
+                      <button onClick={() => setTxFilter("All Types")} className="mt-4 text-green-700 dark:text-green-500 font-bold hover:underline">Clear Filter</button>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredTransactions.map((tx) => (
+                    <tr key={tx.id} className="group hover:bg-muted/20 transition-colors">
+                      <td className="py-5 font-bold text-[13px] text-foreground cursor-pointer group-hover:text-green-600 transition-colors uppercase">{tx.id.slice(-8)}</td>
+                      <td className="py-5 font-medium text-[14px] text-muted-foreground">{tx.date}</td>
+                      <td className="py-5">
+                        <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-bold ${
+                          tx.typeKey === "SALE" ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" :
+                          tx.typeKey === "PAYOUT" ? "bg-info-bg text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" :
+                          "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                        }`}>
+                          {tx.type}
+                        </span>
+                      </td>
+                      <td className="py-5">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-1.5 h-1.5 rounded-full ${
+                            tx.status === "Completed" ? "bg-emerald-500" : "bg-muted-foreground"
+                          }`} />
+                          <span className="font-bold text-[13px] text-foreground">{tx.status}</span>
+                        </div>
+                      </td>
+                      <td className={`py-5 text-right font-black text-[15px] ${
+                        tx.isPositive ? "text-foreground" : "text-red-600 dark:text-red-400"
+                      }`}>
+                        {tx.isPositive ? '+' : ''}{tx.amount}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
 
         {filteredTransactions.length > 0 && (
           <div className="mt-8 flex justify-center">
@@ -390,7 +411,13 @@ export default function WalletPage() {
             <p className="text-sm font-medium text-muted-foreground mt-1">Latest withdrawal activity.</p>
           </div>
         </div>
-        {payoutRows.length === 0 ? (
+        {isTxLoading ? (
+          <div className="py-8 space-y-4 animate-pulse">
+            <div className="h-4 w-full bg-muted/40 rounded" />
+            <div className="h-4 w-full bg-muted/40 rounded" />
+            <div className="h-4 w-full bg-muted/40 rounded" />
+          </div>
+        ) : payoutRows.length === 0 ? (
           <div className="py-10 flex flex-col items-center justify-center border-2 border-dashed border-border/60 rounded-[4px]">
             <p className="text-muted-foreground font-bold">No payouts yet.</p>
             <p className="text-xs text-muted-foreground mt-1">Withdrawals will show here once requested.</p>
@@ -408,7 +435,7 @@ export default function WalletPage() {
               <tbody className="divide-y divide-border/40">
                 {payoutRows.map((payout) => (
                   <tr key={payout.id} className="group hover:bg-muted/20 transition-colors">
-                    <td className="py-5 font-bold text-[13px] text-foreground">{payout.id}</td>
+                    <td className="py-5 font-bold text-[13px] text-foreground uppercase">{payout.id.slice(-8)}</td>
                     <td className="py-5 font-medium text-[14px] text-muted-foreground">{payout.date}</td>
                     <td className="py-5 text-right font-black text-[15px] text-foreground">{payout.amount}</td>
                   </tr>
@@ -418,13 +445,9 @@ export default function WalletPage() {
           </div>
         )}
       </div>
-      {/* Footer Text */}
-      <div className="flex justify-center mt-12 pb-8">
-        <p className="text-[10px] font-extrabold text-muted-foreground/60 uppercase tracking-[0.25em]">
-          VERDANT LEDGER FINANCIAL SYSTEMS • SECURED WITH BIO-METRIC ENCRYPTION
-        </p>
-      </div>
+     
 
     </div>
   );
 }
+

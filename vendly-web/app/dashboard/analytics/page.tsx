@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import useSWR from "swr";
+import { swrFetcher } from "@/lib/swr";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
@@ -36,47 +38,14 @@ interface Category {
   color: string;
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-const METRICS: MetricCard[] = [
-  {
-    label: "Conversion Rate",
-    value: "4.82%",
-    badge: "+2.4%",
-    badgePositive: true,
-    sub: "Calculated from 12k sessions",
-  },
-  {
-    label: "Avg. Order Value",
-    value: "$142.50",
-    badge: "+12.1%",
-    badgePositive: true,
-    sub: "Up from $128.00 last month",
-  },
-  {
-    label: "Customer Lifetime Value",
-    value: "$2,840",
-    badge: "-0.4%",
-    badgePositive: false,
-    sub: "Projected over 24 months",
-  },
-];
-
-// Revenue vs Expenses bar chart data (Mon–Sun)
-const CHART_DATA = [
-  { day: "MON", revenue: 62, expenses: 48 },
-  { day: "TUE", revenue: 78, expenses: 60 },
-  { day: "WED", revenue: 70, expenses: 55 },
-  { day: "THU", revenue: 85, expenses: 62 },
-  { day: "FRI", revenue: 92, expenses: 70 },
-  { day: "SAT", revenue: 88, expenses: 65 },
-  { day: "SUN", revenue: 100, expenses: 74 },
-];
-
-const TOP_CATEGORIES: Category[] = [
-  { label: "Fresh Produce", pct: 42, color: "#16a34a" },
-  { label: "Dairy & Eggs", pct: 28, color: "#4ade80" },
-  { label: "Organic Grains", pct: 30, color: "#bbf7d0" },
-];
+interface AnalyticsData {
+  conversionRate?: string;
+  avgOrderValue?: number;
+  totalOrders?: number;
+  topCategories?: Category[];
+  sessionCount?: number;
+  aiAssistedSales?: number;
+}
 
 const TRAFFIC_SOURCES: TrafficSource[] = [
   { label: "Direct Search", count: 4120, max: 4120 },
@@ -84,8 +53,6 @@ const TRAFFIC_SOURCES: TrafficSource[] = [
   { label: "Referral Links", count: 1450, max: 4120 },
   { label: "Email Campaigns", count: 940, max: 4120 },
 ];
-
-// ─── Sub-components ──────────────────────────────────────────────────────────
 
 /** Metric card at the top */
 function MetricCard({ label, value, badge, badgePositive, sub }: MetricCard) {
@@ -227,7 +194,7 @@ function TrafficRow({ label, count, max }: TrafficSource) {
       </div>
       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
         <div
-          className="h-full bg-green-600 dark:bg-green-500 rounded-full transition-all duration-700"
+          className="h-full bg-green-600 dark:bg-emerald-500 rounded-full transition-all duration-700"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -237,9 +204,42 @@ function TrafficRow({ label, count, max }: TrafficSource) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function AnalyticsPage() {
+  const { data: metricsResp } = useSWR<any>("/dashboard/metrics", swrFetcher);
+  const { data: chartResp } = useSWR<any>("/dashboard/revenue-chart", swrFetcher);
+  const { data: analyticsResp } = useSWR<AnalyticsData>("/dashboard/analytics", swrFetcher as any);
+
   const [activeTab, setActiveTab] = useState<"weekly" | "monthly" | "yearly">("weekly");
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const maxVal = Math.max(...CHART_DATA.map((d) => d.revenue));
+
+  const stats = metricsResp || {};
+  const detailed = analyticsResp || {};
+  const chartData = chartResp || [];
+
+  const METRICS = [
+    {
+      label: "Conversion Rate",
+      value: detailed.conversionRate || "0%",
+      badge: "Live",
+      badgePositive: true,
+      sub: `Based on ${detailed.sessionCount || 0} sessions`,
+    },
+    {
+      label: "Avg. Order Value",
+      value: `₦${detailed.avgOrderValue?.toLocaleString() || "0"}`,
+      badge: "Real-time",
+      badgePositive: true,
+      sub: `Across ${detailed.totalOrders || 0} orders`,
+    },
+    {
+      label: "Wallet Balance",
+      value: `₦${stats.walletBalance?.toLocaleString() || "0"}`,
+      badge: "Available",
+      badgePositive: true,
+      sub: "Net earnings after commissions",
+    },
+  ];
+
+  const maxVal = Math.max(...chartData.map((d: any) => Number(d.amount) || 0), 1);
 
   return (
     <div className="space-y-6">
@@ -292,7 +292,7 @@ export default function AnalyticsPage() {
               {/* Legend */}
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                   <span className="text-xs font-semibold text-muted-foreground">Revenue</span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -316,7 +316,7 @@ export default function AnalyticsPage() {
                       <button
                         key={t}
                         onClick={() => { setActiveTab(t); setDropdownOpen(false); }}
-                        className={`block w-full text-left px-4 py-2 text-[11px] font-extrabold uppercase tracking-wider transition-colors hover:bg-muted/50 ${activeTab === t ? 'text-green-600 dark:text-green-500 bg-green-50 dark:bg-green-900/10' : 'text-muted-foreground'}`}
+                        className={`block w-full text-left px-4 py-2 text-[11px] font-extrabold uppercase tracking-wider transition-colors hover:bg-muted/50 ${activeTab === t ? 'text-green-600 dark:text-green-500 bg-success-bg dark:bg-green-900/10' : 'text-muted-foreground'}`}
                       >
                         {t}
                       </button>
@@ -328,17 +328,31 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Bar chart */}
-          <div className="flex items-end gap-2 px-2">
-            {CHART_DATA.map((d) => (
-              <Bar key={d.day} {...d} maxVal={maxVal} />
-            ))}
+          <div className="flex items-end gap-2 px-2 h-[160px]">
+            {chartData.length > 0 ? (
+              chartData.map((d: any, i: number) => (
+                <div key={i} className="flex flex-col items-center gap-2 flex-1">
+                  <div className="flex items-end gap-[3px] h-[120px] w-full justify-center">
+                    <div
+                      className="w-[60%] rounded-t-[4px] bg-emerald-500 dark:bg-green-600 transition-all duration-700"
+                      style={{ height: `${(d.amount / maxVal) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] font-bold text-muted-foreground uppercase">{new Date(d.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                </div>
+              ))
+            ) : (
+              <div className="w-full flex items-center justify-center text-muted-foreground font-bold italic py-10">
+                No revenue data available for the period.
+              </div>
+            )}
           </div>
         </div>
 
         {/* Top Categories (1/3 width) */}
         <div className="bg-card border border-border/40 rounded-[4px] p-6 shadow-minimal">
           <h2 className="text-base font-extrabold text-foreground mb-6">Top Categories</h2>
-          <DonutChart categories={TOP_CATEGORIES} />
+          <DonutChart categories={detailed.topCategories || []} />
         </div>
       </div>
 
@@ -358,7 +372,7 @@ export default function AnalyticsPage() {
 
           {/* AI Assisted Sales block */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-[4px] bg-green-50 dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-[4px] bg-success-bg dark:bg-green-900/30 text-green-600 flex items-center justify-center shrink-0">
               <Bot size={20} />
             </div>
             <div>
@@ -367,9 +381,9 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          <p className="text-4xl font-black text-foreground mb-2">1,248</p>
+          <p className="text-4xl font-black text-foreground mb-2">{detailed.aiAssistedSales || 0}</p>
           <p className="text-sm text-muted-foreground font-medium mb-5">
-            Total orders closed by AI Assistant. That&apos;s 34% of your total volume.
+            Total orders closed by AI Assistant. That&apos;s {Math.round(((detailed.aiAssistedSales || 0) / (detailed.totalOrders || 1)) * 100)}% of your total volume.
           </p>
 
           {/* Sub-stats */}
@@ -423,3 +437,4 @@ export default function AnalyticsPage() {
     </div>
   );
 }
+

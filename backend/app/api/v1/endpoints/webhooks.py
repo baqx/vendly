@@ -320,6 +320,65 @@ async def telegram_webhook(token: str, request: Request):
         }
     )
     
+
+async def fulfill_order(order_id_or_ref: str, amount: float = None):
+    """
+    Common logic to mark an order as PAID and notify the customer.
+    """
+    order = await prisma.order.find_first(
+        where={"OR": [{"id": order_id_or_ref}, {"paymentRef": order_id_or_ref}]},
+        include={"vendor": True}
+    )
+    
+    if not order:
+        print(f"DEBUG: Order not found for reference {order_id_or_ref}")
+        return False
+        
+    if order.status == "PAID":
+        print(f"DEBUG: Order {order.id} already marked as PAID.")
+        return True
+        
+    print(f"DEBUG: Fulfilling order {order.id} for {order.totalAmount}...")
+    
+    # 1. Update Order
+    await prisma.order.update(
+        where={"id": order.id},
+        data={"status": "PAID"}
+    )
+    
+    # 2. Update Vendor Balance
+    await prisma.vendor.update(
+        where={"id": order.vendorId},
+        data={"walletBalance": {"increment": float(order.totalAmount)}}
+    )
+    
+    # 3. Create Transaction Record
+    await prisma.transaction.create(
+        data={
+            "vendorId": order.vendorId,
+            "orderId": order.id,
+            "amount": float(order.totalAmount),
+            "type": "SALE",
+            "reference": order.paymentRef or f"txn_{order.id[:8]}"
+        }
+    )
+    
+    # 4. Notify Customer on Telegram
+    if order.telegramChatId and order.vendor.telegramToken:
+        receipt_text = (
+            f"✅ **Payment Confirmed!**\n\n"
+            f"Order ID: #{order.id[:8]}\n"
+            f"Amount: ₦{order.totalAmount:,.2f}\n\n"
+            f"Thank you for your purchase from {order.vendor.storeName}. "
+            f"We are processing your order for dispatch. 🚀"
+        )
+        try:
+            await telegram_service.send_message(order.vendor.telegramToken, int(order.telegramChatId), receipt_text)
+        except Exception as te:
+            print(f"DEBUG: Telegram notification error: {te}")
+            
+    return True
+
 @router.get("/pay/{payment_ref}")
 async def pay_redirector(payment_ref: str):
     # Find order to get details for Interswitch
@@ -330,9 +389,6 @@ async def pay_redirector(payment_ref: str):
     if not order:
         return {"error": "Order not found"}
         
-    # Get Customer email from previous chat session or just "customer@vendly.app"
-    # For now, let's just use the order's metadata or a default
-    # Ideally find the chat message linked to this order
     customer_email = "customer@vendly.app" 
     
     # Generate the REAL long Interswitch link with the hash
@@ -344,58 +400,69 @@ async def pay_redirector(payment_ref: str):
     from fastapi.responses import RedirectResponse
     return RedirectResponse(real_link)
 
+@router.post("/interswitch/notify")
+async def interswitch_webhook_notify(
+    request: Request,
+    signature: str = Header(None, alias="X-Interswitch-Signature")
+):
+    """
+    Secure server-to-server webhook notification from Interswitch.
+    """
+    raw_body = await request.body()
+    
+    # 1. Verify Signature
+    if not payment_service.verify_webhook_signature(raw_body, signature):
+        print("DEBUG: Invalid Interswitch webhook signature!")
+        # return 401 ? Interswitch documentation says to return 200 even if invalid to avoid retries, 
+        # but 401 is technically correct for security. We'll return 401 for safety.
+        raise HTTPException(status_code=401, detail="Invalid signature")
+        
+    # 2. Parse Payload
+    try:
+        payload = json.loads(raw_body)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+        
+    print(f"DEBUG: Received Interswitch webhook: {payload}")
+    
+    txn_ref = payload.get("txnRef")
+    response_code = payload.get("responseCode")
+    amount = payload.get("amount") # in kobo
+    
+    if response_code in ["00", "0"]:
+        success = await fulfill_order(txn_ref)
+        if success:
+            return {"status": "success"}
+    
+    return {"status": "ignored", "code": response_code}
+
 @router.get("/interswitch/callback")
 async def interswitch_callback(
     request: Request,
     txnref: str = Query(None),
     amount: float = Query(None)
 ):
+    """
+    Handles browser redirection after payment.
+    Since webhooks can be slow or delayed, we also verify here.
+    """
     if not txnref:
         return {"status": "error", "message": "Missing reference"}
         
-    # Re-verify with Interswitch (to be safe)
-    # Note: In sandbox, simple presence of txnref might be enough, but we should check
-    is_valid = True # For sandbox testing, assume true if redirected back
+    # Re-verify with Interswitch API directly
+    print(f"DEBUG: Redirect callback hit for {txnref}")
+    is_valid = await payment_service.verify_transaction(txnref, amount / 100 if amount else 0)
     
     if is_valid:
-        # Update Order status
-        order = await prisma.order.find_first(
-            where={"paymentRef": txnref},
-            include={"vendor": True}
-        )
-        if order and order.status != "PAID":
-            await prisma.order.update(
-                where={"id": order.id},
-                data={"status": "PAID"}
-            )
+        await fulfill_order(txnref)
+        return {"status": "ok", "message": "Payment successful! You can return to the chat."}
+    else:
+        # Check if it was already fulfilled by the webhook
+        order = await prisma.order.find_first(where={"paymentRef": txnref})
+        if order and order.status == "PAID":
+            return {"status": "ok", "message": "Payment confirmed! You can return to the chat."}
             
-            # Send Success Notification to customer on Telegram
-            if order.telegramChatId and order.vendor.telegramToken:
-                receipt_text = (
-                    f"✅ **Payment Confirmed!**\n\n"
-                    f"Order ID: #{order.id[:8]}\n"
-                    f"Amount: ₦{order.totalAmount:,.2f}\n\n"
-                    f"Thank you for your purchase from {order.vendor.storeName}. "
-                    f"We are processing your order for dispatch. 🚀"
-                )
-                await telegram_service.send_message(order.vendor.telegramToken, order.telegramChatId, receipt_text)
-
-            # Create Transaction record
-            await prisma.transaction.create(
-                data={
-                    "vendorId": order.vendorId,
-                    "orderId": order.id,
-                    "amount": order.totalAmount,
-                    "type": "SALE"
-                }
-            )
-            # Update Vendor balance
-            await prisma.vendor.update(
-                where={"id": order.vendorId},
-                data={"walletBalance": {"increment": order.totalAmount}}
-            )
-            
-    return {"status": "ok", "message": "Payment successful! You can return to the chat."}
+    return {"status": "error", "message": "Payment verification failed or was cancelled."}
 
 @router.get("/whatsapp")
 async def whatsapp_verify(

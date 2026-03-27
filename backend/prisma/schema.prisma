@@ -35,6 +35,7 @@ model Vendor {
   // Financials
   walletBalance     Decimal  @default(0.0) @db.Decimal(12, 2)
   bankName          String?
+  bankCode          String?
   accountNumber     String?
   accountName       String?
   

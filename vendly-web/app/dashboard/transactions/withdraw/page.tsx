@@ -73,7 +73,7 @@ export default function WithdrawFundsPage() {
           Back to Wallet
         </Link>
         <h1 className="text-[32px] sm:text-[40px] font-extrabold tracking-tight text-foreground leading-none">Withdraw Funds</h1>
-        <p className="text-muted-foreground font-medium mt-3 text-[15px]">Securely transfer your earnings to your verified bank account.</p>
+       
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -168,7 +168,7 @@ export default function WithdrawFundsPage() {
                 <button 
                   onClick={() => handlePreset("MAX")}
                   disabled={isSubmitting || isSuccess}
-                  className="px-5 py-2 rounded-[4px] border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-900/20 text-[13px] font-bold text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 py-2 rounded-[4px] border border-green-200 dark:border-green-900 bg-success-bg dark:bg-green-900/20 text-[13px] font-bold text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Max Balance
                 </button>
@@ -209,7 +209,7 @@ export default function WithdrawFundsPage() {
               disabled={isSubmitting || isSuccess || parsedAmount <= 0}
               className={`w-full flex items-center justify-center gap-2 mt-8 py-4 rounded-[4px] font-extrabold text-[15px] transition-all shadow-sm ${
                 isSuccess 
-                  ? "bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
+                  ? "bg-success-bg text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
                   : isSubmitting || parsedAmount <= 0
                     ? "bg-green-700/50 text-white cursor-not-allowed"
                     : "bg-green-700 hover:bg-green-800 text-white hover:scale-[1.02] active:scale-[0.98]"
@@ -264,7 +264,7 @@ export default function WithdrawFundsPage() {
               </div>
 
               <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-[4px] bg-green-50 dark:bg-green-900/30 flex items-center justify-center shrink-0 text-green-700 dark:text-green-500 mt-0.5">
+                <div className="w-8 h-8 rounded-[4px] bg-success-bg dark:bg-green-900/30 flex items-center justify-center shrink-0 text-green-700 dark:text-green-500 mt-0.5">
                   <ShieldCheck size={14} />
                 </div>
                 <div>
@@ -280,3 +280,4 @@ export default function WithdrawFundsPage() {
     </div>
   );
 }
+

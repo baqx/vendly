@@ -24,7 +24,7 @@ function createCustomIcon(regionKey: string) {
        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded shadow-sm mb-1 whitespace-nowrap">
          <span class="text-[10px] font-black uppercase tracking-tight text-slate-800 dark:text-white">${data.label}: ${data.sessions}</span>
        </div>
-       <div class="${isLagos ? 'w-4 h-4 bg-[#0f5a34]' : 'w-3 h-3 bg-green-500'} rounded-full border-2 border-white dark:border-slate-800 shadow-md"></div>
+       <div class="${isLagos ? 'w-4 h-4 bg-[#0f5a34]' : 'w-3 h-3 bg-emerald-500'} rounded-full border-2 border-white dark:border-slate-800 shadow-md"></div>
     </div>
   `;
   return L.divIcon({ html, className: "", iconSize: [80, 40], iconAnchor: [40, 40] });
@@ -63,3 +63,4 @@ export default function LeafletMap({ view }: { view: string }) {
     </MapContainer>
   );
 }
+

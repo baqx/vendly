@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getToken, onAuthChange } from "@/lib/auth-store";
+import { getToken, onAuthChange, clearToken as clearTokenStore } from "@/lib/auth-store";
 
 export function useAuthToken() {
   const [token, setToken] = useState<string | null>(null);
@@ -13,5 +13,9 @@ export function useAuthToken() {
     return onAuthChange((next) => setToken(next));
   }, []);
 
-  return { token, ready };
+  const logout = () => {
+    clearTokenStore();
+  };
+
+  return { token, ready, logout };
 }
