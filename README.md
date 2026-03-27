@@ -213,10 +213,10 @@ This project was developed collaboratively, with each team member taking ownersh
 ---
 
 ## Documentation
-- **Project Overview**: System vision and business context
-- **API Documentation**: Endpoint definitions and request/response structures
-- **Frontend Design**: UI architecture and component breakdown
-- **Database Schema**: Data models and relationships
+- **[Product Overview](docs/product_overview.md)** — System vision, business context, and core feature breakdown
+- **[API Documentation](docs/api_documentation.md)** — Endpoint definitions, request/response structures, and auth flows
+- **[Product Flow](docs/product_flow.md)** — End-to-end user journey from chat inquiry to confirmed order
+- **[WhatsApp Integration Guide](docs/whatsapp_integration_guide.md)** — Setup guide for enabling WhatsApp Commerce
 
 ---
 

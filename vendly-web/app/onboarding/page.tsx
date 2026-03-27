@@ -239,7 +239,8 @@ export default function OnboardingPage() {
                         { step: "1", text: "Open Telegram and search for @BotFather" },
                         { step: "2", text: "Send /newbot and follow the instructions to name your bot" },
                         { step: "3", text: "Copy the long Token provided (e.g. 123456:ABC-DEF...)" },
-                        { step: "4", text: "Paste it into the field above!" }
+                        { step: "4", text: "Paste it into the field above!" },
+                        {step: "4", text:"Note your bot username to share with your potential buyers"}
                       ].map((item, i) => (
                         <li key={i} className="flex gap-3 items-start">
                           <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 text-[9px] font-black flex items-center justify-center shrink-0 mt-0.5">{item.step}</span>
@@ -276,7 +277,7 @@ export default function OnboardingPage() {
               </div>
               <div className="space-y-2">
                 <h1 className="text-4xl font-extrabold tracking-tight">All systems go!</h1>
-                <p className="text-muted-foreground font-medium text-lg">Your AI employee is ready to start selling for {formData.storeName}.</p>
+                <p className="text-muted-foreground font-medium text-lg">Your AI employee bot is ready to start selling for {formData.storeName}.</p>
               </div>
 
               <div className="bg-card p-6 rounded-[8px] border border-border text-left space-y-4">

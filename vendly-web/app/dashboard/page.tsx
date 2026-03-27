@@ -201,6 +201,33 @@ export default function DashboardHome() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border/50">
             {/* Step 1: Profile */}
+            
+            <div className={`p-6 space-y-4 hover:bg-muted/10 transition-colors relative group ${dashboard.setupStatus.botConfigured ? 'opacity-60' : ''}`}>
+              <div className="flex items-start justify-between">
+                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.botConfigured ? 'bg-success-bg border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
+                  <Bot size={20} />
+                </div>
+                {dashboard.setupStatus.botConfigured ? (
+                  <CheckCircle2 size={24} className="text-green-600" />
+                ) : (
+                  <Circle size={24} className="text-muted-foreground/30" />
+                )}
+              </div>
+              <div>
+                <h4 className="font-bold text-foreground">Setup Channels</h4>
+                <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">
+                  Connect Telegram to launch your AI store.
+                </p>
+              </div>
+              {!dashboard.setupStatus.botConfigured && (
+                <Link href="/onboarding" className="flex items-center gap-1.5 text-xs font-black text-green-700 uppercase tracking-widest group-hover:gap-2 transition-all">
+                  Link Telegram <ArrowRight size={14} />
+                </Link>
+              )}
+            </div>
+            
+            
+            
             <div className={`p-6 space-y-4 hover:bg-muted/10 transition-colors relative group ${dashboard.setupStatus.profileCompleted ? 'opacity-60' : ''}`}>
               <div className="flex items-start justify-between">
                 <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.profileCompleted ? 'bg-success-bg border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
@@ -251,29 +278,7 @@ export default function DashboardHome() {
             </div>
 
             {/* Step 3: Bot */}
-            <div className={`p-6 space-y-4 hover:bg-muted/10 transition-colors relative group ${dashboard.setupStatus.botConfigured ? 'opacity-60' : ''}`}>
-              <div className="flex items-start justify-between">
-                <div className={`w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border ${dashboard.setupStatus.botConfigured ? 'bg-success-bg border-green-200 text-green-700' : 'bg-muted/50 border-border text-muted-foreground'}`}>
-                  <Bot size={20} />
-                </div>
-                {dashboard.setupStatus.botConfigured ? (
-                  <CheckCircle2 size={24} className="text-green-600" />
-                ) : (
-                  <Circle size={24} className="text-muted-foreground/30" />
-                )}
-              </div>
-              <div>
-                <h4 className="font-bold text-foreground">Setup Channels</h4>
-                <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed">
-                  Connect Telegram to launch your AI store.
-                </p>
-              </div>
-              {!dashboard.setupStatus.botConfigured && (
-                <Link href="/onboarding" className="flex items-center gap-1.5 text-xs font-black text-green-700 uppercase tracking-widest group-hover:gap-2 transition-all">
-                  Link Telegram <ArrowRight size={14} />
-                </Link>
-              )}
-            </div>
+            
           </div>
         </div>
       )}
