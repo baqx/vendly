@@ -20,10 +20,10 @@ interface Notification {
 
 export function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: notifications, mutate, isLoading } = useSWR<Notification[]>("/notifications", swrFetcher, {
+  const { data: notifications, mutate, isLoading } = useSWR<Notification[]>("/notifications", swrFetcher as any, {
     refreshInterval: 30000, // Refresh every 30 seconds
   });
-  const { data: unreadCountResp } = useSWR<number>("/notifications/unread-count", swrFetcher, {
+  const { data: unreadCountResp } = useSWR<number>("/notifications/unread-count", swrFetcher as any, {
     refreshInterval: 30000,
   });
 
