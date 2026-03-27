@@ -8,7 +8,10 @@ import {
   BarChart3, 
   Sparkles, 
   CheckCircle2, 
-  Lock as LucideLock 
+  Lock as LucideLock,
+  MessageSquare,
+  Send,
+  CheckCircle
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -133,6 +136,87 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Bot Channels Section */}
+        <section id="solutions" className="py-24 px-8 bg-background">
+          <div className="max-w-7xl mx-auto">
+            {/* Section header */}
+            <div className="max-w-2xl mb-16 space-y-3">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">How It Works</p>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+                Your sales bot is as easy as{" "}
+                <span className="text-primary italic">sharing a number</span>.
+              </h2>
+              <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+                Connect your WhatsApp or Telegram. Your customers chat, your bot replies, negotiates, and collects payment — all without you lifting a finger.
+              </p>
+            </div>
+
+            {/* Two channel cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+              {/* WhatsApp Card */}
+              <div className="group rounded-[8px] border border-border/60 bg-card p-8 space-y-6 hover:border-[#25D366]/40 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-[8px] bg-[#25D366]/10 flex items-center justify-center">
+                    <MessageSquare size={24} className="text-[#25D366]" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black tracking-tight">WhatsApp Bot</h3>
+                    </div>
+                </div>
+                <p className="text-muted-foreground font-medium leading-relaxed">
+                  Share your WhatsApp business number. Customers message you exactly as they always have — only now, your AI handles every reply, every order, every discount request.
+                </p>
+                <ul className="space-y-2">
+                  {["Zero code, one number", "Smart product discovery", "Auto payment links"].map(item => (
+                    <li key={item} className="flex items-center gap-2.5 text-sm font-bold">
+                      <CheckCircle size={15} className="text-[#25D366] shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Telegram Card */}
+              <div className="group rounded-[8px] border border-border/60 bg-card p-8 space-y-6 hover:border-blue-500/40 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-[8px] bg-blue-500/10 flex items-center justify-center">
+                    <Send size={24} className="text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black tracking-tight">Telegram Bot</h3>
+                    </div>
+                </div>
+                <p className="text-muted-foreground font-medium leading-relaxed">
+                  Give customers your Telegram username. They start a conversation — the bot takes over, understands their request, and closes the sale autonomously.
+                </p>
+                <ul className="space-y-2">
+                  {["Share your @username to start", "AI negotiation & upselling", "Instant order confirmation"].map(item => (
+                    <li key={item} className="flex items-center gap-2.5 text-sm font-bold">
+                      <CheckCircle size={15} className="text-blue-500 shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Stat strip */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-border/40 rounded-[8px] overflow-hidden border border-border/40">
+              {[
+                { value: "24/7", label: "Bot availability", sub: "Never miss another inquiry" },
+                { value: "0", label: "Extra apps needed", sub: "Works inside chats your customers already use" },
+                { value: "100%", label: "Conversation captured", sub: "Every order tracked in your dashboard" },
+              ].map(stat => (
+                <div key={stat.value} className="bg-card px-8 py-6 space-y-1">
+                  <p className="text-3xl font-black text-foreground">{stat.value}</p>
+                  <p className="text-sm font-black uppercase tracking-widest text-primary">{stat.label}</p>
+                  <p className="text-xs text-muted-foreground font-medium">{stat.sub}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Call to Action */}
         <section className="py-24 px-8 text-center bg-background">
           <div className="max-w-3xl mx-auto space-y-8">
@@ -141,11 +225,11 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link 
                 href="/signup" 
-                className="bg-primary textbg-white dark:bg-card p-8 rounded-[8px] border border-border/50 shadow-minimal flex flex-col items-start text-left transition-all hover:bg-muted/5 groupll sm:w-auto text-center"
+                className="bg-primary text-white px-10 py-5 rounded-[8px] text-lg font-bold hover:bg-secondary transition-all flex items-center justify-center gap-3 group active:scale-95"
               >
                 Launch your Bot
+                <ArrowRight size={20} className="group-hover:translate-x-1.5 transition-transform" />
               </Link>
-              
             </div>
           </div>
         </section>
@@ -163,32 +247,28 @@ export default function LandingPage() {
               We're building the infrastructure for the next generation of social commerce. Scaling businesses through automated conversations.
             </p>
           </div>
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <h4 className="font-black uppercase tracking-widest text-xs text-foreground">Product</h4>
             <ul className="space-y-2 text-sm font-bold text-muted-foreground">
               <li><Link href="#" className="hover:text-primary transition-colors">Integrations</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors">Negotiation Engine</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors">Developer API</Link></li>
             </ul>
-          </div>
-          <div className="space-y-4">
+          </div> */}
+          {/* <div className="space-y-4">
             <h4 className="font-black uppercase tracking-widest text-xs text-foreground">Company</h4>
             <ul className="space-y-2 text-sm font-bold text-muted-foreground">
               <li><Link href="#" className="hover:text-primary transition-colors">About Us</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors">Careers</Link></li>
               <li><Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
             </ul>
-          </div>
+          </div> */}
         </div>
         <div className="max-w-7xl mx-auto pt-12 mt-12 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-            © 2026 Vendly AI Labs. ALL RIGHTS RESERVED.
+            © 2026 Vendly. ALL RIGHTS RESERVED. Made for Enyata 2026 Buildathon.
           </p>
-          <div className="flex gap-6 grayscale opacity-50">
-            <Shield size={20} />
-            <Zap size={20} />
-            <LucideLock size={20} />
-          </div>
+          
         </div>
       </footer>
     </div>
