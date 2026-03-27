@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr
 from decimal import Decimal
 from datetime import datetime
 
@@ -44,4 +44,5 @@ class Vendor(VendorBase):
     accountName: Optional[str] = None
     createdAt: datetime
     
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True

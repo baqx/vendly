@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from decimal import Decimal
 from datetime import datetime
 
@@ -16,4 +16,5 @@ class Transaction(TransactionBase):
     vendorId: str
     timestamp: datetime
     
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True
