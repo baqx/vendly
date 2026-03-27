@@ -238,7 +238,7 @@ export default function OnboardingPage() {
                       {[
                         { step: "1", text: "Open Telegram and search for @BotFather" },
                         { step: "2", text: "Send /newbot and follow the instructions to name your bot" },
-                        { step: "3", text: "Copy the long API Token provided (e.g. 123456:ABC-DEF...)" },
+                        { step: "3", text: "Copy the long Token provided (e.g. 123456:ABC-DEF...)" },
                         { step: "4", text: "Paste it into the field above!" }
                       ].map((item, i) => (
                         <li key={i} className="flex gap-3 items-start">
@@ -257,7 +257,7 @@ export default function OnboardingPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Smartphone className="text-green-500" size={20} />
-                      <h3 className="font-bold text-lg">WhatsApp API</h3>
+                      <h3 className="font-bold text-lg">WhatsApp Bot</h3>
                     </div>
                     <span className="text-[10px] font-black bg-muted px-2 py-0.5 rounded-[8px]">COMING SOON</span>
                   </div>

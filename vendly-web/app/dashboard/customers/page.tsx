@@ -150,14 +150,25 @@ export default function CustomersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/20">
-              {isListLoading && (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-muted-foreground">
-                    <div className="flex justify-center"><Loader2 size={24} className="animate-spin text-green-700" /></div>
-                  </td>
-                </tr>
-              )}
-              {!isListLoading && paginatedCustomers.map((customer) => (
+              {isListLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={`customer-skeleton-${i}`} className="animate-pulse">
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-[4px] bg-muted/60 shrink-0" />
+                        <div className="space-y-2">
+                          <div className="h-4 w-32 bg-muted/60 rounded" />
+                          <div className="h-3 w-24 bg-muted/30 rounded" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6"><div className="h-6 w-20 bg-muted/40 rounded" /></td>
+                    <td className="py-4 px-6"><div className="h-4 w-24 bg-muted/60 rounded" /></td>
+                    <td className="py-4 px-6"><div className="h-4 w-8 bg-muted/60 rounded" /></td>
+                    <td className="py-4 px-6"><div className="h-4 w-20 bg-muted/40 rounded" /></td>
+                  </tr>
+                ))
+              ) : paginatedCustomers.map((customer) => (
                 <tr 
                   key={customer.identifier} 
                   onClick={() => router.push(`/dashboard/customers/${encodeURIComponent(customer.identifier)}`)}
@@ -190,8 +201,22 @@ export default function CustomersPage() {
               ))}
               {!isListLoading && paginatedCustomers.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-muted-foreground text-sm font-medium">
-                    No customers found.
+                  <td colSpan={5} className="py-20 text-center">
+                    <div className="flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+                      <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mb-4">
+                        <Users size={28} className="text-muted-foreground/40" />
+                      </div>
+                      <h4 className="font-bold text-foreground text-lg">Your community is growing</h4>
+                      <p className="text-sm text-muted-foreground font-medium mt-1 max-w-[280px] mx-auto">
+                        Once customers start interacting with your AI bot, they will appear here automatically.
+                      </p>
+                      <Link 
+                        href="/dashboard/customers/add"
+                        className="mt-6 flex items-center gap-2 text-xs font-black text-green-700 uppercase tracking-widest hover:underline decoration-2 underline-offset-4"
+                      >
+                        Add your first customer manually <ArrowRight size={14} />
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               )}

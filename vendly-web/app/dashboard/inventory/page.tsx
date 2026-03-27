@@ -30,7 +30,7 @@ export default function InventoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 12;
 
-  const { data: apiProducts } = useSWR<Product[]>(
+  const { data: apiProducts, isLoading: isInventoryLoading } = useSWR<Product[]>(
     `/products${buildQuery({ skip: (currentPage - 1) * PAGE_SIZE, limit: PAGE_SIZE })}`
   );
 
@@ -202,109 +202,155 @@ export default function InventoryPage() {
 
       {/* Dynamic View */}
       <div className="mt-8 relative">
-        {filteredProducts.length === 0 && (
-          <div className="py-20 text-center flex flex-col items-center justify-center border-2 border-dashed border-border rounded-[4px]">
-            <p className="text-muted-foreground font-bold">No products match the selected filters.</p>
-            <button
-              onClick={() => { setCategory("All Categories"); setPrice("Any Price"); setStock("All Status"); }}
-              className="mt-4 text-green-700 dark:text-green-500 font-extrabold text-sm hover:underline"
-            >
-              Clear Filters
-            </button>
-          </div>
-        )}
-
-        {view === "grid" && filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-white dark:bg-card rounded-[4px] border border-border/50 shadow-minimal overflow-hidden flex flex-col transition-all duration-300 transform hover:-translate-y-1 hover:z-20 relative origin-bottom group">
-                <div className={`relative w-full h-48 flex items-center justify-center ${product.bg} ${product.padding} overflow-hidden`}>
-                  <div className="absolute top-3 left-3 bg-green-200 dark:bg-green-900/60 text-green-900 dark:text-green-300 px-2.5 py-1 rounded-[4px] text-[9px] font-extrabold tracking-wider uppercase z-10">
-                    {product.category}
-                  </div>
-                  <div className="w-full h-full relative overflow-hidden flex items-center justify-center mix-blend-multiply dark:mix-blend-normal">
-                    <Image src={product.img} fill alt={product.title} className="object-contain" />
-                  </div>
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-[2px]">
-                    <Link href={`/dashboard/inventory/${product.id}`} className="bg-success-bg text-green-950 font-extrabold text-[13px] py-2.5 px-6 rounded-[4px] transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105 active:scale-95 border border-green-200">
-                      Inventory Details
-                    </Link>
-                    {/* Inventory Cleanup
-                      - [x] Remove Non-Dynamic Inventory Elements
-                      - [x] Remove hardcoded "Featured Top Seller" from `InventoryPage`
-                      - [x] Clean up images and static text in `InventoryDetailsPage`
-                      - [x] Fix SKU and Category labels to be fully dynamic
-                    */}
-                  </div>
-                </div>
-
-                <div className="p-5 flex flex-col flex-1 relative z-30 bg-white dark:bg-card">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-base font-bold text-foreground leading-tight">{product.title}</h3>
-                    <span className="text-base font-extrabold text-green-700 dark:text-green-500">{product.price}</span>
-                  </div>
-                  <div className="mt-2.5 flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-[4px] ${product.statusColor}`} />
-                    <span className={`text-[11px] font-bold ${product.textColor}`}>
-                      {product.status} {product.stock > 0 && <span className="opacity-70">({product.stock} units)</span>}
-                    </span>
-                  </div>
-                  <div className="mt-auto pt-5 flex w-full items-center gap-2">
-                    {/* Edit → routes to add/edit form */}
-                    <Link href={`/dashboard/inventory/add?id=${product.id}`} className="flex-1 py-2.5 text-center bg-muted/40 hover:bg-muted dark:bg-muted/20 dark:hover:bg-muted/40 text-foreground font-bold text-[13px] rounded-[4px] transition-colors hover:scale-[1.02] active:scale-[0.98]">
-                      Edit
-                    </Link>
-                    <Link href={`/dashboard/inventory/${product.id}`} className="p-2.5 bg-muted/40 hover:bg-muted dark:bg-muted/20 dark:hover:bg-muted/40 text-foreground rounded-[4px] transition-colors flex items-center justify-center hover:scale-110 active:scale-95">
-                      <Eye size={18} />
-                    </Link>
-                  </div>
-                </div>
+        {isInventoryLoading ? (
+          <div className={view === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" : "flex flex-col space-y-4"}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={`inventory-skeleton-${i}`} className={`bg-white dark:bg-card rounded-[4px] border border-border/50 animate-pulse overflow-hidden ${view === "grid" ? "flex flex-col h-[350px]" : "flex items-center gap-6 p-4"}`}>
+                {view === "grid" ? (
+                  <>
+                    <div className="h-48 w-full bg-muted/60" />
+                    <div className="p-5 flex-1 space-y-4">
+                      <div className="flex justify-between">
+                        <div className="h-5 w-32 bg-muted/60 rounded" />
+                        <div className="h-5 w-16 bg-muted/60 rounded" />
+                      </div>
+                      <div className="h-3 w-24 bg-muted/40 rounded" />
+                      <div className="mt-auto flex gap-2">
+                        <div className="h-10 flex-1 bg-muted/40 rounded" />
+                        <div className="h-10 w-10 bg-muted/40 rounded" />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="h-28 w-28 bg-muted/60 rounded-[4px] shrink-0" />
+                    <div className="flex-1 space-y-3">
+                      <div className="h-3 w-16 bg-muted/30 rounded" />
+                      <div className="h-6 w-48 bg-muted/60 rounded" />
+                      <div className="h-4 w-24 bg-muted/40 rounded" />
+                    </div>
+                    <div className="w-1/3 flex items-center justify-end gap-6">
+                      <div className="h-8 w-24 bg-muted/60 rounded" />
+                      <div className="h-10 w-24 bg-muted/40 rounded" />
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
-
-        ) : view === "list" && filteredProducts.length > 0 ? (
-          <div className="flex flex-col space-y-4">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-6 transition-all duration-300 transform hover:-translate-x-1 hover:z-20 relative group/list">
-                <div className="flex items-center gap-6 flex-1 min-w-0">
-                  <div className={`relative w-28 h-28 rounded-[4px] shrink-0 overflow-hidden flex items-center justify-center ${product.bg}`}>
-                    <Image src={product.img} fill alt={product.title} className="object-cover p-2 mix-blend-multiply dark:mix-blend-normal transform group-hover/list:scale-110 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/list:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-[2px]">
-                      <Link href={`/dashboard/inventory/${product.id}`} className="bg-white text-black font-extrabold text-[10px] py-2 px-3 rounded-[4px] transform translate-y-2 group-hover/list:translate-y-0 transition-all duration-300 hover:scale-110 active:scale-95 border border-border/20">
-                        Details
+        ) : products.length === 0 ? (
+          <div className="py-24 text-center flex flex-col items-center justify-center border border-dashed border-border/60 rounded-[4px] bg-muted/5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-6">
+              <Plus size={32} className="text-muted-foreground/40" />
+            </div>
+            <h4 className="text-xl font-extrabold text-foreground">Your catalog is empty</h4>
+            <p className="text-sm text-muted-foreground font-medium mt-2 max-w-sm mx-auto">
+              Add your first product to start selling. Your AI assistant will automatically learn about it to help your customers.
+            </p>
+            <Link 
+              href="/dashboard/inventory/add" 
+              className="mt-8 bg-green-700 hover:bg-green-800 text-white px-8 py-3.5 rounded-[4px] font-black text-sm transition-all hover:scale-105 active:scale-95 shadow-lg shadow-green-700/20"
+            >
+              Add Your First Product
+            </Link>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="py-24 text-center flex flex-col items-center justify-center border border-dashed border-border/60 rounded-[4px] animate-in fade-in duration-300">
+            <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center mb-4">
+              <LayoutGrid size={24} className="text-muted-foreground/40" />
+            </div>
+            <h4 className="font-bold text-foreground">No matches found</h4>
+            <p className="text-sm text-muted-foreground font-medium mt-1">Try adjusting your filters to find what you're looking for.</p>
+            <button
+              onClick={() => { setCategory("All Categories"); setPrice("Any Price"); setStock("All Status"); }}
+              className="mt-6 text-xs font-black text-green-700 dark:text-green-500 uppercase tracking-widest hover:underline decoration-2 underline-offset-4"
+            >
+              Reset all filters
+            </button>
+          </div>
+        ) : (
+          view === "grid" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {filteredProducts.map((product) => (
+                <div key={product.id} className="bg-white dark:bg-card rounded-[4px] border border-border/50 shadow-minimal overflow-hidden flex flex-col transition-all duration-300 transform hover:-translate-y-1 hover:z-20 relative origin-bottom group">
+                  <div className={`relative w-full h-48 flex items-center justify-center ${product.bg} ${product.padding} overflow-hidden`}>
+                    <div className="absolute top-3 left-3 bg-green-200 dark:bg-green-900/60 text-green-900 dark:text-green-300 px-2.5 py-1 rounded-[4px] text-[9px] font-extrabold tracking-wider uppercase z-10">
+                      {product.category}
+                    </div>
+                    <div className="w-full h-full relative overflow-hidden flex items-center justify-center mix-blend-multiply dark:mix-blend-normal">
+                      <Image src={product.img} fill alt={product.title} className="object-contain" />
+                    </div>
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                      <Link href={`/dashboard/inventory/${product.id}`} className="bg-success-bg text-green-950 font-extrabold text-[13px] py-2.5 px-6 rounded-[4px] transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:scale-105 active:scale-95 border border-green-200">
+                        Inventory Details
                       </Link>
                     </div>
                   </div>
-                  <div className="min-w-0">
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{product.category}</span>
-                    <h3 className="text-lg font-bold text-foreground truncate">{product.title}</h3>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-[4px] ${product.statusColor}`} />
-                      <span className={`text-xs font-bold ${product.textColor}`}>
+
+                  <div className="p-5 flex flex-col flex-1 relative z-30 bg-white dark:bg-card">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-base font-bold text-foreground leading-tight">{product.title}</h3>
+                      <span className="text-base font-extrabold text-green-700 dark:text-green-500">{product.price}</span>
+                    </div>
+                    <div className="mt-2.5 flex items-center gap-2">
+                      <span className={`w-1.5 h-1.5 rounded-[4px] ${product.statusColor}`} />
+                      <span className={`text-[11px] font-bold ${product.textColor}`}>
                         {product.status} {product.stock > 0 && <span className="opacity-70">({product.stock} units)</span>}
                       </span>
                     </div>
+                    <div className="mt-auto pt-5 flex w-full items-center gap-2">
+                      <Link href={`/dashboard/inventory/add?id=${product.id}`} className="flex-1 py-2.5 text-center bg-muted/40 hover:bg-muted dark:bg-muted/20 dark:hover:bg-muted/40 text-foreground font-bold text-[13px] rounded-[4px] transition-colors hover:scale-[1.02] active:scale-[0.98]">
+                        Edit
+                      </Link>
+                      <Link href={`/dashboard/inventory/${product.id}`} className="p-2.5 bg-muted/40 hover:bg-muted dark:bg-muted/20 dark:hover:bg-muted/40 text-foreground rounded-[4px] transition-colors flex items-center justify-center hover:scale-110 active:scale-95">
+                        <Eye size={18} />
+                      </Link>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between sm:justify-end gap-6 sm:w-1/3 shrink-0">
-                  <span className="text-xl font-extrabold text-green-700 dark:text-green-500">{product.price}</span>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/dashboard/inventory/add?id=${product.id}`} className="px-5 py-2.5 bg-muted/40 hover:bg-muted text-foreground font-bold text-xs rounded-[4px] transition-colors hover:scale-[1.02] active:scale-[0.98]">
-                      Edit
-                    </Link>
-                    <Link href={`/dashboard/inventory/${product.id}`} className="p-2.5 bg-muted/40 hover:bg-muted text-foreground rounded-[4px] transition-colors hover:scale-110 active:scale-95">
-                      <Eye size={18} />
-                    </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col space-y-4">
+              {filteredProducts.map((product) => (
+                <div key={product.id} className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-6 transition-all duration-300 transform hover:-translate-x-1 hover:z-20 relative group/list">
+                  <div className="flex items-center gap-6 flex-1 min-w-0">
+                    <div className={`relative w-28 h-28 rounded-[4px] shrink-0 overflow-hidden flex items-center justify-center ${product.bg}`}>
+                      <Image src={product.img} fill alt={product.title} className="object-cover p-2 mix-blend-multiply dark:mix-blend-normal transform group-hover/list:scale-110 transition-transform duration-500" />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/list:opacity-100 transition-all duration-300 z-20 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                        <Link href={`/dashboard/inventory/${product.id}`} className="bg-white text-black font-extrabold text-[10px] py-2 px-3 rounded-[4px] transform translate-y-2 group-hover/list:translate-y-0 transition-all duration-300 hover:scale-110 active:scale-95 border border-border/20">
+                          Details
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{product.category}</span>
+                      <h3 className="text-lg font-bold text-foreground truncate">{product.title}</h3>
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-[4px] ${product.statusColor}`} />
+                        <span className={`text-xs font-bold ${product.textColor}`}>
+                          {product.status} {product.stock > 0 && <span className="opacity-70">({product.stock} units)</span>}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between sm:justify-end gap-6 sm:w-1/3 shrink-0">
+                    <span className="text-xl font-extrabold text-green-700 dark:text-green-500">{product.price}</span>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/dashboard/inventory/add?id=${product.id}`} className="px-5 py-2.5 bg-muted/40 hover:bg-muted text-foreground font-bold text-xs rounded-[4px] transition-colors hover:scale-[1.02] active:scale-[0.98]">
+                        Edit
+                      </Link>
+                      <Link href={`/dashboard/inventory/${product.id}`} className="p-2.5 bg-muted/40 hover:bg-muted text-foreground rounded-[4px] transition-colors hover:scale-110 active:scale-95">
+                        <Eye size={18} />
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-
-
-          </div>
-        ) : null}
+              ))}
+            </div>
+          )
+        )}
       </div>
 
       {/* Pagination Footer */}

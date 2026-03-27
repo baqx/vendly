@@ -172,7 +172,7 @@ export default function DashboardHome() {
                 Getting Started
               </h2>
               <p className="text-sm text-muted-foreground font-medium mt-1">
-                Complete these steps to unlock the full potential of your AI employee.
+                Complete these steps to unlock the full potential of Vendly.
               </p>
             </div>
             <div className="text-right hidden sm:block">
@@ -269,7 +269,7 @@ export default function DashboardHome() {
                 </p>
               </div>
               {!dashboard.setupStatus.botConfigured && (
-                <Link href="/dashboard/settings" className="flex items-center gap-1.5 text-xs font-black text-green-700 uppercase tracking-widest group-hover:gap-2 transition-all">
+                <Link href="/onboarding" className="flex items-center gap-1.5 text-xs font-black text-green-700 uppercase tracking-widest group-hover:gap-2 transition-all">
                   Link Telegram <ArrowRight size={14} />
                 </Link>
               )}
@@ -302,48 +302,83 @@ export default function DashboardHome() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
         {/* Total Revenue */}
-        <Link href="/dashboard/analytics" className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col justify-between h-full hover:bg-muted/5 transition-all group">
-          <p className="text-sm font-bold text-muted-foreground">Total Revenue</p>
-          <div className="mt-2">
-            <h3 className="text-4xl font-extrabold text-green-700 dark:text-green-500 tracking-tight">
-              {formatCurrency(dashboard?.monthRevenue ?? 0)}
-            </h3>
-            <div className="flex items-center gap-1.5 text-[13px] font-bold text-green-600 dark:text-green-400 mt-3">
-              <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              <span>Month to date</span>
-            </div>
+        {!dashboard ? (
+          <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal h-full animate-pulse flex flex-col justify-between">
+            <div className="h-4 w-24 bg-muted/60 rounded" />
+            <div className="h-10 w-32 bg-muted rounded mt-2" />
+            <div className="h-4 w-20 bg-muted/40 rounded mt-3" />
           </div>
-        </Link>
+        ) : (
+          <Link href="/dashboard/analytics" className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col justify-between h-full hover:bg-muted/5 transition-all group">
+            <p className="text-sm font-bold text-muted-foreground">Total Revenue</p>
+            <div className="mt-2">
+              <h3 className="text-4xl font-extrabold text-green-700 dark:text-green-500 tracking-tight">
+                {formatCurrency(dashboard?.monthRevenue ?? 0)}
+              </h3>
+              <div className="flex items-center gap-1.5 text-[13px] font-bold text-green-600 dark:text-green-400 mt-3">
+                <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <span>Month to date</span>
+              </div>
+            </div>
+          </Link>
+        )}
 
         {/* Pending Orders */}
-        <Link href="/dashboard/orders" className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col h-full hover:bg-muted/5 transition-all">
-          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">PENDING ORDERS</p>
-          <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.pendingOrders ?? 0}</h3>
-        </Link>
+        {!dashboard ? (
+          <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal h-full animate-pulse flex flex-col">
+            <div className="h-4 w-32 bg-muted/60 rounded" />
+            <div className="h-10 w-16 bg-muted rounded mt-2" />
+          </div>
+        ) : (
+          <Link href="/dashboard/orders" className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col h-full hover:bg-muted/5 transition-all">
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">PENDING ORDERS</p>
+            <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.pendingOrders ?? 0}</h3>
+          </Link>
+        )}
 
         {/* Active Chats */}
-        <Link href="/dashboard/customers" className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col h-full hover:bg-muted/5 transition-all">
-          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ACTIVE CHATS</p>
-          <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.activeChats ?? 0}</h3>
-          <div className="mt-auto pt-6 flex items-center">
-            <span className="text-xs font-bold text-muted-foreground group-hover:text-green-700 transition-colors">
-              View all customers
-            </span>
+        {!dashboard ? (
+          <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal h-full animate-pulse flex flex-col">
+            <div className="h-4 w-28 bg-muted/60 rounded" />
+            <div className="h-10 w-16 bg-muted rounded mt-2" />
+            <div className="mt-auto pt-6 flex items-center">
+              <div className="h-4 w-24 bg-muted/40 rounded" />
+            </div>
           </div>
-        </Link>
+        ) : (
+          <Link href="/dashboard/customers" className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col h-full hover:bg-muted/5 transition-all">
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ACTIVE CHATS</p>
+            <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.activeChats ?? 0}</h3>
+            <div className="mt-auto pt-6 flex items-center">
+              <span className="text-xs font-bold text-muted-foreground group-hover:text-green-700 transition-colors">
+                View all customers
+              </span>
+            </div>
+          </Link>
+        )}
 
-        {/* Takeover Alerts — opens modal */}
-        <button
-          onClick={() => setTaskModal(true)}
-          className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col h-full text-left hover:bg-muted/5 transition-all hover:border-red-200 dark:hover:border-red-900/50"
-        >
-          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">TAKEOVER ALERTS</p>
-          <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.takeoverAlerts ?? 0}</h3>
-          <div className="mt-auto pt-6 flex items-center gap-1.5 text-[13px] font-bold text-red-500">
-            <span className="w-4 h-4 rounded-[4px] bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-[10px] shrink-0">!</span>
-            <span>Needs attention</span>
+        {/* Takeover Alerts */}
+        {!dashboard ? (
+          <div className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal h-full animate-pulse flex flex-col">
+            <div className="h-4 w-36 bg-muted/60 rounded" />
+            <div className="h-10 w-16 bg-muted rounded mt-2" />
+            <div className="mt-auto pt-6 flex items-center gap-1.5">
+              <div className="h-4 w-24 bg-muted/40 rounded" />
+            </div>
           </div>
-        </button>
+        ) : (
+          <button
+            onClick={() => setTaskModal(true)}
+            className="bg-white dark:bg-card p-6 rounded-[4px] border border-border/50 shadow-minimal flex flex-col h-full text-left hover:bg-muted/5 transition-all hover:border-red-200 dark:hover:border-red-900/50"
+          >
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">TAKEOVER ALERTS</p>
+            <h3 className="text-3xl font-extrabold mt-2 text-foreground">{dashboard?.takeoverAlerts ?? 0}</h3>
+            <div className="mt-auto pt-6 flex items-center gap-1.5 text-[13px] font-bold text-red-500">
+              <span className="w-4 h-4 rounded-[4px] bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-[10px] shrink-0">!</span>
+              <span>Needs attention</span>
+            </div>
+          </button>
+        )}
       </div>
 
       {/* Middle Section */}
@@ -383,7 +418,17 @@ export default function DashboardHome() {
             </div>
           </div>
 
-          <div className="flex-1 mt-auto w-full h-[250px] relative pt-2">
+          <div className="flex-1 mt-auto w-full h-[250px] relative pt-2 group/chart">
+            {(!revenueData || revenueData.length === 0 || revenueData.every((d: any) => d.revenue === 0)) && !chartResp ? (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/5 rounded-[4px] border border-dashed border-border/60">
+                <div className="w-10 h-10 rounded-full bg-muted/30 flex items-center justify-center mb-3">
+                  {/* <BarChart size={20} className="text-muted-foreground/40" /> */}
+                </div>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">No data to show on chart yet</p>
+                <p className="text-[10px] text-muted-foreground/60 mt-1">Start selling to see your growth here</p>
+              </div>
+            ) : null}
+            
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <XAxis
@@ -399,7 +444,7 @@ export default function DashboardHome() {
                     if (active && payload && payload.length) {
                       return (
                         <div className="bg-foreground text-background text-xs font-bold px-3 py-2 rounded-[4px]">
-                          {payload[0].payload.name}: ${(payload[0].value as number).toLocaleString()}
+                          {payload[0].payload.name}: ${payload[0].value?.toLocaleString()}
                         </div>
                       );
                     }
@@ -446,20 +491,48 @@ export default function DashboardHome() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-muted/50">
-                {recentRows.map((row: any, i: number) => (
-                  <tr key={i} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => {}}>
-                    <td className="py-4 px-2 text-xs font-bold text-muted-foreground whitespace-nowrap">#{row.id}</td>
-                    <td className="py-4 px-2 text-sm font-bold text-foreground whitespace-nowrap">{row.customer}</td>
-                    <td className="py-4 px-2 text-sm font-medium text-foreground max-w-[150px] truncate">{row.product}</td>
-                    <td className="py-4 px-2">
-                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-[4px] uppercase tracking-wider ${statusPill(row.status)}`}>
-                        {row.status}
-                      </span>
+                {!dashboard && !orders ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <tr key={`orders-skeleton-${i}`} className="animate-pulse">
+                      <td className="py-4 px-2"><div className="h-3 w-16 bg-muted/40 rounded" /></td>
+                      <td className="py-4 px-2"><div className="h-4 w-28 bg-muted/60 rounded" /></td>
+                      <td className="py-4 px-2"><div className="h-4 w-32 bg-muted/60 rounded" /></td>
+                      <td className="py-4 px-2"><div className="h-5 w-16 bg-muted/40 rounded" /></td>
+                      <td className="py-4 px-2"><div className="h-4 w-20 bg-muted/60 rounded ml-auto" /></td>
+                      <td className="py-4 px-2"><div className="h-3 w-20 bg-muted/40 rounded ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : recentRows.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-20 text-center">
+                      <div className="flex flex-col items-center justify-center transition-all animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        <div className="w-14 h-14 rounded-full bg-muted/30 flex items-center justify-center mb-4">
+                          <ShoppingBag size={24} className="text-muted-foreground/40" />
+                        </div>
+                        <h4 className="font-bold text-foreground">No orders yet</h4>
+                        <p className="text-sm text-muted-foreground font-medium mt-1">Your store is online and ready for sales!</p>
+                        <Link href="/dashboard/inventory" className="mt-4 text-xs font-black text-green-700 uppercase tracking-widest hover:underline decoration-2 underline-offset-4">
+                          Add some products
+                        </Link>
+                      </div>
                     </td>
-                    <td className="py-4 px-2 text-sm font-extrabold text-foreground text-right whitespace-nowrap">{formatCurrency(row.amount)}</td>
-                    <td className="py-4 px-2 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">{formatDate(row.date)}</td>
                   </tr>
-                ))}
+                ) : (
+                  recentRows.map((row: any, i: number) => (
+                    <tr key={i} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => {}}>
+                      <td className="py-4 px-2 text-xs font-bold text-muted-foreground whitespace-nowrap">#{row.id}</td>
+                      <td className="py-4 px-2 text-sm font-bold text-foreground whitespace-nowrap">{row.customer}</td>
+                      <td className="py-4 px-2 text-sm font-medium text-foreground max-w-[150px] truncate">{row.product}</td>
+                      <td className="py-4 px-2">
+                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-[4px] uppercase tracking-wider ${statusPill(row.status)}`}>
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-2 text-sm font-extrabold text-foreground text-right whitespace-nowrap">{formatCurrency(row.amount)}</td>
+                      <td className="py-4 px-2 text-xs font-medium text-muted-foreground text-right whitespace-nowrap">{formatDate(row.date)}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -469,7 +542,12 @@ export default function DashboardHome() {
         <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-6 flex flex-col">
           <h3 className="text-xl font-bold text-foreground mb-6">Top Sellers</h3>
           <div className="space-y-5 flex-1">
-            {sellerRows.map((item: any, i: number) => (
+            {sellerRows.length === 0 && dashboard ? (
+              <div className="h-full flex flex-col items-center justify-center py-10 opacity-60">
+                <Store size={32} className="text-muted-foreground/40 mb-3" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">No top sellers yet</p>
+              </div>
+            ) : sellerRows.map((item: any, i: number) => (
               <Link key={i} href="/dashboard/inventory" className="flex items-center gap-4 hover:bg-muted/30 rounded-[4px] p-1.5 -mx-1.5 transition-colors group">
                 <div className={`w-12 h-12 rounded-[4px] flex items-center justify-center shrink-0 overflow-hidden ${item.bg}`}>
                   <Image src={item.img} width={48} height={48} alt={item.name} className="w-full h-full object-cover mix-blend-multiply opacity-90" />

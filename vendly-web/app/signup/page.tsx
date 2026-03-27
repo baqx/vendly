@@ -160,7 +160,7 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-secondary transition-all flex items-center justify-center gap-2 group shadow-lg disabled:opacity-70 mt-2"
           >
-            {loading ? <Loader2 className="animate-spin" size={20} /> : "Start 14-day Free Trial"}
+            {loading ? <Loader2 className="animate-spin" size={20} /> : "Create Account"}
             {!loading && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
           </button>
         </form>
