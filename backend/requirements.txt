@@ -2,6 +2,7 @@ fastapi
 uvicorn[standard]
 prisma
 pydantic[email]
+pydantic-settings
 python-jose[cryptography]
 passlib
 python-multipart
