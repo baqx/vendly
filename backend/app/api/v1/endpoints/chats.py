@@ -6,7 +6,7 @@ from ....api import deps
 
 router = APIRouter()
 
-@router.get("/", response_model=List[ChatSession])
+@router.get("/", response_model=Response[List[ChatSession]])
 async def read_sessions(
     current_vendor: Any = Depends(deps.get_current_active_vendor),
     skip: int = 0,
@@ -18,9 +18,9 @@ async def read_sessions(
         skip=skip,
         take=limit,
     )
-    return sessions
+    return Response(data=sessions)
 
-@router.get("/{id}", response_model=ChatSession)
+@router.get("/{id}", response_model=Response[ChatSession])
 async def read_session(
     id: str,
     current_vendor: Any = Depends(deps.get_current_active_vendor),
@@ -31,7 +31,7 @@ async def read_session(
     )
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    return session
+    return Response(data=session)
 
 @router.patch("/{id}/takeover")
 async def toggle_takeover(

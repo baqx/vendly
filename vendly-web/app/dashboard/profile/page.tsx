@@ -153,8 +153,8 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (vendorData?.data) {
-      const v = vendorData.data;
+    if (vendorData) {
+      const v = vendorData;
       setStoreName(v.storeName || "");
       setStoreDesc(v.description || "");
       setEmail(v.email || "");
@@ -447,8 +447,8 @@ export default function ProfilePage() {
               <div className="pointer-events-auto border-t border-border/50 bg-background/90 backdrop-blur-md px-6 py-4 flex items-center justify-end gap-3 shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
                 <button
                   onClick={() => {
-                    if (vendorData?.data) {
-                      const v = vendorData.data;
+                    if (vendorData) {
+                      const v = vendorData;
                       setStoreName(v.storeName || "");
                       setStoreDesc(v.description || "");
                       setEmail(v.email || "");

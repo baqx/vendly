@@ -40,8 +40,8 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (vendorData?.data) {
-      const v = vendorData.data;
+    if (vendorData) {
+      const v = vendorData;
       setStoreName(v.storeName || "");
       setDescription(v.description || "");
       if (v.category) {

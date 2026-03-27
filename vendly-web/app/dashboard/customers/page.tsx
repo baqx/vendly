@@ -35,7 +35,7 @@ interface Customer {
 export default function CustomersPage() {
   const router = useRouter();
   const { data, isLoading } = useSWR<any>("/customers", swrFetcher);
-  const customers: Customer[] = data?.data || [];
+  const customers: Customer[] = data || [];
 
   const [activeTab, setActiveTab] = useState<TabType>("All Customers");
   const [currentPage, setCurrentPage] = useState(1);

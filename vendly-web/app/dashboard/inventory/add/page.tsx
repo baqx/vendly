@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Plus, X, Image as ImageIcon, Box, FileText, UploadCloud, Banknote, Truck, Bold, Italic, List as ListIcon, Link as LinkIcon, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import useSWR from "swr";
 import { toast } from "sonner";
 import { apiForm } from "@/lib/api";
 
-export default function AddProductPage() {
+function AddProductForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const productId = searchParams.get("id");
@@ -437,5 +437,13 @@ export default function AddProductPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AddProductPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center animate-pulse text-muted-foreground font-bold italic tracking-widest">Loading Editor...</div>}>
+      <AddProductForm />
+    </Suspense>
   );
 }

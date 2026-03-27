@@ -92,24 +92,35 @@ export default function DashboardHome() {
   const [periodOpen, setPeriodOpen] = useState(false);
   const [taskModal, setTaskModal] = useState(false);
 
-  const { data: dashboard } = useSWR<DashboardStats>("/dashboard");
-  const { data: orders } = useSWR<Order[]>(
+  const { data: metricsResp } = useSWR<any>("/dashboard/metrics");
+  const dashboard = metricsResp;
+  
+  const { data: chartResp } = useSWR<any>("/dashboard/revenue-chart");
+  const chartApiData = chartResp;
+
+  const { data: tasksResp } = useSWR<any>("/dashboard/tasks");
+  const tasks = tasksResp || [];
+
+  const { data: orders } = useSWR<any>(
     `/orders${buildQuery({ skip: 0, limit: 6 })}`
   );
-  const { data: products } = useSWR<Product[]>(
+  const { data: products } = useSWR<any>(
     `/products${buildQuery({ skip: 0, limit: 8 })}`
   );
 
-  const apiChart = dashboard?.chartData?.map((entry) => ({
-    name: formatDate(entry.date),
+  const ordersList = orders || [];
+  const productsList = products || [];
+
+  const apiChart = chartApiData?.map((entry: any) => ({
+    name: entry.date,
     revenue: entry.amount,
   }));
   const revenueData = apiChart && apiChart.length > 0 ? apiChart : allData[period];
 
-  const topProducts = products?.slice(0, 4) ?? [];
+  const topProducts = productsList.slice(0, 4);
   const recentRows =
-    orders && orders.length > 0
-      ? orders.slice(0, 4).map((order) => ({
+    ordersList.length > 0
+      ? ordersList.slice(0, 4).map((order: any) => ({
           id: order.id,
           customer: order.customerName,
           product:
@@ -124,7 +135,7 @@ export default function DashboardHome() {
 
   const sellerRows =
     topProducts.length > 0
-      ? topProducts.map((p) => ({
+      ? topProducts.map((p: any) => ({
           name: p.title,
           meta: "PRODUCT",
           amount: p.basePrice,
@@ -155,18 +166,14 @@ export default function DashboardHome() {
               </button>
             </div>
             <div className="space-y-3">
-              {[
-                { label: "Ship order #VL-8819 to Sarah Johnson", urgent: true },
-                { label: "Restock: Shea Butter Gold (low stock)", urgent: true },
-                { label: "Reply to 3 customer messages", urgent: false },
-                { label: "Review flagged product listing", urgent: false },
-                { label: "Upload Q4 inventory report", urgent: false },
-              ].map((t, i) => (
-                <div key={i} className={`flex items-center gap-3 p-3 rounded-[4px] border ${t.urgent ? "border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900/40" : "border-border/50 bg-muted/20"}`}>
+              {tasks.length > 0 ? tasks.map((t: any, i: number) => (
+                <Link href={t.actionUrl} key={i} onClick={() => setTaskModal(false)} className={`flex items-center gap-3 p-3 rounded-[4px] border hover:opacity-80 transition-opacity ${t.urgent ? "border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900/40" : "border-border/50 bg-muted/20"}`}>
                   <span className={`w-2 h-2 rounded-[4px] shrink-0 ${t.urgent ? "bg-red-500" : "bg-muted-foreground/40"}`} />
                   <span className={`text-sm font-bold ${t.urgent ? "text-red-700 dark:text-red-400" : "text-foreground"}`}>{t.label}</span>
-                </div>
-              ))}
+                </Link>
+              )) : (
+                <div className="p-4 text-center text-sm font-bold text-muted-foreground">No pending tasks! 🎉</div>
+              )}
             </div>
             <button onClick={() => setTaskModal(false)} className="mt-6 w-full py-3 rounded-[4px] bg-green-700 text-white font-bold hover:bg-green-800 transition-colors">
               Got it
@@ -296,7 +303,7 @@ export default function DashboardHome() {
                   }}
                 />
                 <Bar dataKey="revenue" radius={[2, 2, 0, 0]} maxBarSize={60}>
-                  {revenueData.map((_, index) => (
+                  {revenueData.map((_: any, index: number) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={index === revenueData.length - 1 ? "#15803d" : "#86efac"}
@@ -371,7 +378,7 @@ export default function DashboardHome() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-muted/50">
-                {recentRows.map((row, i) => (
+                {recentRows.map((row: any, i: number) => (
                   <tr key={i} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => {}}>
                     <td className="py-4 px-2 text-xs font-bold text-muted-foreground whitespace-nowrap">#{row.id}</td>
                     <td className="py-4 px-2 text-sm font-bold text-foreground whitespace-nowrap">{row.customer}</td>
@@ -394,7 +401,7 @@ export default function DashboardHome() {
         <div className="bg-white dark:bg-card rounded-[4px] border border-border/50 p-6 flex flex-col">
           <h3 className="text-xl font-bold text-foreground mb-6">Top Sellers</h3>
           <div className="space-y-5 flex-1">
-            {sellerRows.map((item, i) => (
+            {sellerRows.map((item: any, i: number) => (
               <Link key={i} href="/dashboard/inventory" className="flex items-center gap-4 hover:bg-muted/30 rounded-[4px] p-1.5 -mx-1.5 transition-colors group">
                 <div className={`w-12 h-12 rounded-[4px] flex items-center justify-center shrink-0 overflow-hidden ${item.bg}`}>
                   <Image src={item.img} width={48} height={48} alt={item.name} className="w-full h-full object-cover mix-blend-multiply opacity-90" />

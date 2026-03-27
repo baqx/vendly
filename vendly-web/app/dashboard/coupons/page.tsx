@@ -19,29 +19,27 @@ import {
 interface Coupon {
   id: string;
   code: string;
-  discountPercent: number;
-  maxUses: number;
-  timesUsed: number;
-  isActive: boolean;
-  expiresAt: string | null;
+  discountType: string;
+  value: string | number;
+  minOrderValue: string | null;
+  active: boolean;
+  vendorId: string;
   createdAt: string;
 }
 
 export default function CouponsPage() {
   const { data, isLoading, mutate } = useSWR<any>("/coupons", swrFetcher);
-  const coupons: Coupon[] = data?.data || [];
+  const coupons: Coupon[] = data || [];
 
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
     code: "",
-    discountPercent: 10,
-    maxUses: 100,
-    expiresAt: ""
+    discountPercent: 10
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const activeCoupons = coupons.filter(c => c.isActive).length;
-  const totalUses = coupons.reduce((acc, c) => acc + c.timesUsed, 0);
+  const activeCoupons = coupons.filter(c => c.active).length;
+  const totalUses = 0; // Not provided by API currently
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,16 +52,15 @@ export default function CouponsPage() {
     try {
       const payload = {
         code: formData.code.toUpperCase().trim(),
-        discountPercent: Number(formData.discountPercent),
-        maxUses: Number(formData.maxUses),
-        isActive: true,
-        expiresAt: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : null
+        discountType: "PERCENTAGE",
+        value: Number(formData.discountPercent),
+        active: true
       };
 
       await apiJson("/coupons", "POST", payload);
       toast.success("Coupon created successfully");
       setIsCreating(false);
-      setFormData({ code: "", discountPercent: 10, maxUses: 100, expiresAt: "" });
+      setFormData({ code: "", discountPercent: 10 });
       mutate();
     } catch (error: any) {
       toast.error(error?.message || "Failed to create coupon");
@@ -135,7 +132,7 @@ export default function CouponsPage() {
             <h3 className="text-lg font-extrabold text-foreground tracking-tight">New Coupon</h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Coupon Code</label>
               <input 
@@ -157,29 +154,6 @@ export default function CouponsPage() {
                   min="1" max="100" required
                   value={formData.discountPercent}
                   onChange={e => setFormData({...formData, discountPercent: Number(e.target.value)})}
-                  className="w-full bg-background border border-border rounded-[4px] pl-10 pr-4 py-2.5 text-sm font-bold shadow-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Max Uses</label>
-              <input 
-                type="number" min="1" required
-                value={formData.maxUses}
-                onChange={e => setFormData({...formData, maxUses: Number(e.target.value)})}
-                className="w-full bg-background border border-border rounded-[4px] px-4 py-2.5 text-sm font-bold shadow-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Expiry Date (Optional)</label>
-              <div className="relative">
-                <Clock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input 
-                  type="datetime-local" 
-                  value={formData.expiresAt}
-                  onChange={e => setFormData({...formData, expiresAt: e.target.value})}
                   className="w-full bg-background border border-border rounded-[4px] pl-10 pr-4 py-2.5 text-sm font-bold shadow-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors"
                 />
               </div>
@@ -206,9 +180,9 @@ export default function CouponsPage() {
               <tr className="border-b border-border/40">
                 <th className="py-5 px-6 text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">Code</th>
                 <th className="py-5 px-6 text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">Discount</th>
-                <th className="py-5 px-6 text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">Usage</th>
+                <th className="py-5 px-6 text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">Min Order</th>
                 <th className="py-5 px-6 text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">Status</th>
-                <th className="py-5 px-6 text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Expiry</th>
+                <th className="py-5 px-6 text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest whitespace-nowrap">Created</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/20">
@@ -228,9 +202,6 @@ export default function CouponsPage() {
                 </tr>
               )}
               {!isLoading && coupons.map((coupon) => {
-                const isExpired = coupon.expiresAt && new Date(coupon.expiresAt) < new Date();
-                const isActive = coupon.isActive && !isExpired && coupon.timesUsed < coupon.maxUses;
-                
                 return (
                   <tr key={coupon.id} className="group hover:bg-muted/30 transition-colors">
                     <td className="py-4 px-6">
@@ -240,33 +211,25 @@ export default function CouponsPage() {
                     </td>
                     <td className="py-4 px-6">
                       <span className="text-sm font-black text-green-700 dark:text-green-500">
-                        {coupon.discountPercent}% OFF
+                        {coupon.discountType === "FIXED" ? "₦" : ""}{coupon.value ?? 0}{coupon.discountType === "PERCENTAGE" || !coupon.discountType ? "% OFF" : " OFF"}
                       </span>
                     </td>
                     <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-foreground">
-                          {coupon.timesUsed} <span className="text-muted-foreground font-medium text-xs">/ {coupon.maxUses}</span>
-                        </span>
-                        <div className="w-16 h-1.5 bg-muted rounded overflow-hidden">
-                          <div 
-                            className="bg-green-700 h-full rounded transition-all" 
-                            style={{ width: `${Math.min(100, (coupon.timesUsed / coupon.maxUses) * 100)}%` }}
-                          />
-                        </div>
-                      </div>
+                      <span className="text-sm font-bold text-foreground">
+                        {coupon.minOrderValue ? `₦${coupon.minOrderValue}` : "None"}
+                      </span>
                     </td>
                     <td className="py-4 px-6">
                       <span className={`px-2.5 py-1 rounded-[4px] text-[10px] font-extrabold tracking-widest uppercase border ${
-                        isActive 
+                        coupon.active 
                           ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
                           : "bg-muted text-muted-foreground border-border"
                       }`}>
-                        {isActive ? "Active" : isExpired ? "Expired" : "Inactive"}
+                        {coupon.active ? "Active" : "Inactive"}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                      {coupon.expiresAt ? new Date(coupon.expiresAt).toLocaleDateString() : "Never"}
+                      {new Date(coupon.createdAt).toLocaleDateString()}
                     </td>
                   </tr>
                 );

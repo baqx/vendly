@@ -190,7 +190,7 @@ export default function CreateManualOrderPage() {
   const selectCustomer = (c: Customer) => {
     setCustomerName(c.name);
     setCustomerEmail(c.email || "");
-    setCustomerPhone(c.phone);
+    setCustomerPhone(c.phone || "");
     setShowCustomerModal(false);
     setCustomerSearch("");
     toast.success(`Customer set to ${c.name}`);
